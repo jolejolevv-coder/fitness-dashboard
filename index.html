@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Body Recomp Dashboard – Josip Kuic</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0f1117; color: #e2e8f0; padding: 20px; min-height: 100vh; }
+
+  #config-banner { background: #1e293b; border: 1px solid #f59e0b; border-radius: 12px; padding: 20px 24px; margin-bottom: 24px; display: none; }
+  #config-banner h3 { color: #f59e0b; margin-bottom: 8px; font-size: 15px; }
+  #config-banner p { color: #94a3b8; font-size: 13px; margin-bottom: 12px; line-height: 1.5; }
+  #config-banner input { background: #0f1117; border: 1px solid #334155; border-radius: 8px; color: #e2e8f0; padding: 8px 12px; font-size: 13px; width: 100%; margin-bottom: 8px; }
+  #config-banner button { background: #0ea5e9; border: none; border-radius: 8px; color: white; padding: 9px 20px; font-size: 13px; cursor: pointer; margin-top: 4px; margin-right: 8px; }
+  #config-banner button.secondary { background: #334155; }
+
+  #status { text-align: center; padding: 60px 20px; color: #64748b; font-size: 14px; }
+  #status .spinner { width: 36px; height: 36px; border: 3px solid #1e293b; border-top-color: #0ea5e9; border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 16px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  #status .err { color: #f87171; margin-bottom: 12px; }
+
+  .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; flex-wrap: wrap; gap: 12px; }
+  .header h1 { font-size: 22px; font-weight: 700; color: #fff; }
+  .header p { font-size: 13px; color: #64748b; margin-top: 3px; }
+  .badges { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+  .badge { background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 8px 14px; font-size: 12px; color: #94a3b8; text-align: center; }
+  .badge span { display: block; font-size: 18px; font-weight: 700; margin-top: 2px; }
+  .btn { background: #1e293b; border: 1px solid #334155; border-radius: 8px; color: #94a3b8; padding: 8px 14px; font-size: 12px; cursor: pointer; transition: all 0.2s; }
+  .btn:hover { border-color: #0ea5e9; color: #0ea5e9; }
+  .last-updated { font-size: 11px; color: #475569; margin-top: 4px; }
+
+  .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; margin-bottom: 24px; }
+  .kpi-card { background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 16px; }
+  .kpi-label { font-size: 11px; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; }
+  .kpi-value { font-size: 24px; font-weight: 700; }
+  .kpi-sub { font-size: 11px; color: #64748b; margin-top: 4px; }
+
+  .tabs { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+  .tab { padding: 8px 18px; border-radius: 8px; border: 1px solid #334155; background: #1e293b; color: #64748b; cursor: pointer; font-size: 13px; transition: all 0.2s; }
+  .tab.active { background: #0ea5e9; border-color: #0ea5e9; color: white; }
+  .tab:hover:not(.active) { border-color: #475569; color: #cbd5e1; }
+  .section { display: none; }
+  .section.active { display: block; }
+
+  .charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+  .chart-full { grid-column: 1 / -1; }
+  .chart-card { background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 16px; }
+  .chart-title { font-size: 13px; font-weight: 600; color: #94a3b8; margin-bottom: 12px; }
+
+  .week-summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 16px; }
+  .week-card { background: #1e293b; border: 1px solid #334155; border-left: 3px solid #0ea5e9; border-radius: 10px; padding: 14px; }
+  .week-card h4 { font-size: 11px; color: #64748b; margin-bottom: 6px; }
+  .week-card .wval { font-size: 20px; font-weight: 700; }
+  .week-card .wdelta { font-size: 12px; margin-top: 4px; }
+
+  .comment-card { background: #1e293b; border: 1px solid #334155; border-radius: 10px; padding: 14px; margin-bottom: 10px; }
+  .comment-date { font-size: 11px; color: #64748b; margin-bottom: 5px; }
+  .comment-text { font-size: 13px; color: #cbd5e1; line-height: 1.5; }
+
+  #dashboard { display: none; }
+
+  @media (max-width: 600px) { .charts-grid { grid-template-columns: 1fr; } .chart-full { grid-column: 1; } }
+</style>
+</head>
+<body>
+
+<div id="config-banner">
+  <h3>⚙️ Einmalige Konfiguration</h3>
+  <p>Deine Zugangsdaten werden nur lokal im Browser gespeichert und nie übertragen.<br>
+  <strong>Sheet ID:</strong> Der Teil zwischen <code>/d/</code> und <code>/edit</code> in der URL.<br>
+  <strong>Tab-Name:</strong> Genau so wie unten im Sheet angezeigt (z.B. <code>Daily Tracking</code>).</p>
+  <input type="text" id="input-sheet-id" placeholder="Sheet ID (z.B. 19ZErBhSKZH...)" />
+  <input type="password" id="input-api-key" placeholder="Google API Key" />
+  <input type="text" id="input-sheet-name" placeholder='Tab-Name (z.B. "Daily Tracking")' value="Daily Tracking" />
+  <button onclick="saveConfig()">💾 Speichern & laden</button>
+  <button class="secondary" onclick="document.getElementById('config-banner').style.display='none'">Abbrechen</button>
+</div>
+
+<div id="status">
+  <div class="spinner"></div>
+  <p>Verbinde mit Google Sheets…</p>
+</div>
+
+<div id="dashboard">
+  <div class="header">
+    <div>
+      <h1>🏋️ Body Recomp Dashboard</h1>
+      <p id="header-sub">Josip Kuic · Makrocycle 1 · Ziel: Body Recomp</p>
+      <div class="last-updated" id="last-updated"></div>
+    </div>
+    <div class="badges">
+      <div class="badge">Start<span id="badge-start">–</span></div>
+      <div class="badge">Aktuell<span id="badge-current" style="color:#4ade80">–</span></div>
+      <div class="badge">Verlust<span id="badge-loss" style="color:#4ade80">–</span></div>
+      <div class="badge">Tage<span id="badge-days" style="color:#38bdf8">–</span></div>
+      <button class="btn" onclick="loadData()">🔄 Refresh</button>
+      <button class="btn" onclick="showConfig()">⚙️</button>
+    </div>
+  </div>
+
+  <div class="kpi-grid">
+    <div class="kpi-card"><div class="kpi-label">Gesamtverlust</div><div class="kpi-value" id="kpi-loss" style="color:#4ade80">–</div><div class="kpi-sub" id="kpi-loss-sub">–</div></div>
+    <div class="kpi-card"><div class="kpi-label">Ø Kalorien</div><div class="kpi-value" id="kpi-kcal" style="color:#38bdf8">–</div><div class="kpi-sub">kcal/Tag</div></div>
+    <div class="kpi-card"><div class="kpi-label">Ø Protein</div><div class="kpi-value" id="kpi-protein" style="color:#fbbf24">–</div><div class="kpi-sub">g/Tag</div></div>
+    <div class="kpi-card"><div class="kpi-label">Ø Schritte</div><div class="kpi-value" id="kpi-steps" style="color:#c084fc">–</div><div class="kpi-sub">pro Tag</div></div>
+    <div class="kpi-card"><div class="kpi-label">Ø Schlaf</div><div class="kpi-value" id="kpi-sleep" style="color:#818cf8">–</div><div class="kpi-sub">Stunden</div></div>
+    <div class="kpi-card"><div class="kpi-label">Ø Energie</div><div class="kpi-value" id="kpi-energy" style="color:#fbbf24">–</div><div class="kpi-sub">von 5</div></div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="showTab('overview', this)">📊 Übersicht</button>
+    <button class="tab" onclick="showTab('nutrition', this)">🥗 Ernährung</button>
+    <button class="tab" onclick="showTab('wellness', this)">💤 Wellness</button>
+    <button class="tab" onclick="showTab('weeks', this)">📅 Wochen</button>
+  </div>
+
+  <div class="section active" id="overview">
+    <div class="charts-grid">
+      <div class="chart-card chart-full"><div class="chart-title">📉 Gewichtsverlauf (kg)</div><canvas id="weightChart" height="70"></canvas></div>
+      <div class="chart-card"><div class="chart-title">👟 Tägliche Schritte</div><canvas id="stepsChart" height="120"></canvas></div>
+      <div class="chart-card"><div class="chart-title">📅 Wöchentliche Ø Gewichte</div><canvas id="weeklyChart" height="120"></canvas></div>
+    </div>
+  </div>
+
+  <div class="section" id="nutrition">
+    <div class="charts-grid">
+      <div class="chart-card chart-full"><div class="chart-title">🥩 Protein / Tag (g) — Ziel: 200g</div><canvas id="proteinChart" height="70"></canvas></div>
+      <div class="chart-card chart-full"><div class="chart-title">🔥 Kalorien / Tag — Ziel: ~2300 kcal</div><canvas id="caloriesChart" height="70"></canvas></div>
+      <div class="chart-card"><div class="chart-title">🍞 Ø Makros: Ist vs. Ziel (g/Tag)</div><canvas id="macroChart" height="120"></canvas></div>
+      <div class="chart-card"><div class="chart-title">🥦 Früchte & Gemüse (g/Tag)</div><canvas id="fvChart" height="120"></canvas></div>
+    </div>
+  </div>
+
+  <div class="section" id="wellness">
+    <div class="charts-grid">
+      <div class="chart-card"><div class="chart-title">😴 Schlafdauer (h)</div><canvas id="sleepChart" height="120"></canvas></div>
+      <div class="chart-card"><div class="chart-title">⚡ Energylevel (1–5)</div><canvas id="energyChart" height="120"></canvas></div>
+      <div class="chart-card"><div class="chart-title">😤 Stresslevel (1–5, niedriger = besser)</div><canvas id="stressChart" height="120"></canvas></div>
+      <div class="chart-card"><div class="chart-title">💩 Verdauung (1–10)</div><canvas id="digestionChart" height="120"></canvas></div>
+    </div>
+  </div>
+
+  <div class="section" id="weeks">
+    <div class="week-summary" id="week-cards"></div>
+    <div class="chart-card" style="margin-bottom:16px"><div class="chart-title">📉 Wöchentliche Ø Gewichte</div><canvas id="weekBarChart" height="90"></canvas></div>
+    <div class="chart-title" style="font-size:14px; color:#94a3b8; margin-bottom:10px;">💬 Notizen aus dem Tracking</div>
+    <div id="comments-container"></div>
+  </div>
+</div>
+
+<script>
+// ── CONFIG ──────────────────────────────────────────────────────────────────
+const CONFIG_KEY = 'fitness_cfg_v2';
+function getConfig() { try { return JSON.parse(localStorage.getItem(CONFIG_KEY)) || {}; } catch { return {}; } }
+function saveConfig() {
+  const cfg = {
+    sheetId: document.getElementById('input-sheet-id').value.trim(),
+    apiKey:  document.getElementById('input-api-key').value.trim(),
+    sheetName: document.getElementById('input-sheet-name').value.trim() || 'Daily Tracking'
+  };
+  if (!cfg.sheetId || !cfg.apiKey) { alert('Bitte Sheet ID und API Key eingeben.'); return; }
+  localStorage.setItem(CONFIG_KEY, JSON.stringify(cfg));
+  document.getElementById('config-banner').style.display = 'none';
+  loadData();
+}
+function showConfig() {
+  const cfg = getConfig();
+  document.getElementById('input-sheet-id').value = cfg.sheetId || '';
+  document.getElementById('input-api-key').value = cfg.apiKey || '';
+  document.getElementById('input-sheet-name').value = cfg.sheetName || 'Daily Tracking';
+  document.getElementById('config-banner').style.display = 'block';
+}
+
+// ── FETCH ────────────────────────────────────────────────────────────────────
+async function fetchSheet(sheetId, apiKey, sheetName) {
+  const range = encodeURIComponent(`'${sheetName}'!A1:AD300`);
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}?key=${apiKey}`;
+  const res = await fetch(url);
+  if (!res.ok) { const e = await res.json(); throw new Error(e.error?.message || `HTTP ${res.status}`); }
+  return (await res.json()).values || [];
+}
+
+// ── PARSE ────────────────────────────────────────────────────────────────────
+// Daily Tracking layout (0-indexed columns, row starts after headers):
+// A(0)=Date, B(1)=Weight, C(2)=Time, D(3)=empty,
+// E(4)=Protein, F(5)=Carbs, G(6)=Fat, H(7)=Fiber,
+// I(8)=Fruits&Veg, J(9)=Calories, K(10)=ProteinFeedings,
+// L(11)=Comment, M(12)=Sleep(h), N(13)=SleepQ,
+// O(14)=Digestion, P(15)=empty, Q(16)=Stress, R(17)=Energy,
+// S(18)=Steps, T(19)=Menstruation, U(20)=TrainingDay
+
+function num(v) {
+  if (!v || v === '#REF!' || v === '#N/A' || v === '-' || v === '') return null;
+  return parseFloat(String(v).replace(',', '.').replace(/[^\d.\-]/g, '')) || null;
+}
+
+function parseDate(s) {
+  if (!s) return null;
+  const p = s.trim().split('.');
+  if (p.length !== 3) return null;
+  const d = parseInt(p[0]), m = parseInt(p[1]), y = parseInt(p[2]);
+  if (isNaN(d)||isNaN(m)||isNaN(y)||y<2020) return null;
+  return new Date(y, m-1, d);
+}
+
+function isDataRow(row) {
+  if (!row || !row[0]) return false;
+  const d = parseDate(row[0]);
+  if (!d) return false;
+  const w = num(row[1]);
+  return w !== null && !isNaN(w);
+}
+
+function isSummaryRow(row) {
+  const label = (row?.[0] || '').toLowerCase();
+  return label === 'durchschnitt' || label.startsWith('gewichtsver') || label.startsWith('in %');
+}
+
+function parseRows(rows) {
+  const daily = [];
+  const weekBlocks = [];
+  let currentWeek = [];
+
+  for (let i = 0; i < rows.length; i++) {
+    const row = rows[i];
+    if (!row) continue;
+
+    if (isDataRow(row)) {
+      const entry = {
+        date: row[0], dateObj: parseDate(row[0]),
+        weight: num(row[1]), time: row[2]||'',
+        protein: num(row[4]), carbs: num(row[5]), fat: num(row[6]),
+        fiber: num(row[7]), fv: num(row[8]), calories: num(row[9]),
+        comment: row[11]||'',
+        sleep: num(row[12]), sleepQ: num(row[13]),
+        digestion: num(row[13]), // col N = sleep quality 1-10 (used as digestion proxy)
+        stress: num(row[16]), energy: num(row[17]), steps: num(row[18]),
+        training: row[20]||''
+      };
+      // re-map correctly per actual sheet:
+      // M(12)=sleep hours, N(13)=sleep quality, O(14)=digestion, Q(16)=stress, R(17)=energy
+      entry.sleep = num(row[12]);
+      entry.sleepQ = num(row[13]);
+      entry.digestion = num(row[14]);
+      entry.stress = num(row[16]);
+      entry.energy = num(row[17]);
+      entry.steps = num(row[18]);
+
+      daily.push(entry);
+      currentWeek.push(entry);
+    } else if ((row[0]||'').toLowerCase() === 'durchschnitt' && currentWeek.length > 0) {
+      const avgW = num(row[1]);
+      let delta = null;
+      if (rows[i+1] && (rows[i+1][0]||'').toLowerCase().startsWith('gewicht')) delta = num(rows[i+1][1]);
+      weekBlocks.push({ rows: [...currentWeek], avgWeight: avgW, delta });
+      currentWeek = [];
+    }
+  }
+  if (currentWeek.length > 0) weekBlocks.push({ rows: [...currentWeek], avgWeight: null, delta: null });
+  return { daily, weekBlocks };
+}
+
+// ── CHARTS ───────────────────────────────────────────────────────────────────
+const charts = {};
+const gc = '#1e2a3a', tc = '#64748b';
+
+function baseOpts() {
+  return {
+    responsive: true,
+    plugins: { legend: { display: false }, tooltip: { mode: 'index', intersect: false } },
+    scales: {
+      x: { ticks: { color: tc, font: { size: 9 }, maxRotation: 45 }, grid: { color: gc } },
+      y: { ticks: { color: tc, font: { size: 10 } }, grid: { color: '#334155' } }
+    }
+  };
+}
+function destroy(id) { if (charts[id]) { charts[id].destroy(); delete charts[id]; } }
+
+function lineChart(id, labels, data, color, fill=true, ref=null) {
+  destroy(id);
+  const ctx = document.getElementById(id); if (!ctx) return;
+  const ds = [{ data, borderColor: color, backgroundColor: fill ? color+'25' : 'transparent', borderWidth: 2, pointRadius: 3, pointHoverRadius: 6, fill, tension: 0.3, spanGaps: true }];
+  if (ref !== null) ds.push({ data: labels.map(() => ref), borderColor: '#ffffff33', borderDash: [5,5], borderWidth: 1, pointRadius: 0, fill: false });
+  charts[id] = new Chart(ctx, { type: 'line', data: { labels, datasets: ds }, options: baseOpts() });
+}
+function barChart(id, labels, data, color) {
+  destroy(id);
+  const ctx = document.getElementById(id); if (!ctx) return;
+  charts[id] = new Chart(ctx, { type: 'bar', data: { labels, datasets: [{ data, backgroundColor: color+'aa', borderColor: color, borderWidth: 1, borderRadius: 4 }] }, options: baseOpts() });
+}
+function avg(arr) { const v = arr.filter(x => x !== null && x !== undefined && !isNaN(x)); return v.length ? v.reduce((a,b)=>a+b,0)/v.length : null; }
+function fmt(v, d=1) { return v !== null && v !== undefined && !isNaN(v) ? v.toFixed(d) : '–'; }
+
+// ── RENDER ───────────────────────────────────────────────────────────────────
+function renderDashboard(daily, weekBlocks) {
+  const rows = daily.filter(d => d.weight !== null && !isNaN(d.weight));
+  if (!rows.length) { showError('Keine gültigen Gewichtsdaten gefunden.'); return; }
+
+  const labels = rows.map(r => {
+    const d = r.dateObj;
+    return d ? `${String(d.getDate()).padStart(2,'0')}.${String(d.getMonth()+1).padStart(2,'0')}` : r.date;
+  });
+
+  const first = rows[0].weight, last = rows[rows.length-1].weight, loss = last - first;
+
+  document.getElementById('badge-start').textContent    = first.toFixed(1)+' kg';
+  document.getElementById('badge-current').textContent  = last.toFixed(1)+' kg';
+  document.getElementById('badge-loss').textContent     = (loss<0?'':'+') + loss.toFixed(1)+' kg';
+  document.getElementById('badge-days').textContent     = rows.length+' Tage';
+  document.getElementById('kpi-loss').textContent       = (loss<0?'':'+') + loss.toFixed(1)+' kg';
+  document.getElementById('kpi-loss-sub').textContent   = first.toFixed(1)+' → '+last.toFixed(1)+' kg';
+  document.getElementById('kpi-kcal').textContent       = Math.round(avg(rows.map(r=>r.calories)))||'–';
+  document.getElementById('kpi-protein').textContent    = (Math.round(avg(rows.map(r=>r.protein)))||'–')+'g';
+  document.getElementById('kpi-steps').textContent      = Math.round(avg(rows.map(r=>r.steps))).toLocaleString('de')||'–';
+  document.getElementById('kpi-sleep').textContent      = fmt(avg(rows.map(r=>r.sleep)))+'h';
+  document.getElementById('kpi-energy').textContent     = fmt(avg(rows.map(r=>r.energy)))+'/5';
+  document.getElementById('last-updated').textContent   = 'Zuletzt geladen: '+new Date().toLocaleTimeString('de-DE');
+
+  // Overview
+  lineChart('weightChart', labels, rows.map(r=>r.weight), '#38bdf8', true, first);
+  barChart('stepsChart', labels, rows.map(r=>r.steps), '#c084fc');
+
+  const wLabels = weekBlocks.map((b,i) => {
+    if (!b.rows.length) return `W${i+1}`;
+    const f = b.rows[0].dateObj, l = b.rows[b.rows.length-1].dateObj;
+    return `W${i+1} (${f?f.getDate()+'.'+( f.getMonth()+1):''}–${l?l.getDate()+'.'+(l.getMonth()+1):''})`;
+  });
+  const wAvgs = weekBlocks.map(b => b.avgWeight || avg(b.rows.filter(r=>r.weight).map(r=>r.weight)));
+  barChart('weeklyChart', wLabels, wAvgs, '#0ea5e9');
+
+  // Nutrition
+  lineChart('proteinChart',  labels, rows.map(r=>r.protein),  '#fbbf24', true, 200);
+  lineChart('caloriesChart', labels, rows.map(r=>r.calories), '#f87171', true, 2300);
+  barChart('fvChart', labels, rows.map(r=>r.fv), '#4ade80');
+
+  const aP = avg(rows.map(r=>r.protein)), aC = avg(rows.map(r=>r.carbs)), aF = avg(rows.map(r=>r.fat));
+  destroy('macroChart');
+  const mCtx = document.getElementById('macroChart');
+  if (mCtx) {
+    charts['macroChart'] = new Chart(mCtx, {
+      type: 'bar',
+      data: { labels: ['Protein','Carbs','Fett'],
+        datasets: [
+          { label:'Ist Ø', data:[Math.round(aP||0),Math.round(aC||0),Math.round(aF||0)], backgroundColor:['#fbbf24aa','#38bdf8aa','#f87171aa'], borderColor:['#fbbf24','#38bdf8','#f87171'], borderWidth:1, borderRadius:6 },
+          { label:'Ziel',  data:[200,225,60], backgroundColor:['#fbbf2433','#38bdf833','#f8717133'], borderColor:['#fbbf2466','#38bdf866','#f8717166'], borderWidth:1, borderRadius:6 }
+        ]},
+      options: { responsive:true, plugins:{ legend:{ labels:{ color:'#94a3b8', font:{size:11} } } }, scales:{ x:{ ticks:{color:tc}, grid:{color:gc} }, y:{ ticks:{color:tc}, grid:{color:'#334155'} } } }
+    });
+  }
+
+  // Wellness
+  lineChart('sleepChart',    labels, rows.map(r=>r.sleep),    '#818cf8', true, 7);
+  lineChart('energyChart',   labels, rows.map(r=>r.energy),   '#fbbf24', true, 3);
+  lineChart('stressChart',   labels, rows.map(r=>r.stress),   '#f87171', true, 3);
+  lineChart('digestionChart',labels, rows.map(r=>r.digestion),'#4ade80', true, 5);
+
+  // Weeks
+  const wcEl = document.getElementById('week-cards'); wcEl.innerHTML='';
+  let prev = null;
+  weekBlocks.forEach((b,i) => {
+    const wa = b.avgWeight || avg(b.rows.filter(r=>r.weight).map(r=>r.weight));
+    const delta = b.delta !== null ? b.delta : (prev !== null && wa !== null ? wa - prev : null);
+    const dc = delta === null ? '#64748b' : delta < 0 ? '#4ade80' : '#f87171';
+    const ds = delta !== null ? (delta<0?'':'+') + delta.toFixed(2)+' kg' : '–';
+    const card = document.createElement('div'); card.className='week-card';
+    card.innerHTML = `<h4>Woche ${i+1}</h4><div class="wval">${wa ? wa.toFixed(2)+' kg' : '–'}</div><div class="wdelta" style="color:${dc}">${i===0?'Baseline':ds}</div>`;
+    wcEl.appendChild(card); prev=wa;
+  });
+  barChart('weekBarChart', wLabels, wAvgs, '#38bdf8');
+
+  const commEl = document.getElementById('comments-container'); commEl.innerHTML='';
+  daily.filter(r=>r.comment&&r.comment.trim()&&r.comment.trim()!=='-').forEach(r=>{
+    const div=document.createElement('div'); div.className='comment-card';
+    div.innerHTML=`<div class="comment-date">${r.date}</div><div class="comment-text">${r.comment}</div>`;
+    commEl.appendChild(div);
+  });
+  if (!commEl.children.length) commEl.innerHTML='<p style="color:#475569;font-size:13px">Keine Notizen vorhanden.</p>';
+}
+
+// ── LOAD ─────────────────────────────────────────────────────────────────────
+function showError(msg) {
+  document.getElementById('status').innerHTML = `<p class="err">❌ ${msg}</p><button class="btn" onclick="showConfig()" style="margin-top:12px">⚙️ Konfiguration</button>`;
+  document.getElementById('status').style.display='block';
+  document.getElementById('dashboard').style.display='none';
+}
+
+async function loadData() {
+  const cfg = getConfig();
+  if (!cfg.sheetId || !cfg.apiKey) { document.getElementById('config-banner').style.display='block'; document.getElementById('status').style.display='none'; return; }
+  document.getElementById('status').innerHTML='<div class="spinner"></div><p>Lade Daten von Google Sheets…</p>';
+  document.getElementById('status').style.display='block';
+  document.getElementById('dashboard').style.display='none';
+  try {
+    const raw = await fetchSheet(cfg.sheetId, cfg.apiKey, cfg.sheetName||'Daily Tracking');
+    const { daily, weekBlocks } = parseRows(raw);
+    document.getElementById('status').style.display='none';
+    document.getElementById('dashboard').style.display='block';
+    renderDashboard(daily, weekBlocks);
+  } catch(e) { showError(e.message); }
+}
+
+function showTab(name, el) {
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById(name).classList.add('active');
+  el.classList.add('active');
+}
+
+setInterval(loadData, 5*60*1000);
+loadData();
+</script>
+</body>
+</html>
