@@ -62,6 +62,22 @@
   #dashboard { display: none; }
 
   @media (max-width: 600px) { .charts-grid { grid-template-columns: 1fr; } .chart-full { grid-column: 1; } }
+
+  /* ── Training Tab ── */
+  .training-controls { display: flex; gap: 16px; margin-bottom: 16px; flex-wrap: wrap; align-items: flex-end; }
+  .training-controls .ctrl-group { display: flex; flex-direction: column; gap: 5px; }
+  .training-controls label { font-size: 11px; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; }
+  .training-controls select { background: #1e293b; border: 1px solid #334155; border-radius: 8px; color: #e2e8f0; padding: 8px 12px; font-size: 13px; cursor: pointer; min-width: 200px; }
+  .training-controls select:focus { outline: none; border-color: #0ea5e9; }
+  .t-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .t-table th { color: #64748b; text-align: left; padding: 8px 10px; border-bottom: 1px solid #334155; font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; white-space: nowrap; }
+  .t-table td { padding: 8px 10px; border-bottom: 1px solid #1e293b44; color: #cbd5e1; white-space: nowrap; }
+  .t-table tr:hover td { background: #ffffff06; cursor: pointer; }
+  .t-badge { font-size: 10px; padding: 2px 8px; border-radius: 20px; font-weight: 600; }
+  .t-badge-pos { background: #4ade8022; color: #4ade80; border: 1px solid #4ade8044; }
+  .t-badge-neg { background: #f8717122; color: #f87171; border: 1px solid #f8717144; }
+  .t-badge-neu { background: #64748b22; color: #94a3b8; border: 1px solid #64748b44; }
+  #t-no-data { color: #475569; font-size: 13px; padding: 40px; text-align: center; }
 </style>
 </head>
 <body>
@@ -73,7 +89,8 @@
   <strong>Tab-Name:</strong> Genau so wie unten im Sheet angezeigt (z.B. <code>Daily Tracking</code>).</p>
   <input type="text" id="input-sheet-id" placeholder="Sheet ID (z.B. 19ZErBhSKZH...)" />
   <input type="password" id="input-api-key" placeholder="Google API Key" />
-  <input type="text" id="input-sheet-name" placeholder='Tab-Name (z.B. "Daily Tracking")' value="Daily Tracking" />
+  <input type="text" id="input-sheet-name" placeholder='Daily Tracking Tab-Name' value="Daily Tracking" />
+  <input type="text" id="input-training-sheet-name" placeholder='Training Tab-Name (z.B. "Mesocycle 1")' value="Mesocycle 1" />
   <button onclick="saveConfig()">💾 Speichern & laden</button>
   <button class="secondary" onclick="document.getElementById('config-banner').style.display='none'">Abbrechen</button>
 </div>
@@ -114,6 +131,7 @@
     <button class="tab" onclick="showTab('nutrition', this)">🥗 Ernährung</button>
     <button class="tab" onclick="showTab('wellness', this)">💤 Wellness</button>
     <button class="tab" onclick="showTab('weeks', this)">📅 Wochen</button>
+    <button class="tab" onclick="showTab('training', this)">🏋️ Training</button>
   </div>
 
   <div class="section active" id="overview">
@@ -148,6 +166,56 @@
     <div class="chart-title" style="font-size:14px; color:#94a3b8; margin-bottom:10px;">💬 Notizen aus dem Tracking</div>
     <div id="comments-container"></div>
   </div>
+
+  <div class="section" id="training">
+    <div id="t-no-data" style="display:none">⚠️ Keine Trainingsdaten geladen. Prüfe den Sheet-Namen in der Konfiguration.</div>
+    <div id="t-content" style="display:none">
+      <div class="kpi-grid" style="margin-bottom:16px">
+        <div class="kpi-card"><div class="kpi-label">Aktuelle Woche</div><div class="kpi-value" id="t-current-week" style="color:#f59e0b">–</div><div class="kpi-sub">von 12 Wochen</div></div>
+        <div class="kpi-card"><div class="kpi-label">Übungen</div><div class="kpi-value" id="t-exercise-count" style="color:#38bdf8">–</div><div class="kpi-sub">gesamt im Mesozyklus</div></div>
+        <div class="kpi-card"><div class="kpi-label">Volumen W-aktuell</div><div class="kpi-value" id="t-volume-current" style="color:#4ade80">–</div><div class="kpi-sub">Sätze × Reps × kg</div></div>
+        <div class="kpi-card"><div class="kpi-label">Top Progression</div><div class="kpi-value" id="t-top-prog" style="color:#c084fc; font-size:15px">–</div><div class="kpi-sub" id="t-top-prog-sub">–</div></div>
+      </div>
+
+      <div class="training-controls">
+        <div class="ctrl-group">
+          <label>Trainingstag</label>
+          <select id="t-day-select" onchange="filterTrainingDay()">
+            <option value="">Alle Tage</option>
+          </select>
+        </div>
+        <div class="ctrl-group">
+          <label>Übung</label>
+          <select id="t-exercise-select" onchange="renderTrainingProgression()"></select>
+        </div>
+      </div>
+
+      <div class="charts-grid" style="margin-bottom:16px">
+        <div class="chart-card chart-full">
+          <div class="chart-title">📈 Gewichtsprogression – <span id="t-prog-title" style="color:#f59e0b"></span></div>
+          <canvas id="t-prog-chart" height="80"></canvas>
+        </div>
+        <div class="chart-card">
+          <div class="chart-title">💪 Epley 1RM Trend (geschätzt, kg)</div>
+          <canvas id="t-1rm-chart" height="120"></canvas>
+        </div>
+        <div class="chart-card">
+          <div class="chart-title">📊 Gesamtvolumen pro Woche (alle Übungen)</div>
+          <canvas id="t-volume-chart" height="120"></canvas>
+        </div>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-title">📋 Alle Übungen — klicken zum Anzeigen</div>
+        <div style="overflow-x:auto; margin-top:10px">
+          <table class="t-table">
+            <thead><tr><th>Übung</th><th>Muskelgruppe</th><th>Tag</th><th>W1 Load</th><th>Aktuell</th><th>Progression</th></tr></thead>
+            <tbody id="t-table-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -158,7 +226,8 @@ function saveConfig() {
   const cfg = {
     sheetId: document.getElementById('input-sheet-id').value.trim(),
     apiKey:  document.getElementById('input-api-key').value.trim(),
-    sheetName: document.getElementById('input-sheet-name').value.trim() || 'Daily Tracking'
+    sheetName: document.getElementById('input-sheet-name').value.trim() || 'Daily Tracking',
+    trainingSheetName: document.getElementById('input-training-sheet-name').value.trim() || 'Mesocycle 1'
   };
   if (!cfg.sheetId || !cfg.apiKey) { alert('Bitte Sheet ID und API Key eingeben.'); return; }
   localStorage.setItem(CONFIG_KEY, JSON.stringify(cfg));
@@ -170,6 +239,7 @@ function showConfig() {
   document.getElementById('input-sheet-id').value = cfg.sheetId || '';
   document.getElementById('input-api-key').value = cfg.apiKey || '';
   document.getElementById('input-sheet-name').value = cfg.sheetName || 'Daily Tracking';
+  document.getElementById('input-training-sheet-name').value = cfg.trainingSheetName || 'Mesocycle 1';
   document.getElementById('config-banner').style.display = 'block';
 }
 
@@ -379,6 +449,262 @@ function renderDashboard(daily, weekBlocks) {
   if (!commEl.children.length) commEl.innerHTML='<p style="color:#475569;font-size:13px">Keine Notizen vorhanden.</p>';
 }
 
+// ── TRAINING ─────────────────────────────────────────────────────────────────
+let gTrainingExercises = null;
+let gTrainingWeekCount = 0;
+let gTrainingCurrentWeek = 0;
+
+async function fetchTrainingSheet(sheetId, apiKey, sheetName) {
+  const range = encodeURIComponent(`'${sheetName}'!A1:FZ200`);
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}?key=${apiKey}`;
+  const res = await fetch(url);
+  if (!res.ok) { const e = await res.json(); throw new Error(e.error?.message || `HTTP ${res.status}`); }
+  return (await res.json()).values || [];
+}
+
+function parseTrainingSheet(rows) {
+  // Find any row that has ≥3 occurrences of "Excercise" → those are the per-week header offsets
+  let weekOffsets = null;
+  for (const row of rows) {
+    const offsets = [];
+    for (let c = 0; c < row.length; c++) {
+      if ((row[c]||'').trim() === 'Excercise') offsets.push(c);
+    }
+    if (offsets.length >= 3) { weekOffsets = offsets; break; }
+  }
+  if (!weekOffsets) return null;
+
+  // Relative layout within each week block (from Exercise col):
+  // +0=Exercise name, +1=blank, +2=Sets, +3=Reps(target), +4=RIR, +5=Tempo, +6=Load, +7=Reps(actual)
+  const exercises = {};
+  let currentDay = '';
+
+  for (const row of rows) {
+    const cell1 = (row[1] || '').trim();
+    if (cell1.match(/^Day \d/i)) { currentDay = cell1; continue; }
+
+    const muscleGroup = cell1;
+    const exerciseName = (row[2] || '').trim();
+    if (!exerciseName || !muscleGroup) continue;
+    if (['Excercise','Muscle group','Exercise'].includes(exerciseName)) continue;
+    if (muscleGroup.match(/^Day \d/i) || muscleGroup === 'Muscle group') continue;
+
+    const weeks = weekOffsets.map(sc => {
+      const load = num(row[sc + 6]);
+      const sets = num(row[sc + 2]);
+      const repsActual = (row[sc + 7] || '').trim();
+      return { load, sets: sets || 0, repsActual };
+    });
+
+    if (weeks.every(w => w.load === null)) continue;
+
+    if (!exercises[exerciseName]) {
+      exercises[exerciseName] = { day: currentDay, muscleGroup, weeks };
+    }
+  }
+
+  let currentWeek = 0;
+  for (const ex of Object.values(exercises)) {
+    for (let w = 0; w < ex.weeks.length; w++) {
+      if (ex.weeks[w].load !== null) currentWeek = Math.max(currentWeek, w + 1);
+    }
+  }
+
+  return { exercises, weekCount: weekOffsets.length, currentWeek };
+}
+
+function avgRepsFromStr(s) {
+  if (!s) return null;
+  const nums = s.split('-').map(Number).filter(n => !isNaN(n) && n > 0);
+  return nums.length ? nums.reduce((a,b)=>a+b,0)/nums.length : null;
+}
+
+function epley1RM(load, reps) {
+  if (!load || !reps) return null;
+  return Math.round(load * (1 + reps / 30) * 10) / 10;
+}
+
+function populateExerciseDropdown(dayFilter) {
+  const exSelect = document.getElementById('t-exercise-select');
+  if (!exSelect || !gTrainingExercises) return;
+  const current = exSelect.value;
+  const filtered = Object.entries(gTrainingExercises)
+    .filter(([,ex]) => !dayFilter || ex.day === dayFilter)
+    .map(([name]) => name).sort();
+  exSelect.innerHTML = filtered.map(n => `<option value="${n}"${n===current?' selected':''}>${n}</option>`).join('');
+}
+
+function filterTrainingDay() {
+  const day = document.getElementById('t-day-select').value;
+  populateExerciseDropdown(day);
+  renderTrainingProgression();
+  renderExerciseTable();
+}
+
+function renderTrainingProgression() {
+  if (!gTrainingExercises) return;
+  const name = document.getElementById('t-exercise-select')?.value;
+  if (!name) return;
+  const ex = gTrainingExercises[name];
+  if (!ex) return;
+
+  document.getElementById('t-prog-title').textContent = name;
+
+  const labels = [], loads = [], oneRMs = [];
+  for (let wi = 0; wi < gTrainingCurrentWeek; wi++) {
+    const w = ex.weeks[wi];
+    labels.push(`W${wi+1}`);
+    loads.push(w?.load ?? null);
+    const ar = avgRepsFromStr(w?.repsActual);
+    oneRMs.push(w?.load && ar ? epley1RM(w.load, ar) : null);
+  }
+
+  destroy('t-prog-chart');
+  const ctx = document.getElementById('t-prog-chart');
+  if (ctx) {
+    const capturedEx = ex;
+    charts['t-prog-chart'] = new Chart(ctx, {
+      type: 'line',
+      data: { labels, datasets: [{
+        label: 'Load (kg)', data: loads,
+        borderColor: '#f59e0b', backgroundColor: '#f59e0b25',
+        borderWidth: 2.5, pointRadius: 5, pointHoverRadius: 8,
+        fill: true, tension: 0.3, spanGaps: true
+      }]},
+      options: { ...baseOpts(),
+        plugins: { legend: { display: false },
+          tooltip: { mode: 'index', intersect: false,
+            callbacks: { afterBody: items => {
+              const wi = items[0]?.dataIndex;
+              if (wi === undefined) return [];
+              const w = capturedEx.weeks[wi];
+              const lines = [];
+              if (w?.sets) lines.push(`Sätze: ${w.sets}`);
+              if (w?.repsActual) lines.push(`Reps: ${w.repsActual}`);
+              const ar = avgRepsFromStr(w?.repsActual);
+              if (w?.load && ar) lines.push(`1RM est.: ${epley1RM(w.load, ar)} kg`);
+              return lines;
+            }}
+          }
+        }
+      }
+    });
+  }
+
+  destroy('t-1rm-chart');
+  const ctx1 = document.getElementById('t-1rm-chart');
+  if (ctx1) {
+    charts['t-1rm-chart'] = new Chart(ctx1, {
+      type: 'line',
+      data: { labels, datasets: [{
+        label: 'Epley 1RM', data: oneRMs,
+        borderColor: '#818cf8', backgroundColor: '#818cf825',
+        borderWidth: 2, pointRadius: 4, fill: true, tension: 0.3, spanGaps: true
+      }]},
+      options: { ...baseOpts(), plugins: { legend: { display: false } } }
+    });
+  }
+}
+
+function renderExerciseTable() {
+  if (!gTrainingExercises) return;
+  const tbody = document.getElementById('t-table-body');
+  if (!tbody) return;
+  tbody.innerHTML = '';
+  const dayFilter = document.getElementById('t-day-select')?.value || '';
+  const entries = Object.entries(gTrainingExercises)
+    .filter(([,ex]) => !dayFilter || ex.day === dayFilter)
+    .sort((a,b) => (a[1].day||'').localeCompare(b[1].day||'') || a[0].localeCompare(b[0]));
+
+  for (const [name, ex] of entries) {
+    const w1Load = ex.weeks[0]?.load;
+    const wCurLoad = ex.weeks[gTrainingCurrentWeek - 1]?.load;
+    const delta = w1Load && wCurLoad ? ((wCurLoad - w1Load) / w1Load * 100) : null;
+    let deltaBadge = '<span style="color:#475569">–</span>';
+    if (delta !== null) {
+      const cls = delta > 1 ? 't-badge-pos' : delta < -1 ? 't-badge-neg' : 't-badge-neu';
+      deltaBadge = `<span class="t-badge ${cls}">${delta > 0 ? '+' : ''}${delta.toFixed(0)}%</span>`;
+    }
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td style="font-weight:500;max-width:200px;overflow:hidden;text-overflow:ellipsis">${name}</td>
+      <td style="color:#64748b">${ex.muscleGroup}</td>
+      <td style="color:#64748b;font-size:11px">${(ex.day||'').replace('Day ','D')}</td>
+      <td style="color:#94a3b8">${w1Load !== null ? w1Load+' kg' : '–'}</td>
+      <td style="font-weight:600;color:#f59e0b">${wCurLoad !== null ? wCurLoad+' kg' : '–'}</td>
+      <td>${deltaBadge}</td>`;
+    tr.onclick = () => {
+      const sel = document.getElementById('t-exercise-select');
+      if (sel) { sel.value = name; renderTrainingProgression(); sel.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }
+    };
+    tbody.appendChild(tr);
+  }
+}
+
+function renderTraining(parsed) {
+  const noData = document.getElementById('t-no-data');
+  const content = document.getElementById('t-content');
+  if (!parsed || !Object.keys(parsed.exercises).length) {
+    if (noData) noData.style.display = 'block';
+    if (content) content.style.display = 'none';
+    return;
+  }
+  if (noData) noData.style.display = 'none';
+  if (content) content.style.display = 'block';
+
+  gTrainingExercises = parsed.exercises;
+  gTrainingWeekCount = parsed.weekCount;
+  gTrainingCurrentWeek = parsed.currentWeek;
+
+  // KPIs
+  document.getElementById('t-current-week').textContent = gTrainingCurrentWeek;
+  document.getElementById('t-exercise-count').textContent = Object.keys(gTrainingExercises).length;
+
+  let totalVol = 0;
+  for (const ex of Object.values(gTrainingExercises)) {
+    const w = ex.weeks[gTrainingCurrentWeek - 1];
+    if (!w?.load) continue;
+    const ar = avgRepsFromStr(w.repsActual) || 8;
+    totalVol += (w.sets || 3) * ar * w.load;
+  }
+  document.getElementById('t-volume-current').textContent = Math.round(totalVol).toLocaleString('de');
+
+  let topExName = '–', topPct = -Infinity, topSub = '–';
+  for (const [name, ex] of Object.entries(gTrainingExercises)) {
+    const w1 = ex.weeks[0]?.load;
+    const wC = ex.weeks[gTrainingCurrentWeek - 1]?.load;
+    if (!w1 || !wC) continue;
+    const pct = (wC - w1) / w1 * 100;
+    if (pct > topPct) { topPct = pct; topExName = name; topSub = `+${pct.toFixed(0)}% (${w1}→${wC} kg)`; }
+  }
+  const progEl = document.getElementById('t-top-prog');
+  progEl.textContent = topExName.length > 22 ? topExName.substring(0,20)+'…' : topExName;
+  progEl.title = topExName;
+  document.getElementById('t-top-prog-sub').textContent = topPct > 0 ? topSub : '–';
+
+  // Volume per week chart
+  const volPerWeek = Array.from({ length: gTrainingCurrentWeek }, (_, wi) => {
+    let vol = 0;
+    for (const ex of Object.values(gTrainingExercises)) {
+      const w = ex.weeks[wi];
+      if (!w?.load) continue;
+      vol += (w.sets || 3) * (avgRepsFromStr(w.repsActual) || 8) * w.load;
+    }
+    return Math.round(vol);
+  });
+  barChart('t-volume-chart', Array.from({length: gTrainingCurrentWeek}, (_,i)=>`W${i+1}`), volPerWeek, '#c084fc');
+
+  // Day filter dropdown
+  const daySelect = document.getElementById('t-day-select');
+  const days = [...new Set(Object.values(gTrainingExercises).map(e=>e.day).filter(Boolean))].sort();
+  daySelect.innerHTML = '<option value="">Alle Tage</option>' + days.map(d=>`<option value="${d}">${d}</option>`).join('');
+
+  // Exercise dropdown
+  populateExerciseDropdown('');
+  renderTrainingProgression();
+  renderExerciseTable();
+}
+
 // ── LOAD ─────────────────────────────────────────────────────────────────────
 function showError(msg) {
   document.getElementById('status').innerHTML = `<p class="err">❌ ${msg}</p><button class="btn" onclick="showConfig()" style="margin-top:12px">⚙️ Konfiguration</button>`;
@@ -393,11 +719,16 @@ async function loadData() {
   document.getElementById('status').style.display='block';
   document.getElementById('dashboard').style.display='none';
   try {
-    const raw = await fetchSheet(cfg.sheetId, cfg.apiKey, cfg.sheetName||'Daily Tracking');
+    const [raw, rawTraining] = await Promise.all([
+      fetchSheet(cfg.sheetId, cfg.apiKey, cfg.sheetName||'Daily Tracking'),
+      fetchTrainingSheet(cfg.sheetId, cfg.apiKey, cfg.trainingSheetName||'Mesocycle 1').catch(e => { console.warn('Training sheet fetch failed:', e.message); return []; })
+    ]);
     const { daily, weekBlocks } = parseRows(raw);
     document.getElementById('status').style.display='none';
     document.getElementById('dashboard').style.display='block';
     renderDashboard(daily, weekBlocks);
+    const parsed = rawTraining.length ? parseTrainingSheet(rawTraining) : null;
+    renderTraining(parsed);
   } catch(e) { showError(e.message); }
 }
 
