@@ -37,10 +37,15 @@
   .kpi-value { font-size: 24px; font-weight: 700; }
   .kpi-sub { font-size: 11px; color: #64748b; margin-top: 4px; }
 
-  .tabs { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+  .tab-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; gap: 12px; flex-wrap: wrap; }
+  .tabs { display: flex; gap: 8px; flex-wrap: wrap; }
   .tab { padding: 8px 18px; border-radius: 8px; border: 1px solid #334155; background: #1e293b; color: #64748b; cursor: pointer; font-size: 13px; transition: all 0.2s; }
   .tab.active { background: #0ea5e9; border-color: #0ea5e9; color: white; }
   .tab:hover:not(.active) { border-color: #475569; color: #cbd5e1; }
+  .range-btns { display: flex; gap: 5px; }
+  .range-btn { background: #1e293b; border: 1px solid #334155; border-radius: 6px; color: #64748b; padding: 6px 12px; font-size: 11px; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
+  .range-btn.active { background: #334155; border-color: #475569; color: #e2e8f0; }
+  .range-btn:hover:not(.active) { border-color: #475569; color: #cbd5e1; }
   .section { display: none; }
   .section.active { display: block; }
 
@@ -63,7 +68,7 @@
 
   @media (max-width: 600px) { .charts-grid { grid-template-columns: 1fr; } .chart-full { grid-column: 1; } }
 
-  /* ── Training Tab ── */
+  /* Training */
   .training-controls { display: flex; gap: 16px; margin-bottom: 16px; flex-wrap: wrap; align-items: flex-end; }
   .training-controls .ctrl-group { display: flex; flex-direction: column; gap: 5px; }
   .training-controls label { font-size: 11px; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; }
@@ -78,6 +83,17 @@
   .t-badge-neg { background: #f8717122; color: #f87171; border: 1px solid #f8717144; }
   .t-badge-neu { background: #64748b22; color: #94a3b8; border: 1px solid #64748b44; }
   #t-no-data { color: #475569; font-size: 13px; padding: 40px; text-align: center; }
+
+  /* Correlation */
+  .corr-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 4px; }
+  .corr-cell { background: #0f1117; border-radius: 8px; padding: 12px; }
+  .corr-label { font-size: 11px; color: #64748b; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em; }
+  .corr-row { display: flex; align-items: baseline; gap: 10px; margin-bottom: 4px; }
+  .corr-val { font-size: 22px; font-weight: 700; }
+  .corr-sub { font-size: 12px; color: #64748b; }
+  .corr-diff { font-size: 12px; margin-top: 6px; }
+  .corr-n { font-size: 11px; color: #475569; margin-top: 10px; }
+  @media (max-width: 600px) { .corr-grid { grid-template-columns: 1fr; } }
 </style>
 </head>
 <body>
@@ -124,19 +140,28 @@
     <div class="kpi-card"><div class="kpi-label">Ø Schritte</div><div class="kpi-value" id="kpi-steps" style="color:#c084fc">–</div><div class="kpi-sub">pro Tag</div></div>
     <div class="kpi-card"><div class="kpi-label">Ø Schlaf</div><div class="kpi-value" id="kpi-sleep" style="color:#818cf8">–</div><div class="kpi-sub">Stunden</div></div>
     <div class="kpi-card"><div class="kpi-label">Ø Energie</div><div class="kpi-value" id="kpi-energy" style="color:#fbbf24">–</div><div class="kpi-sub">von 5</div></div>
+    <div class="kpi-card"><div class="kpi-label">Protein ≥ 200g</div><div class="kpi-value" id="kpi-protein-compliance">–</div><div class="kpi-sub">Tage-Compliance</div></div>
+    <div class="kpi-card"><div class="kpi-label">Kalorien ≤ 2300</div><div class="kpi-value" id="kpi-cal-compliance">–</div><div class="kpi-sub">Tage-Compliance</div></div>
   </div>
 
-  <div class="tabs">
-    <button class="tab active" onclick="showTab('overview', this)">Übersicht</button>
-    <button class="tab" onclick="showTab('nutrition', this)">Ernährung</button>
-    <button class="tab" onclick="showTab('wellness', this)">Wellness</button>
-    <button class="tab" onclick="showTab('weeks', this)">Wochen</button>
-    <button class="tab" onclick="showTab('training', this)">Training</button>
+  <div class="tab-row">
+    <div class="tabs">
+      <button class="tab active" onclick="showTab('overview', this)">Übersicht</button>
+      <button class="tab" onclick="showTab('nutrition', this)">Ernährung</button>
+      <button class="tab" onclick="showTab('wellness', this)">Wellness</button>
+      <button class="tab" onclick="showTab('weeks', this)">Wochen</button>
+      <button class="tab" onclick="showTab('training', this)">Training</button>
+    </div>
+    <div class="range-btns">
+      <button class="range-btn" data-range="14" onclick="applyDateRange(14)">14d</button>
+      <button class="range-btn" data-range="30" onclick="applyDateRange(30)">30d</button>
+      <button class="range-btn active" data-range="0" onclick="applyDateRange(0)">Alle</button>
+    </div>
   </div>
 
   <div class="section active" id="overview">
     <div class="charts-grid">
-      <div class="chart-card chart-full"><div class="chart-title">Gewichtsverlauf (kg)</div><canvas id="weightChart" height="70"></canvas></div>
+      <div class="chart-card chart-full"><div class="chart-title">Gewichtsverlauf (kg) · weiße Linie = 7-Tage-Ø</div><canvas id="weightChart" height="70"></canvas></div>
       <div class="chart-card"><div class="chart-title">Schritte / Tag</div><canvas id="stepsChart" height="120"></canvas></div>
       <div class="chart-card"><div class="chart-title">Wöchentliche Ø Gewichte</div><canvas id="weeklyChart" height="120"></canvas></div>
     </div>
@@ -158,6 +183,10 @@
       <div class="chart-card"><div class="chart-title">Stresslevel (1–5, niedriger = besser)</div><canvas id="stressChart" height="120"></canvas></div>
       <div class="chart-card"><div class="chart-title">Verdauung (1–10)</div><canvas id="digestionChart" height="120"></canvas></div>
     </div>
+    <div class="chart-card">
+      <div class="chart-title">Training · Effekt auf Folgetag</div>
+      <div id="correlation-content"><p style="color:#475569;font-size:13px;padding:12px 0">Wird berechnet…</p></div>
+    </div>
   </div>
 
   <div class="section" id="weeks">
@@ -176,20 +205,16 @@
         <div class="kpi-card"><div class="kpi-label">Volumen W-aktuell</div><div class="kpi-value" id="t-volume-current" style="color:#4ade80">–</div><div class="kpi-sub">Sätze × Reps × kg</div></div>
         <div class="kpi-card"><div class="kpi-label">Top Progression</div><div class="kpi-value" id="t-top-prog" style="color:#c084fc; font-size:15px">–</div><div class="kpi-sub" id="t-top-prog-sub">–</div></div>
       </div>
-
       <div class="training-controls">
         <div class="ctrl-group">
           <label>Trainingstag</label>
-          <select id="t-day-select" onchange="filterTrainingDay()">
-            <option value="">Alle Tage</option>
-          </select>
+          <select id="t-day-select" onchange="filterTrainingDay()"><option value="">Alle Tage</option></select>
         </div>
         <div class="ctrl-group">
           <label>Übung</label>
           <select id="t-exercise-select" onchange="renderTrainingProgression()"></select>
         </div>
       </div>
-
       <div class="charts-grid" style="margin-bottom:16px">
         <div class="chart-card chart-full">
           <div class="chart-title">Gewichtsprogression – <span id="t-prog-title" style="color:#f59e0b"></span></div>
@@ -200,11 +225,10 @@
           <canvas id="t-1rm-chart" height="120"></canvas>
         </div>
         <div class="chart-card">
-          <div class="chart-title">Gesamtvolumen pro Woche (alle Übungen)</div>
+          <div class="chart-title">Volumen nach Muskelgruppe</div>
           <canvas id="t-volume-chart" height="120"></canvas>
         </div>
       </div>
-
       <div class="chart-card">
         <div class="chart-title">Alle Übungen — klicken zum Anzeigen</div>
         <div style="overflow-x:auto; margin-top:10px">
@@ -221,6 +245,8 @@
 <script>
 // ── CONFIG ──────────────────────────────────────────────────────────────────
 const CONFIG_KEY = 'fitness_cfg_v2';
+const CACHE_KEY  = 'fitness_cache_v1';
+
 function getConfig() { try { return JSON.parse(localStorage.getItem(CONFIG_KEY)) || {}; } catch { return {}; } }
 function saveConfig() {
   const cfg = {
@@ -243,6 +269,12 @@ function showConfig() {
   document.getElementById('config-banner').style.display = 'block';
 }
 
+// ── CACHE ────────────────────────────────────────────────────────────────────
+function saveCache(raw, rawTraining) {
+  try { localStorage.setItem(CACHE_KEY, JSON.stringify({ raw, rawTraining, ts: Date.now() })); } catch(e) {}
+}
+function loadCache() { try { return JSON.parse(localStorage.getItem(CACHE_KEY)); } catch { return null; } }
+
 // ── FETCH ────────────────────────────────────────────────────────────────────
 async function fetchSheet(sheetId, apiKey, sheetName) {
   const range = encodeURIComponent(`'${sheetName}'!A1:AD300`);
@@ -251,21 +283,19 @@ async function fetchSheet(sheetId, apiKey, sheetName) {
   if (!res.ok) { const e = await res.json(); throw new Error(e.error?.message || `HTTP ${res.status}`); }
   return (await res.json()).values || [];
 }
+async function fetchTrainingSheet(sheetId, apiKey, sheetName) {
+  const range = encodeURIComponent(`'${sheetName}'!A1:FZ200`);
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}?key=${apiKey}`;
+  const res = await fetch(url);
+  if (!res.ok) { const e = await res.json(); throw new Error(e.error?.message || `HTTP ${res.status}`); }
+  return (await res.json()).values || [];
+}
 
 // ── PARSE ────────────────────────────────────────────────────────────────────
-// Daily Tracking layout (0-indexed columns, row starts after headers):
-// A(0)=Date, B(1)=Weight, C(2)=Time, D(3)=empty,
-// E(4)=Protein, F(5)=Carbs, G(6)=Fat, H(7)=Fiber,
-// I(8)=Fruits&Veg, J(9)=Calories, K(10)=ProteinFeedings,
-// L(11)=Comment, M(12)=Sleep(h), N(13)=SleepQ,
-// O(14)=Digestion, P(15)=empty, Q(16)=Stress, R(17)=Energy,
-// S(18)=Steps, T(19)=Menstruation, U(20)=TrainingDay
-
 function num(v) {
   if (!v || v === '#REF!' || v === '#N/A' || v === '-' || v === '') return null;
   return parseFloat(String(v).replace(',', '.').replace(/[^\d.\-]/g, '')) || null;
 }
-
 function parseDate(s) {
   if (!s) return null;
   const p = s.trim().split('.');
@@ -274,7 +304,6 @@ function parseDate(s) {
   if (isNaN(d)||isNaN(m)||isNaN(y)||y<2020) return null;
   return new Date(y, m-1, d);
 }
-
 function isDataRow(row) {
   if (!row || !row[0]) return false;
   const d = parseDate(row[0]);
@@ -282,21 +311,12 @@ function isDataRow(row) {
   const w = num(row[1]);
   return w !== null && !isNaN(w);
 }
-
-function isSummaryRow(row) {
-  const label = (row?.[0] || '').toLowerCase();
-  return label === 'durchschnitt' || label.startsWith('gewichtsver') || label.startsWith('in %');
-}
-
 function parseRows(rows) {
-  const daily = [];
-  const weekBlocks = [];
+  const daily = [], weekBlocks = [];
   let currentWeek = [];
-
   for (let i = 0; i < rows.length; i++) {
     const row = rows[i];
     if (!row) continue;
-
     if (isDataRow(row)) {
       const entry = {
         date: row[0], dateObj: parseDate(row[0]),
@@ -305,19 +325,10 @@ function parseRows(rows) {
         fiber: num(row[7]), fv: num(row[8]), calories: num(row[9]),
         comment: row[11]||'',
         sleep: num(row[12]), sleepQ: num(row[13]),
-        digestion: num(row[13]), // col N = sleep quality 1-10 (used as digestion proxy)
+        digestion: num(row[14]),
         stress: num(row[16]), energy: num(row[17]), steps: num(row[18]),
         training: row[20]||''
       };
-      // re-map correctly per actual sheet:
-      // M(12)=sleep hours, N(13)=sleep quality, O(14)=digestion, Q(16)=stress, R(17)=energy
-      entry.sleep = num(row[12]);
-      entry.sleepQ = num(row[13]);
-      entry.digestion = num(row[14]);
-      entry.stress = num(row[16]);
-      entry.energy = num(row[17]);
-      entry.steps = num(row[18]);
-
       daily.push(entry);
       currentWeek.push(entry);
     } else if ((row[0]||'').toLowerCase() === 'durchschnitt' && currentWeek.length > 0) {
@@ -331,11 +342,63 @@ function parseRows(rows) {
   if (currentWeek.length > 0) weekBlocks.push({ rows: [...currentWeek], avgWeight: null, delta: null });
   return { daily, weekBlocks };
 }
+function parseTrainingSheet(rows) {
+  let weekOffsets = null;
+  for (const row of rows) {
+    const offsets = [];
+    for (let c = 0; c < row.length; c++) {
+      if ((row[c]||'').trim() === 'Excercise') offsets.push(c);
+    }
+    if (offsets.length >= 3) { weekOffsets = offsets; break; }
+  }
+  if (!weekOffsets) return null;
+  const exercises = {};
+  let currentDay = '';
+  for (const row of rows) {
+    const cell1 = (row[1] || '').trim();
+    if (cell1.match(/^Day \d/i)) { currentDay = cell1; continue; }
+    const muscleGroup = cell1;
+    const exerciseName = (row[2] || '').trim();
+    if (!exerciseName || !muscleGroup) continue;
+    if (['Excercise','Muscle group','Exercise'].includes(exerciseName)) continue;
+    if (muscleGroup.match(/^Day \d/i) || muscleGroup === 'Muscle group') continue;
+    const weeks = weekOffsets.map(sc => ({
+      load: num(row[sc + 6]),
+      sets: num(row[sc + 2]) || 0,
+      repsActual: (row[sc + 7] || '').trim()
+    }));
+    if (weeks.every(w => w.load === null)) continue;
+    if (!exercises[exerciseName]) exercises[exerciseName] = { day: currentDay, muscleGroup, weeks };
+  }
+  let currentWeek = 0;
+  for (const ex of Object.values(exercises))
+    for (let w = 0; w < ex.weeks.length; w++)
+      if (ex.weeks[w].load !== null) currentWeek = Math.max(currentWeek, w + 1);
+  return { exercises, weekCount: weekOffsets.length, currentWeek };
+}
+
+// ── HELPERS ──────────────────────────────────────────────────────────────────
+function avg(arr) { const v = arr.filter(x => x !== null && x !== undefined && !isNaN(x)); return v.length ? v.reduce((a,b)=>a+b,0)/v.length : null; }
+function fmt(v, d=1) { return v !== null && v !== undefined && !isNaN(v) ? v.toFixed(d) : '–'; }
+function movingAvg(data, win=7) {
+  return data.map((_, i) => {
+    const slice = data.slice(Math.max(0, i-win+1), i+1).filter(v => v !== null && !isNaN(v));
+    return slice.length >= Math.min(win, 3) ? slice.reduce((a,b)=>a+b,0)/slice.length : null;
+  });
+}
+function avgRepsFromStr(s) {
+  if (!s) return null;
+  const nums = s.split('-').map(Number).filter(n => !isNaN(n) && n > 0);
+  return nums.length ? nums.reduce((a,b)=>a+b,0)/nums.length : null;
+}
+function epley1RM(load, reps) {
+  if (!load || !reps) return null;
+  return Math.round(load * (1 + reps / 30) * 10) / 10;
+}
 
 // ── CHARTS ───────────────────────────────────────────────────────────────────
 const charts = {};
 const gc = '#1e2a3a', tc = '#64748b';
-
 function baseOpts() {
   return {
     responsive: true,
@@ -347,12 +410,12 @@ function baseOpts() {
   };
 }
 function destroy(id) { if (charts[id]) { charts[id].destroy(); delete charts[id]; } }
-
-function lineChart(id, labels, data, color, fill=true, ref=null) {
+function lineChart(id, labels, data, color, fill=true, ref=null, ma=null) {
   destroy(id);
   const ctx = document.getElementById(id); if (!ctx) return;
-  const ds = [{ data, borderColor: color, backgroundColor: fill ? color+'25' : 'transparent', borderWidth: 2, pointRadius: 3, pointHoverRadius: 6, fill, tension: 0.3, spanGaps: true }];
-  if (ref !== null) ds.push({ data: labels.map(() => ref), borderColor: '#ffffff33', borderDash: [5,5], borderWidth: 1, pointRadius: 0, fill: false });
+  const ds = [{ data, borderColor: color, backgroundColor: fill ? color+'25' : 'transparent', borderWidth: 1.5, pointRadius: 2, pointHoverRadius: 6, fill, tension: 0.3, spanGaps: true }];
+  if (ref !== null) ds.push({ data: labels.map(() => ref), borderColor: '#ffffff22', borderDash: [5,5], borderWidth: 1, pointRadius: 0, fill: false });
+  if (ma !== null) ds.push({ data: ma, borderColor: '#ffffffbb', borderWidth: 2, pointRadius: 0, fill: false, tension: 0.4, spanGaps: true });
   charts[id] = new Chart(ctx, { type: 'line', data: { labels, datasets: ds }, options: baseOpts() });
 }
 function barChart(id, labels, data, color) {
@@ -360,8 +423,19 @@ function barChart(id, labels, data, color) {
   const ctx = document.getElementById(id); if (!ctx) return;
   charts[id] = new Chart(ctx, { type: 'bar', data: { labels, datasets: [{ data, backgroundColor: color+'aa', borderColor: color, borderWidth: 1, borderRadius: 4 }] }, options: baseOpts() });
 }
-function avg(arr) { const v = arr.filter(x => x !== null && x !== undefined && !isNaN(x)); return v.length ? v.reduce((a,b)=>a+b,0)/v.length : null; }
-function fmt(v, d=1) { return v !== null && v !== undefined && !isNaN(v) ? v.toFixed(d) : '–'; }
+
+// ── GLOBALS ──────────────────────────────────────────────────────────────────
+let gDaily = [], gWeekBlocks = [], gDateRange = 0;
+let gTrainingExercises = null, gTrainingWeekCount = 0, gTrainingCurrentWeek = 0;
+
+// ── DATE RANGE ───────────────────────────────────────────────────────────────
+function applyDateRange(n) {
+  gDateRange = n;
+  document.querySelectorAll('.range-btn').forEach(b => b.classList.toggle('active', +b.dataset.range === n));
+  const cutoff = n > 0 ? new Date(Date.now() - n * 864e5) : null;
+  const filtered = cutoff ? gDaily.filter(r => r.dateObj && r.dateObj >= cutoff) : gDaily;
+  renderDashboard(filtered, gWeekBlocks);
+}
 
 // ── RENDER ───────────────────────────────────────────────────────────────────
 function renderDashboard(daily, weekBlocks) {
@@ -372,30 +446,42 @@ function renderDashboard(daily, weekBlocks) {
     const d = r.dateObj;
     return d ? `${String(d.getDate()).padStart(2,'0')}.${String(d.getMonth()+1).padStart(2,'0')}` : r.date;
   });
-
   const first = rows[0].weight, last = rows[rows.length-1].weight, loss = last - first;
 
-  document.getElementById('badge-start').textContent    = first.toFixed(1)+' kg';
-  document.getElementById('badge-current').textContent  = last.toFixed(1)+' kg';
-  document.getElementById('badge-loss').textContent     = (loss<0?'':'+') + loss.toFixed(1)+' kg';
-  document.getElementById('badge-days').textContent     = rows.length+' Tage';
-  document.getElementById('kpi-loss').textContent       = (loss<0?'':'+') + loss.toFixed(1)+' kg';
-  document.getElementById('kpi-loss-sub').textContent   = first.toFixed(1)+' → '+last.toFixed(1)+' kg';
-  document.getElementById('kpi-kcal').textContent       = Math.round(avg(rows.map(r=>r.calories)))||'–';
-  document.getElementById('kpi-protein').textContent    = (Math.round(avg(rows.map(r=>r.protein)))||'–')+'g';
-  document.getElementById('kpi-steps').textContent      = Math.round(avg(rows.map(r=>r.steps))).toLocaleString('de')||'–';
-  document.getElementById('kpi-sleep').textContent      = fmt(avg(rows.map(r=>r.sleep)))+'h';
-  document.getElementById('kpi-energy').textContent     = fmt(avg(rows.map(r=>r.energy)))+'/5';
-  document.getElementById('last-updated').textContent   = 'Zuletzt geladen: '+new Date().toLocaleTimeString('de-DE');
+  document.getElementById('badge-start').textContent   = first.toFixed(1)+' kg';
+  document.getElementById('badge-current').textContent = last.toFixed(1)+' kg';
+  document.getElementById('badge-loss').textContent    = (loss<0?'':'+') + loss.toFixed(1)+' kg';
+  document.getElementById('badge-days').textContent    = rows.length+' Tage';
+  document.getElementById('kpi-loss').textContent      = (loss<0?'':'+') + loss.toFixed(1)+' kg';
+  document.getElementById('kpi-loss-sub').textContent  = first.toFixed(1)+' → '+last.toFixed(1)+' kg';
+  document.getElementById('kpi-kcal').textContent      = Math.round(avg(rows.map(r=>r.calories)))||'–';
+  document.getElementById('kpi-protein').textContent   = (Math.round(avg(rows.map(r=>r.protein)))||'–')+'g';
+  document.getElementById('kpi-steps').textContent     = Math.round(avg(rows.map(r=>r.steps))).toLocaleString('de')||'–';
+  document.getElementById('kpi-sleep').textContent     = fmt(avg(rows.map(r=>r.sleep)))+'h';
+  document.getElementById('kpi-energy').textContent    = fmt(avg(rows.map(r=>r.energy)))+'/5';
+  document.getElementById('last-updated').textContent  = 'Zuletzt geladen: '+new Date().toLocaleTimeString('de-DE');
+
+  // Compliance KPIs
+  const pRows = rows.filter(r => r.protein !== null);
+  const pComp = pRows.length ? Math.round(pRows.filter(r => r.protein >= 200).length / pRows.length * 100) : null;
+  const pcEl = document.getElementById('kpi-protein-compliance');
+  pcEl.textContent = pComp !== null ? pComp+'%' : '–';
+  pcEl.style.color = pComp === null ? '#64748b' : pComp >= 80 ? '#4ade80' : pComp >= 60 ? '#fbbf24' : '#f87171';
+
+  const cRows = rows.filter(r => r.calories !== null);
+  const cComp = cRows.length ? Math.round(cRows.filter(r => r.calories <= 2300).length / cRows.length * 100) : null;
+  const ccEl = document.getElementById('kpi-cal-compliance');
+  ccEl.textContent = cComp !== null ? cComp+'%' : '–';
+  ccEl.style.color = cComp === null ? '#64748b' : cComp >= 80 ? '#4ade80' : cComp >= 60 ? '#fbbf24' : '#f87171';
 
   // Overview
-  lineChart('weightChart', labels, rows.map(r=>r.weight), '#38bdf8', true, first);
+  lineChart('weightChart', labels, rows.map(r=>r.weight), '#38bdf8', true, first, movingAvg(rows.map(r=>r.weight)));
   barChart('stepsChart', labels, rows.map(r=>r.steps), '#c084fc');
 
   const wLabels = weekBlocks.map((b,i) => {
     if (!b.rows.length) return `W${i+1}`;
     const f = b.rows[0].dateObj, l = b.rows[b.rows.length-1].dateObj;
-    return `W${i+1} (${f?f.getDate()+'.'+( f.getMonth()+1):''}–${l?l.getDate()+'.'+(l.getMonth()+1):''})`;
+    return `W${i+1} (${f?f.getDate()+'.'+(f.getMonth()+1):''}–${l?l.getDate()+'.'+(l.getMonth()+1):''})`;
   });
   const wAvgs = weekBlocks.map(b => b.avgWeight || avg(b.rows.filter(r=>r.weight).map(r=>r.weight)));
   barChart('weeklyChart', wLabels, wAvgs, '#0ea5e9');
@@ -421,10 +507,11 @@ function renderDashboard(daily, weekBlocks) {
   }
 
   // Wellness
-  lineChart('sleepChart',    labels, rows.map(r=>r.sleep),    '#818cf8', true, 7);
-  lineChart('energyChart',   labels, rows.map(r=>r.energy),   '#fbbf24', true, 3);
-  lineChart('stressChart',   labels, rows.map(r=>r.stress),   '#f87171', true, 3);
-  lineChart('digestionChart',labels, rows.map(r=>r.digestion),'#4ade80', true, 5);
+  lineChart('sleepChart',     labels, rows.map(r=>r.sleep),     '#818cf8', true, 7);
+  lineChart('energyChart',    labels, rows.map(r=>r.energy),    '#fbbf24', true, 3);
+  lineChart('stressChart',    labels, rows.map(r=>r.stress),    '#f87171', true, 3);
+  lineChart('digestionChart', labels, rows.map(r=>r.digestion), '#4ade80', true, 5);
+  renderCorrelation(daily);
 
   // Weeks
   const wcEl = document.getElementById('week-cards'); wcEl.innerHTML='';
@@ -449,80 +536,53 @@ function renderDashboard(daily, weekBlocks) {
   if (!commEl.children.length) commEl.innerHTML='<p style="color:#475569;font-size:13px">Keine Notizen vorhanden.</p>';
 }
 
+// ── CORRELATION ───────────────────────────────────────────────────────────────
+function renderCorrelation(daily) {
+  const el = document.getElementById('correlation-content');
+  if (!el) return;
+  const sorted = [...daily].filter(r => r.dateObj).sort((a,b) => a.dateObj - b.dateObj);
+  const tE = [], tS = [], rE = [], rS = [];
+  for (let i = 0; i < sorted.length - 1; i++) {
+    const today = sorted[i], next = sorted[i+1];
+    if ((next.dateObj - today.dateObj) / 864e5 > 2) continue;
+    const isTrain = today.training && today.training.trim() && today.training.trim() !== '-';
+    if (isTrain) {
+      if (next.energy !== null) tE.push(next.energy);
+      if (next.sleep  !== null) tS.push(next.sleep);
+    } else {
+      if (next.energy !== null) rE.push(next.energy);
+      if (next.sleep  !== null) rS.push(next.sleep);
+    }
+  }
+  if (!tE.length && !rE.length) {
+    el.innerHTML = '<p style="color:#475569;font-size:13px;padding:12px 0">Nicht genug Daten (Training-Spalte im Sheet prüfen).</p>';
+    return;
+  }
+  const avgTE = avg(tE), avgRE = avg(rE), avgTS = avg(tS), avgRS = avg(rS);
+  const diffE = avgTE !== null && avgRE !== null ? avgTE - avgRE : null;
+  const diffS = avgTS !== null && avgRS !== null ? avgTS - avgRS : null;
+  const col = d => d === null ? '#64748b' : Math.abs(d) < 0.05 ? '#94a3b8' : d > 0 ? '#4ade80' : '#f87171';
+  const sign = d => d > 0 ? '+' : '';
+  el.innerHTML = `
+    <div class="corr-grid">
+      <div class="corr-cell">
+        <div class="corr-label">Energie (1–5)</div>
+        <div class="corr-row"><span class="corr-val" style="color:#f59e0b">${fmt(avgTE)}</span><span class="corr-sub">nach Training</span></div>
+        <div class="corr-row"><span class="corr-val" style="color:#38bdf8">${fmt(avgRE)}</span><span class="corr-sub">nach Ruhetag</span></div>
+        ${diffE !== null ? `<div class="corr-diff" style="color:${col(diffE)}">${sign(diffE)}${diffE.toFixed(2)} Punkte Differenz</div>` : ''}
+      </div>
+      <div class="corr-cell">
+        <div class="corr-label">Schlaf (h)</div>
+        <div class="corr-row"><span class="corr-val" style="color:#f59e0b">${fmt(avgTS)}</span><span class="corr-sub">nach Training</span></div>
+        <div class="corr-row"><span class="corr-val" style="color:#38bdf8">${fmt(avgRS)}</span><span class="corr-sub">nach Ruhetag</span></div>
+        ${diffS !== null ? `<div class="corr-diff" style="color:${col(diffS)}">${sign(diffS)}${diffS.toFixed(2)}h Differenz</div>` : ''}
+      </div>
+    </div>
+    <div class="corr-n">Basis: ${tE.length} Training-Folgetage · ${rE.length} Ruhe-Folgetage</div>`;
+}
+
 // ── TRAINING ─────────────────────────────────────────────────────────────────
-let gTrainingExercises = null;
-let gTrainingWeekCount = 0;
-let gTrainingCurrentWeek = 0;
-
-async function fetchTrainingSheet(sheetId, apiKey, sheetName) {
-  const range = encodeURIComponent(`'${sheetName}'!A1:FZ200`);
-  const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}?key=${apiKey}`;
-  const res = await fetch(url);
-  if (!res.ok) { const e = await res.json(); throw new Error(e.error?.message || `HTTP ${res.status}`); }
-  return (await res.json()).values || [];
-}
-
-function parseTrainingSheet(rows) {
-  // Find any row that has ≥3 occurrences of "Excercise" → those are the per-week header offsets
-  let weekOffsets = null;
-  for (const row of rows) {
-    const offsets = [];
-    for (let c = 0; c < row.length; c++) {
-      if ((row[c]||'').trim() === 'Excercise') offsets.push(c);
-    }
-    if (offsets.length >= 3) { weekOffsets = offsets; break; }
-  }
-  if (!weekOffsets) return null;
-
-  // Relative layout within each week block (from Exercise col):
-  // +0=Exercise name, +1=blank, +2=Sets, +3=Reps(target), +4=RIR, +5=Tempo, +6=Load, +7=Reps(actual)
-  const exercises = {};
-  let currentDay = '';
-
-  for (const row of rows) {
-    const cell1 = (row[1] || '').trim();
-    if (cell1.match(/^Day \d/i)) { currentDay = cell1; continue; }
-
-    const muscleGroup = cell1;
-    const exerciseName = (row[2] || '').trim();
-    if (!exerciseName || !muscleGroup) continue;
-    if (['Excercise','Muscle group','Exercise'].includes(exerciseName)) continue;
-    if (muscleGroup.match(/^Day \d/i) || muscleGroup === 'Muscle group') continue;
-
-    const weeks = weekOffsets.map(sc => {
-      const load = num(row[sc + 6]);
-      const sets = num(row[sc + 2]);
-      const repsActual = (row[sc + 7] || '').trim();
-      return { load, sets: sets || 0, repsActual };
-    });
-
-    if (weeks.every(w => w.load === null)) continue;
-
-    if (!exercises[exerciseName]) {
-      exercises[exerciseName] = { day: currentDay, muscleGroup, weeks };
-    }
-  }
-
-  let currentWeek = 0;
-  for (const ex of Object.values(exercises)) {
-    for (let w = 0; w < ex.weeks.length; w++) {
-      if (ex.weeks[w].load !== null) currentWeek = Math.max(currentWeek, w + 1);
-    }
-  }
-
-  return { exercises, weekCount: weekOffsets.length, currentWeek };
-}
-
-function avgRepsFromStr(s) {
-  if (!s) return null;
-  const nums = s.split('-').map(Number).filter(n => !isNaN(n) && n > 0);
-  return nums.length ? nums.reduce((a,b)=>a+b,0)/nums.length : null;
-}
-
-function epley1RM(load, reps) {
-  if (!load || !reps) return null;
-  return Math.round(load * (1 + reps / 30) * 10) / 10;
-}
+const MUSCLE_COLORS = ['#38bdf8','#f59e0b','#4ade80','#f87171','#c084fc','#818cf8','#fb923c','#34d399','#fbbf24','#60a5fa','#e879f9','#a3e635','#94a3b8','#f472b6'];
 
 function populateExerciseDropdown(dayFilter) {
   const exSelect = document.getElementById('t-exercise-select');
@@ -533,23 +593,19 @@ function populateExerciseDropdown(dayFilter) {
     .map(([name]) => name).sort();
   exSelect.innerHTML = filtered.map(n => `<option value="${n}"${n===current?' selected':''}>${n}</option>`).join('');
 }
-
 function filterTrainingDay() {
   const day = document.getElementById('t-day-select').value;
   populateExerciseDropdown(day);
   renderTrainingProgression();
   renderExerciseTable();
 }
-
 function renderTrainingProgression() {
   if (!gTrainingExercises) return;
   const name = document.getElementById('t-exercise-select')?.value;
   if (!name) return;
   const ex = gTrainingExercises[name];
   if (!ex) return;
-
   document.getElementById('t-prog-title').textContent = name;
-
   const labels = [], loads = [], oneRMs = [];
   for (let wi = 0; wi < gTrainingCurrentWeek; wi++) {
     const w = ex.weeks[wi];
@@ -558,54 +614,36 @@ function renderTrainingProgression() {
     const ar = avgRepsFromStr(w?.repsActual);
     oneRMs.push(w?.load && ar ? epley1RM(w.load, ar) : null);
   }
-
   destroy('t-prog-chart');
   const ctx = document.getElementById('t-prog-chart');
   if (ctx) {
-    const capturedEx = ex;
+    const cap = ex;
     charts['t-prog-chart'] = new Chart(ctx, {
       type: 'line',
-      data: { labels, datasets: [{
-        label: 'Load (kg)', data: loads,
-        borderColor: '#f59e0b', backgroundColor: '#f59e0b25',
-        borderWidth: 2.5, pointRadius: 5, pointHoverRadius: 8,
-        fill: true, tension: 0.3, spanGaps: true
-      }]},
-      options: { ...baseOpts(),
-        plugins: { legend: { display: false },
-          tooltip: { mode: 'index', intersect: false,
-            callbacks: { afterBody: items => {
-              const wi = items[0]?.dataIndex;
-              if (wi === undefined) return [];
-              const w = capturedEx.weeks[wi];
-              const lines = [];
-              if (w?.sets) lines.push(`Sätze: ${w.sets}`);
-              if (w?.repsActual) lines.push(`Reps: ${w.repsActual}`);
-              const ar = avgRepsFromStr(w?.repsActual);
-              if (w?.load && ar) lines.push(`1RM est.: ${epley1RM(w.load, ar)} kg`);
-              return lines;
-            }}
-          }
-        }
-      }
+      data: { labels, datasets: [{ label:'Load (kg)', data: loads, borderColor:'#f59e0b', backgroundColor:'#f59e0b25', borderWidth:2.5, pointRadius:5, pointHoverRadius:8, fill:true, tension:0.3, spanGaps:true }]},
+      options: { ...baseOpts(), plugins: { legend: { display: false }, tooltip: { mode:'index', intersect:false,
+        callbacks: { afterBody: items => {
+          const wi = items[0]?.dataIndex; if (wi === undefined) return [];
+          const w = cap.weeks[wi]; const lines = [];
+          if (w?.sets) lines.push(`Sätze: ${w.sets}`);
+          if (w?.repsActual) lines.push(`Reps: ${w.repsActual}`);
+          const ar = avgRepsFromStr(w?.repsActual);
+          if (w?.load && ar) lines.push(`1RM est.: ${epley1RM(w.load, ar)} kg`);
+          return lines;
+        }}
+      }}}
     });
   }
-
   destroy('t-1rm-chart');
   const ctx1 = document.getElementById('t-1rm-chart');
   if (ctx1) {
     charts['t-1rm-chart'] = new Chart(ctx1, {
       type: 'line',
-      data: { labels, datasets: [{
-        label: 'Epley 1RM', data: oneRMs,
-        borderColor: '#818cf8', backgroundColor: '#818cf825',
-        borderWidth: 2, pointRadius: 4, fill: true, tension: 0.3, spanGaps: true
-      }]},
+      data: { labels, datasets: [{ data: oneRMs, borderColor:'#818cf8', backgroundColor:'#818cf825', borderWidth:2, pointRadius:4, fill:true, tension:0.3, spanGaps:true }]},
       options: { ...baseOpts(), plugins: { legend: { display: false } } }
     });
   }
 }
-
 function renderExerciseTable() {
   if (!gTrainingExercises) return;
   const tbody = document.getElementById('t-table-body');
@@ -615,32 +653,30 @@ function renderExerciseTable() {
   const entries = Object.entries(gTrainingExercises)
     .filter(([,ex]) => !dayFilter || ex.day === dayFilter)
     .sort((a,b) => (a[1].day||'').localeCompare(b[1].day||'') || a[0].localeCompare(b[0]));
-
   for (const [name, ex] of entries) {
-    const w1Load = ex.weeks[0]?.load;
-    const wCurLoad = ex.weeks[gTrainingCurrentWeek - 1]?.load;
-    const delta = w1Load && wCurLoad ? ((wCurLoad - w1Load) / w1Load * 100) : null;
-    let deltaBadge = '<span style="color:#475569">–</span>';
+    const w1 = ex.weeks[0]?.load;
+    const wC = ex.weeks[gTrainingCurrentWeek - 1]?.load;
+    const delta = w1 && wC ? ((wC - w1) / w1 * 100) : null;
+    let badge = '<span style="color:#475569">–</span>';
     if (delta !== null) {
       const cls = delta > 1 ? 't-badge-pos' : delta < -1 ? 't-badge-neg' : 't-badge-neu';
-      deltaBadge = `<span class="t-badge ${cls}">${delta > 0 ? '+' : ''}${delta.toFixed(0)}%</span>`;
+      badge = `<span class="t-badge ${cls}">${delta > 0 ? '+' : ''}${delta.toFixed(0)}%</span>`;
     }
     const tr = document.createElement('tr');
     tr.innerHTML = `
       <td style="font-weight:500;max-width:200px;overflow:hidden;text-overflow:ellipsis">${name}</td>
       <td style="color:#64748b">${ex.muscleGroup}</td>
       <td style="color:#64748b;font-size:11px">${(ex.day||'').replace('Day ','D')}</td>
-      <td style="color:#94a3b8">${w1Load !== null ? w1Load+' kg' : '–'}</td>
-      <td style="font-weight:600;color:#f59e0b">${wCurLoad !== null ? wCurLoad+' kg' : '–'}</td>
-      <td>${deltaBadge}</td>`;
+      <td style="color:#94a3b8">${w1 !== null ? w1+' kg' : '–'}</td>
+      <td style="font-weight:600;color:#f59e0b">${wC !== null ? wC+' kg' : '–'}</td>
+      <td>${badge}</td>`;
     tr.onclick = () => {
       const sel = document.getElementById('t-exercise-select');
-      if (sel) { sel.value = name; renderTrainingProgression(); sel.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }
+      if (sel) { sel.value = name; renderTrainingProgression(); }
     };
     tbody.appendChild(tr);
   }
 }
-
 function renderTraining(parsed) {
   const noData = document.getElementById('t-no-data');
   const content = document.getElementById('t-content');
@@ -656,7 +692,6 @@ function renderTraining(parsed) {
   gTrainingWeekCount = parsed.weekCount;
   gTrainingCurrentWeek = parsed.currentWeek;
 
-  // KPIs
   document.getElementById('t-current-week').textContent = gTrainingCurrentWeek;
   document.getElementById('t-exercise-count').textContent = Object.keys(gTrainingExercises).length;
 
@@ -664,15 +699,13 @@ function renderTraining(parsed) {
   for (const ex of Object.values(gTrainingExercises)) {
     const w = ex.weeks[gTrainingCurrentWeek - 1];
     if (!w?.load) continue;
-    const ar = avgRepsFromStr(w.repsActual) || 8;
-    totalVol += (w.sets || 3) * ar * w.load;
+    totalVol += (w.sets || 3) * (avgRepsFromStr(w.repsActual) || 8) * w.load;
   }
   document.getElementById('t-volume-current').textContent = Math.round(totalVol).toLocaleString('de');
 
   let topExName = '–', topPct = -Infinity, topSub = '–';
   for (const [name, ex] of Object.entries(gTrainingExercises)) {
-    const w1 = ex.weeks[0]?.load;
-    const wC = ex.weeks[gTrainingCurrentWeek - 1]?.load;
+    const w1 = ex.weeks[0]?.load, wC = ex.weeks[gTrainingCurrentWeek - 1]?.load;
     if (!w1 || !wC) continue;
     const pct = (wC - w1) / w1 * 100;
     if (pct > topPct) { topPct = pct; topExName = name; topSub = `+${pct.toFixed(0)}% (${w1}→${wC} kg)`; }
@@ -682,24 +715,40 @@ function renderTraining(parsed) {
   progEl.title = topExName;
   document.getElementById('t-top-prog-sub').textContent = topPct > 0 ? topSub : '–';
 
-  // Volume per week chart
-  const volPerWeek = Array.from({ length: gTrainingCurrentWeek }, (_, wi) => {
-    let vol = 0;
-    for (const ex of Object.values(gTrainingExercises)) {
-      const w = ex.weeks[wi];
-      if (!w?.load) continue;
-      vol += (w.sets || 3) * (avgRepsFromStr(w.repsActual) || 8) * w.load;
-    }
-    return Math.round(vol);
+  // Stacked volume by muscle group
+  const weekLabels = Array.from({length: gTrainingCurrentWeek}, (_,i) => `W${i+1}`);
+  const muscleGroups = [...new Set(Object.values(gTrainingExercises).map(e=>e.muscleGroup).filter(Boolean))].sort();
+  const stackedDs = muscleGroups.map((mg, idx) => {
+    const color = MUSCLE_COLORS[idx % MUSCLE_COLORS.length];
+    return {
+      label: mg,
+      data: Array.from({length: gTrainingCurrentWeek}, (_, wi) => {
+        let vol = 0;
+        for (const ex of Object.values(gTrainingExercises)) {
+          if (ex.muscleGroup !== mg) continue;
+          const w = ex.weeks[wi];
+          if (!w?.load) continue;
+          vol += (w.sets || 3) * (avgRepsFromStr(w.repsActual) || 8) * w.load;
+        }
+        return Math.round(vol) || null;
+      }),
+      backgroundColor: color+'bb', borderColor: color, borderWidth: 1, borderRadius: 2
+    };
   });
-  barChart('t-volume-chart', Array.from({length: gTrainingCurrentWeek}, (_,i)=>`W${i+1}`), volPerWeek, '#c084fc');
+  destroy('t-volume-chart');
+  const volCtx = document.getElementById('t-volume-chart');
+  if (volCtx) {
+    const opts = baseOpts();
+    opts.scales.x.stacked = true;
+    opts.scales.y.stacked = true;
+    opts.plugins.legend = { display: true, labels: { color: '#94a3b8', font: { size: 10 }, boxWidth: 10, padding: 8 } };
+    charts['t-volume-chart'] = new Chart(volCtx, { type: 'bar', data: { labels: weekLabels, datasets: stackedDs }, options: opts });
+  }
 
-  // Day filter dropdown
+  // Dropdowns
   const daySelect = document.getElementById('t-day-select');
   const days = [...new Set(Object.values(gTrainingExercises).map(e=>e.day).filter(Boolean))].sort();
   daySelect.innerHTML = '<option value="">Alle Tage</option>' + days.map(d=>`<option value="${d}">${d}</option>`).join('');
-
-  // Exercise dropdown
   populateExerciseDropdown('');
   renderTrainingProgression();
   renderExerciseTable();
@@ -708,30 +757,55 @@ function renderTraining(parsed) {
 // ── LOAD ─────────────────────────────────────────────────────────────────────
 function showError(msg) {
   document.getElementById('status').innerHTML = `<p class="err">${msg}</p><button class="btn" onclick="showConfig()" style="margin-top:12px">Konfiguration</button>`;
-  document.getElementById('status').style.display='block';
-  document.getElementById('dashboard').style.display='none';
+  document.getElementById('status').style.display = 'block';
+  document.getElementById('dashboard').style.display = 'none';
 }
-
+function applyParsed(daily, weekBlocks, rawTraining) {
+  gDaily = daily; gWeekBlocks = weekBlocks;
+  document.getElementById('status').style.display = 'none';
+  document.getElementById('dashboard').style.display = 'block';
+  const cutoff = gDateRange > 0 ? new Date(Date.now() - gDateRange * 864e5) : null;
+  const filtered = cutoff ? gDaily.filter(r => r.dateObj && r.dateObj >= cutoff) : gDaily;
+  renderDashboard(filtered, weekBlocks);
+  const parsed = rawTraining?.length ? parseTrainingSheet(rawTraining) : null;
+  renderTraining(parsed);
+}
 async function loadData() {
   const cfg = getConfig();
-  if (!cfg.sheetId || !cfg.apiKey) { document.getElementById('config-banner').style.display='block'; document.getElementById('status').style.display='none'; return; }
-  document.getElementById('status').innerHTML='<div class="spinner"></div><p>Lade Daten von Google Sheets…</p>';
-  document.getElementById('status').style.display='block';
-  document.getElementById('dashboard').style.display='none';
+  if (!cfg.sheetId || !cfg.apiKey) {
+    document.getElementById('config-banner').style.display = 'block';
+    document.getElementById('status').style.display = 'none';
+    return;
+  }
+  // Sofort aus Cache rendern
+  const cache = loadCache();
+  if (cache) {
+    try {
+      const { daily, weekBlocks } = parseRows(cache.raw);
+      applyParsed(daily, weekBlocks, cache.rawTraining);
+      document.getElementById('last-updated').textContent =
+        `Cache: ${new Date(cache.ts).toLocaleTimeString('de-DE')} · Aktualisiere…`;
+    } catch(e) {}
+  } else {
+    document.getElementById('status').innerHTML = '<div class="spinner"></div><p>Lade Daten von Google Sheets…</p>';
+    document.getElementById('status').style.display = 'block';
+    document.getElementById('dashboard').style.display = 'none';
+  }
+  // Fresh fetch im Hintergrund
   try {
     const [raw, rawTraining] = await Promise.all([
       fetchSheet(cfg.sheetId, cfg.apiKey, cfg.sheetName||'Daily Tracking'),
-      fetchTrainingSheet(cfg.sheetId, cfg.apiKey, cfg.trainingSheetName||'Mesocycle 1').catch(e => { console.warn('Training sheet fetch failed:', e.message); return []; })
+      fetchTrainingSheet(cfg.sheetId, cfg.apiKey, cfg.trainingSheetName||'Mesocycle 1')
+        .catch(e => { console.warn('Training fetch:', e.message); return []; })
     ]);
+    saveCache(raw, rawTraining);
     const { daily, weekBlocks } = parseRows(raw);
-    document.getElementById('status').style.display='none';
-    document.getElementById('dashboard').style.display='block';
-    renderDashboard(daily, weekBlocks);
-    const parsed = rawTraining.length ? parseTrainingSheet(rawTraining) : null;
-    renderTraining(parsed);
-  } catch(e) { showError(e.message); }
+    applyParsed(daily, weekBlocks, rawTraining);
+  } catch(e) {
+    if (!cache) showError(e.message);
+    else document.getElementById('last-updated').textContent = `Cache · Fetch fehlgeschlagen: ${e.message}`;
+  }
 }
-
 function showTab(name, el) {
   document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
@@ -739,7 +813,8 @@ function showTab(name, el) {
   el.classList.add('active');
 }
 
-setInterval(loadData, 5*60*1000);
+document.addEventListener('visibilitychange', () => { if (!document.hidden) loadData(); });
+setInterval(() => { if (!document.hidden) loadData(); }, 5*60*1000);
 loadData();
 </script>
 </body>
