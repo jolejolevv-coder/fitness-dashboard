@@ -1,0 +1,58 @@
+name: Deploy
+
+# Baut die Seite und liefert sie ueber GitHub Pages aus.
+#
+# Damit dieser Workflow greift, muss die Pages Quelle des Repositories einmalig
+# von "Deploy from a branch" auf "GitHub Actions" umgestellt werden. Bis dahin
+# laeuft er zwar durch, aber ausgeliefert wird weiterhin der Inhalt des
+# Wurzelverzeichnisses.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Ein Deploy gleichzeitig. Laufende Deploys werden nicht abgebrochen, damit eine
+# angefangene Auslieferung nicht auf halbem Weg stehen bleibt.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      # Typpruefung und Tests laufen vor dem Build. Eine rote Suite darf nicht
+      # ausgeliefert werden.
+      - run: npm run typecheck
+      - run: npm test
+
+      - run: npm run build
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
