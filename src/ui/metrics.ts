@@ -5,30 +5,20 @@ import { byId } from './dom';
 import { decimal, EMPTY, integer, signed, target as formatTarget } from './format';
 
 /**
- * Sekundaere Kennzahlen.
+ * Sekundaere Kennzahlen, in drei Gruppen.
  *
- * Bewusst kleiner als der Hero und ohne eigene Farbe je Kachel. Die frueheren
- * acht gleich grossen Kacheln in acht verschiedenen Farben liessen keine
- * Rangfolge erkennen.
+ * Vorher sieben gleichfoermige Spalten nebeneinander, die keine Ordnung
+ * erkennen liessen. Jetzt Ernaehrung, Aktivitaet und Regeneration, mit
+ * unterschiedlicher Darstellung je nachdem, ob es ein Ziel gibt.
  *
- * Gezeigt wird die Abweichung des Schnitts vom Ziel, mit Vorzeichen in die gute
- * Richtung: Protein, Schritte und Ballaststoffe sind positiv, wenn sie darueber
- * liegen, Kalorien sind positiv, wenn sie darunter liegen. Vorher stand hier die
- * Trefferquote je Tag, die rot wurde, obwohl der Schnitt auf der guten Seite des
- * Ziels lag. Die Trefferquote steht weiterhin im Hero und im Analyse Tab.
+ * Wo ein Ziel existiert, steht die Abweichung des Schnitts davon, mit Vorzeichen
+ * in die gute Richtung: Protein, Ballaststoffe und Schritte sind positiv, wenn
+ * sie darueber liegen, Kalorien sind positiv, wenn sie darunter liegen. Wo kein
+ * Ziel existiert, steht der Wert auf seiner Skala.
  */
 
 /** Richtung, in der ein Wert das Ziel schlagen kann. */
 type Direction = 'atLeast' | 'atMost';
-
-interface MetricSpec {
-  label: string;
-  value: string;
-  sub: string;
-  /** Anteil am Ziel, 0 bis 1. Ohne Ziel entfaellt der Balken. */
-  fill?: number | undefined;
-  tone?: 'pos' | 'neg' | undefined;
-}
 
 const TONE_COLORS = { pos: 'var(--pos)', neg: 'var(--neg)' } as const;
 
@@ -43,37 +33,6 @@ export function deviationPct(actual: number, target: number, direction: Directio
   return direction === 'atMost' ? -raw : raw;
 }
 
-function node(spec: MetricSpec): HTMLElement {
-  const wrapper = document.createElement('div');
-  wrapper.className = 'metric';
-
-  const label = document.createElement('div');
-  label.className = 'metric-label';
-  label.textContent = spec.label;
-
-  const value = document.createElement('div');
-  value.className = 'metric-value';
-  value.textContent = spec.value;
-
-  const sub = document.createElement('div');
-  sub.className = 'metric-sub';
-  sub.textContent = spec.sub;
-
-  wrapper.append(label, value, sub);
-
-  if (spec.fill !== undefined) {
-    const bar = document.createElement('div');
-    bar.className = 'metric-bar';
-    const inner = document.createElement('span');
-    inner.style.width = `${Math.max(4, Math.min(100, spec.fill * 100))}%`;
-    inner.style.background = spec.tone ? TONE_COLORS[spec.tone] : 'var(--text-dim)';
-    bar.append(inner);
-    wrapper.append(bar);
-  }
-
-  return wrapper;
-}
-
 interface TargetedSpec {
   label: string;
   actual: number | null;
@@ -82,22 +41,93 @@ interface TargetedSpec {
   direction: Direction;
 }
 
-function targeted(spec: TargetedSpec): MetricSpec {
+/** Zeile mit Ziel: Wert, Abweichung und Balken. */
+function targetedRow(spec: TargetedSpec): HTMLElement {
+  const wrapper = document.createElement('div');
+  wrapper.className = 'metric';
+
+  const head = document.createElement('div');
+  head.className = 'metric-head';
+
+  const label = document.createElement('span');
+  label.className = 'metric-label';
+  label.textContent = spec.label;
+
   const suffix = spec.unit ? ` ${spec.unit}` : '';
-  const value = spec.actual === null ? EMPTY : `${integer(spec.actual)}${suffix}`;
+  const value = document.createElement('span');
+  value.className = 'metric-value';
+  value.textContent = spec.actual === null ? EMPTY : `${integer(spec.actual)}${suffix}`;
+
+  head.append(label, value);
+  wrapper.append(head);
 
   if (spec.actual === null || spec.target === null || spec.target <= 0) {
-    return { label: spec.label, value, sub: 'pro Tag' };
+    const sub = document.createElement('div');
+    sub.className = 'metric-sub';
+    sub.textContent = 'kein Zielwert';
+    wrapper.append(sub);
+    return wrapper;
   }
 
   const deviation = deviationPct(spec.actual, spec.target, spec.direction);
-  return {
-    label: spec.label,
-    value,
-    sub: `Ziel ${formatTarget(spec.target)}${suffix} · ${signed(deviation, 1)} %`,
-    fill: spec.actual / spec.target,
-    tone: deviation >= 0 ? 'pos' : 'neg',
-  };
+  const tone = deviation >= 0 ? 'pos' : 'neg';
+
+  const sub = document.createElement('div');
+  sub.className = 'metric-sub';
+  sub.append(document.createTextNode(`Ziel ${formatTarget(spec.target)}${suffix} · `));
+  const badge = document.createElement('span');
+  badge.style.color = TONE_COLORS[tone];
+  badge.textContent = `${signed(deviation, 1)} %`;
+  sub.append(badge);
+  wrapper.append(sub);
+
+  const bar = document.createElement('div');
+  bar.className = 'metric-bar';
+  const inner = document.createElement('span');
+  inner.style.width = `${Math.max(4, Math.min(100, (spec.actual / spec.target) * 100))}%`;
+  inner.style.background = TONE_COLORS[tone];
+  bar.append(inner);
+  wrapper.append(bar);
+
+  return wrapper;
+}
+
+/** Zeile ohne Ziel: Wert auf seiner Skala, als Indikator. */
+function gaugeRow(label: string, value: number | null, max: number, unit = ''): HTMLElement {
+  const wrapper = document.createElement('div');
+  wrapper.className = 'gauge';
+
+  const name = document.createElement('span');
+  name.className = 'gauge-label';
+  name.textContent = label;
+
+  const number = document.createElement('span');
+  number.className = 'gauge-value';
+  number.textContent = value === null ? EMPTY : `${decimal(value, 1)}${unit ? ` ${unit}` : ''}`;
+
+  const scale = document.createElement('div');
+  scale.className = 'gauge-scale';
+  const filled = value === null ? 0 : Math.round((value / max) * 5);
+  for (let i = 0; i < 5; i++) {
+    const segment = document.createElement('i');
+    if (i < filled) segment.className = 'on';
+    scale.append(segment);
+  }
+
+  wrapper.append(name, number, scale);
+  return wrapper;
+}
+
+function group(title: string, children: HTMLElement[]): HTMLElement {
+  const wrapper = document.createElement('div');
+  wrapper.className = 'metric-group';
+
+  const heading = document.createElement('div');
+  heading.className = 'metric-group-title';
+  heading.textContent = title;
+
+  wrapper.append(heading, ...children);
+  return wrapper;
 }
 
 export function renderMetrics(daily: readonly DailyEntry[], goals: Goals): void {
@@ -107,21 +137,21 @@ export function renderMetrics(daily: readonly DailyEntry[], goals: Goals): void 
   const goal = goals.average;
   const mean = (pick: (e: DailyEntry) => number | null): number | null => avg(daily.map(pick));
 
-  const specs: MetricSpec[] = [
-    targeted({ label: 'Ø Kalorien', actual: mean((e) => e.calories), target: goal.caloriesKcal, unit: '', direction: 'atMost' }),
-    targeted({ label: 'Ø Protein', actual: mean((e) => e.protein), target: goal.proteinG, unit: 'g', direction: 'atLeast' }),
-    targeted({ label: 'Ø Schritte', actual: mean((e) => e.steps), target: goal.steps, unit: '', direction: 'atLeast' }),
-    targeted({ label: 'Ø Ballaststoffe', actual: mean((e) => e.fiber), target: goal.fiberG, unit: 'g', direction: 'atLeast' }),
-  ];
+  const nutrition = group('Ernährung', [
+    targetedRow({ label: 'Kalorien', actual: mean((e) => e.calories), target: goal.caloriesKcal, unit: '', direction: 'atMost' }),
+    targetedRow({ label: 'Protein', actual: mean((e) => e.protein), target: goal.proteinG, unit: 'g', direction: 'atLeast' }),
+    targetedRow({ label: 'Ballaststoffe', actual: mean((e) => e.fiber), target: goal.fiberG, unit: 'g', direction: 'atLeast' }),
+  ]);
 
-  const sleep = mean((e) => e.sleep);
-  specs.push({ label: 'Ø Schlaf', value: sleep === null ? EMPTY : `${decimal(sleep, 1)} h`, sub: 'pro Nacht' });
+  const activity = group('Aktivität', [
+    targetedRow({ label: 'Schritte', actual: mean((e) => e.steps), target: goal.steps, unit: '', direction: 'atLeast' }),
+  ]);
 
-  const energy = mean((e) => e.energy);
-  specs.push({ label: 'Ø Energie', value: energy === null ? EMPTY : decimal(energy, 1), sub: 'von 5' });
+  const recovery = group('Regeneration', [
+    gaugeRow('Schlaf', mean((e) => e.sleep), 9, 'h'),
+    gaugeRow('Energie', mean((e) => e.energy), 5),
+    gaugeRow('Stress', mean((e) => e.stress), 5),
+  ]);
 
-  const stress = mean((e) => e.stress);
-  specs.push({ label: 'Ø Stress', value: stress === null ? EMPTY : decimal(stress, 1), sub: 'von 5, niedriger ist besser' });
-
-  container.replaceChildren(...specs.map(node));
+  container.replaceChildren(nutrition, activity, recovery);
 }

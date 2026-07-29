@@ -12,9 +12,12 @@ import {
 import type { SheetValues } from '../src/types';
 
 const root = join(import.meta.dirname, '..');
-const load = (p: string): any => JSON.parse(readFileSync(join(root, p), 'utf8'));
-const dailyFixture = load('test/fixtures/daily-tracking.json') as SheetValues;
-const meso1Fixture = load('test/fixtures/mesocycle-1.json') as SheetValues;
+/** Fixtures und Golden Values sind lose geformt, deshalb `unknown` mit gezielter Umwandlung. */
+function load<T>(p: string): T {
+  return JSON.parse(readFileSync(join(root, p), 'utf8')) as T;
+}
+const dailyFixture = load<SheetValues>('test/fixtures/daily-tracking.json');
+const meso1Fixture = load<SheetValues>('test/fixtures/mesocycle-1.json');
 
 describe('Vorgabeblock aus dem Sheet', () => {
   const goals = parseGoals(dailyFixture, meso1Fixture);

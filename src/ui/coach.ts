@@ -27,11 +27,15 @@ const COMPLIANCE_ATTENTION_PCT = 70;
 
 type Tone = 'pos' | 'warn' | 'neutral';
 
+/** Kategorie der Aussage, als Rubrik ueber dem Satz. */
+type Kind = 'Tempo' | 'Trend' | 'Ernährung' | 'Bilanz';
+
 interface Statement {
   tone: Tone;
+  kind: Kind;
   text: string;
   note?: string;
-  /** Hoehere Zahl gewinnt, wenn mehr als drei Aussagen zutreffen. */
+  /** Hoehere Zahl gewinnt. Die staerkste Aussage fuehrt, zwei folgen kleiner. */
   weight: number;
 }
 
@@ -56,11 +60,11 @@ export function buildStatements(
       const plan = Math.abs(soll);
       const note = `${decimal(ist, 2)} kg gegen ${decimal(plan, 2)} kg geplant · Basis ${integer(trend.basisDays)} Tage`;
       if (ist > plan * RATE_TOLERANCE) {
-        statements.push({ tone: 'warn', weight: 90, note, text: 'Dein Gewichtsverlust liegt deutlich über dem geplanten Bereich.' });
+        statements.push({ tone: 'warn', kind: 'Tempo', weight: 90, note, text: 'Dein Gewichtsverlust liegt deutlich über dem geplanten Bereich.' });
       } else if (ist < plan / RATE_TOLERANCE) {
-        statements.push({ tone: 'warn', weight: 80, note, text: 'Dein Gewichtsverlust liegt unter dem geplanten Bereich.' });
+        statements.push({ tone: 'warn', kind: 'Tempo', weight: 80, note, text: 'Dein Gewichtsverlust liegt unter dem geplanten Bereich.' });
       } else {
-        statements.push({ tone: 'pos', weight: 40, note, text: 'Dein Tempo liegt im geplanten Bereich.' });
+        statements.push({ tone: 'pos', kind: 'Tempo', weight: 40, note, text: 'Dein Tempo liegt im geplanten Bereich.' });
       }
     }
   }
@@ -74,11 +78,11 @@ export function buildStatements(
   if (plateau.ok) {
     const note = `${decimal(Math.abs(plateau.ratePerWeek), 2)} kg pro Woche · Basis ${integer(plateau.basisDays)} Tage`;
     if (plateau.status === 'plateau') {
-      statements.push({ tone: 'warn', weight: 95, note, text: 'Die letzten 14 Tage zeigen ein Plateau, obwohl die Ausführung stimmt.' });
+      statements.push({ tone: 'warn', kind: 'Trend', weight: 95, note, text: 'Die letzten 14 Tage zeigen ein Plateau, obwohl die Ausführung stimmt.' });
     } else if (plateau.status === 'ausfuehrung') {
-      statements.push({ tone: 'warn', weight: 85, note, text: 'Die letzten 14 Tage stehen still, bei gleichzeitig schwacher Compliance.' });
+      statements.push({ tone: 'warn', kind: 'Trend', weight: 85, note, text: 'Die letzten 14 Tage stehen still, bei gleichzeitig schwacher Compliance.' });
     } else {
-      statements.push({ tone: 'pos', weight: 35, note, text: 'Die letzten 14 Tage zeigen kein Plateau.' });
+      statements.push({ tone: 'pos', kind: 'Trend', weight: 35, note, text: 'Die letzten 14 Tage zeigen kein Plateau.' });
     }
   }
 
@@ -92,6 +96,7 @@ export function buildStatements(
     const spread = tdee.high - tdee.low;
     statements.push({
       tone: 'neutral',
+      kind: 'Bilanz',
       weight: 30,
       note: `Fenster ${tdee.estimates.map((e) => e.windowDays).join(', ')} Tage`,
       text: spread > 400
@@ -128,6 +133,7 @@ function weakestPillar(daily: readonly DailyEntry[], goals: Goals): Statement | 
   if (worst.pct >= COMPLIANCE_ATTENTION_PCT) {
     return {
       tone: 'pos',
+      kind: 'Ernährung',
       weight: 25,
       text: 'Alle Zielgrößen liegen über siebzig Prozent Trefferquote.',
       note: `Schwächste: ${worst.name.toLowerCase()} mit ${integer(worst.pct)} %`,
@@ -136,37 +142,64 @@ function weakestPillar(daily: readonly DailyEntry[], goals: Goals): Statement | 
 
   return {
     tone: 'warn',
+    kind: 'Ernährung',
     weight: 70,
     text: `${worst.name} ist aktuell die schwächste Stelle deiner Ausführung.`,
     note: `${integer(worst.hit)} von ${integer(worst.recorded)} erfassten Tagen im Ziel`,
   };
 }
 
+function statementNode(statement: Statement): HTMLElement {
+  const item = document.createElement('div');
+
+  const kind = document.createElement('div');
+  kind.className = 'coach-kind';
+
+  const dot = document.createElement('span');
+  dot.className = 'coach-dot';
+  dot.style.background = TONE_COLORS[statement.tone];
+  kind.append(dot, document.createTextNode(statement.kind));
+
+  const text = document.createElement('p');
+  text.className = 'coach-text';
+  text.textContent = statement.text;
+
+  if (statement.note) {
+    const note = document.createElement('span');
+    note.className = 'coach-note';
+    note.textContent = statement.note;
+    text.append(note);
+  }
+
+  item.append(kind, text);
+  return item;
+}
+
+/**
+ * Ein Hinweis fuehrt, zwei folgen kleiner.
+ *
+ * Drei gleich grosse Zellen lasen sich wie eine Tabelle und liessen offen, was
+ * zuerst zu lesen ist. Die Rangfolge steht in `weight`.
+ */
 export function renderCoach(daily: readonly DailyEntry[], goals: Goals): void {
   const container = byId('coach');
   if (!container) return;
 
   const statements = buildStatements(daily, goals);
-  container.replaceChildren(...statements.map((statement) => {
-    const item = document.createElement('div');
-    item.className = 'coach-item';
+  if (!statements.length) {
+    container.replaceChildren();
+    return;
+  }
 
-    const dot = document.createElement('span');
-    dot.className = 'coach-dot';
-    dot.style.background = TONE_COLORS[statement.tone];
+  const [first, ...rest] = statements;
 
-    const text = document.createElement('p');
-    text.className = 'coach-text';
-    text.textContent = statement.text;
+  const primary = statementNode(first!);
+  primary.className = 'coach-primary';
+  primary.style.borderLeftColor = TONE_COLORS[first!.tone];
 
-    if (statement.note) {
-      const note = document.createElement('span');
-      note.className = 'coach-note';
-      note.textContent = statement.note;
-      text.append(note);
-    }
+  const secondary = document.createElement('div');
+  secondary.className = 'coach-secondary';
+  secondary.append(...rest.map(statementNode));
 
-    item.append(dot, text);
-    return item;
-  }));
+  container.replaceChildren(primary, secondary);
 }

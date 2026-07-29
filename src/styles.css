@@ -12,28 +12,50 @@
  * Die Textfarben sind auf WCAG AA gegen Hintergrund und Flaeche geprueft.
  */
 :root {
-  /* Warmes Dunkel statt des blaustichigen Marineblau. */
-  --bg: #100f0e;
-  --surface: #191817;
-  --surface-2: #201f1d;
-  --line: #2b2a27;
-  --line-strong: #3a3835;
+  /*
+   * Warmes Dunkel. Der Abstand zwischen Seite und Flaeche ist gegenueber dem
+   * ersten Entwurf vergroessert, vorher lagen 0.9 Prozentpunkte Helligkeit
+   * dazwischen und die Analyseflaechen verschwammen mit dem Untergrund.
+   */
+  --bg: #0c0b0a;
+  --surface: #1a1917;
+  --surface-2: #232120;
+  --line: #302e2b;
+  --line-strong: #43403c;
 
-  --text: #e6e3de;
-  --text-muted: #a8a49c;
-  --text-dim: #8d8a83;
+  --text: #efece7;
+  /* 8.7 zu 1 auf --surface, 11.4 zu 1 auf --bg */
+  --text-muted: #b8b4ac;
+  /* 6.2 zu 1 auf --surface, 8.1 zu 1 auf --bg. Vorher 4.8. */
+  --text-dim: #9c988f;
 
   /* Akzent nur fuer Bedienelemente und den aktiven Zustand. */
-  --accent: #d0a86b;
+  --accent: #dcb478;
+  --accent-soft: #dcb47820;
   /* Semantik, entsaettigt. Neonfarben lesen sich auf dunklem Grund als Alarm. */
-  --pos: #7fb069;
-  --neg: #cf7d6b;
-  --neutral: #a8a49c;
+  --pos: #8cc077;
+  --pos-soft: #8cc07726;
+  --neg: #dd8877;
+  --neg-soft: #dd887726;
+  --neutral: #b8b4ac;
 
   /* Daten sind neutral hell, damit Farbe fuer Bedeutung frei bleibt. */
-  --data: #d6d2ca;
-  --data-soft: #8d8a83;
-  --grid: rgba(255, 255, 255, 0.055);
+  --data: #ddd9d1;
+  --data-soft: #9c988f;
+  --grid: rgba(255, 255, 255, 0.075);
+
+  /* Ein Radius je Groessenordnung, nicht je Bauteil. */
+  --r-sm: 6px;
+  --r-md: 10px;
+  --r-lg: 14px;
+  /* Abstaende in Vierersprüngen. */
+  --s-1: 4px;
+  --s-2: 8px;
+  --s-3: 12px;
+  --s-4: 16px;
+  --s-5: 20px;
+  --s-6: 28px;
+  --s-7: 36px;
 
   --page: 1360px;
   --chart-height: 220px;
@@ -48,7 +70,7 @@ body {
   font-family: var(--font);
   background: var(--bg);
   color: var(--text);
-  padding: 32px 28px 64px;
+  padding: 24px 28px 64px;
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
 }
@@ -72,7 +94,7 @@ body {
   align-items: baseline;
   gap: 24px;
   flex-wrap: wrap;
-  margin-bottom: 28px;
+  margin-bottom: var(--s-5);
 }
 .page-head h1 { font-size: 19px; font-weight: 600; letter-spacing: -0.01em; }
 .page-head .sub { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
@@ -83,15 +105,16 @@ body {
 .btn {
   background: none;
   border: 1px solid var(--line-strong);
-  border-radius: 6px;
+  border-radius: var(--r-sm);
   color: var(--text-muted);
-  padding: 6px 12px;
+  padding: 0 13px;
   font-size: 12px;
+  line-height: 1.15;
   font-family: inherit;
   cursor: pointer;
-  transition: color 0.15s, border-color 0.15s;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
 }
-.btn:hover { color: var(--text); border-color: var(--text-dim); }
+.btn:hover { color: var(--text); border-color: var(--text-dim); background: var(--surface); }
 
 /* ── Antwortblock ─────────────────────────────────────────────────────────── */
 
@@ -137,36 +160,43 @@ body {
 
 /* ── Navigation ───────────────────────────────────────────────────────────── */
 
-.tab-row { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; margin-bottom: 24px; }
-.tabs { display: flex; gap: 4px; flex-wrap: wrap; }
-.tab {
-  padding: 6px 12px;
+.tab-row { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; margin-bottom: 18px; }
+/*
+ * Tabs als zusammenhaengende Leiste auf eigener Flaeche. Der aktive Zustand ist
+ * eine hellere Flaeche mit Akzentkante, kein einzelner gelber Knopf zwischen
+ * unsichtbaren Nachbarn.
+ */
+.tabs, .range-btns {
+  display: flex;
+  gap: 2px;
+  background: var(--surface);
+  border-radius: var(--r-md);
+  padding: 3px;
+}
+.tab, .range-btn {
+  position: relative;
   border: none;
-  border-radius: 6px;
   background: none;
-  color: var(--text-dim);
+  color: var(--text-muted);
   cursor: pointer;
-  font-size: 13px;
   font-family: inherit;
+  border-radius: var(--r-sm);
+  white-space: nowrap;
   transition: color 0.15s, background 0.15s;
 }
-.tab:hover[aria-selected="false"] { color: var(--text); background: var(--surface); }
-.tab[aria-selected="true"] { color: var(--bg); background: var(--accent); font-weight: 600; }
+/* Gleiche Hoehe fuer alle Bedienelemente der Kopfzeile und der Navigation. */
+.btn, .tab, .range-btn { min-height: 30px; display: inline-flex; align-items: center; justify-content: center; }
+.tab { padding: 0 14px; font-size: 13px; }
+.range-btn { padding: 0 11px; font-size: 12px; }
 
-.range-btns { display: flex; gap: 4px; }
-.range-btn {
-  background: none;
-  border: none;
-  border-radius: 6px;
-  color: var(--text-dim);
-  padding: 6px 10px;
-  font-size: 12px;
-  font-family: inherit;
-  cursor: pointer;
-  white-space: nowrap;
+.tab:hover[aria-selected="false"], .range-btn:hover[aria-pressed="false"] { color: var(--text); background: var(--surface-2); }
+
+.tab[aria-selected="true"], .range-btn[aria-pressed="true"] {
+  background: var(--surface-2);
+  color: var(--text);
+  font-weight: 600;
+  box-shadow: inset 0 -2px 0 0 var(--accent);
 }
-.range-btn[aria-pressed="true"] { color: var(--text); background: var(--surface); }
-.range-btn:hover[aria-pressed="false"] { color: var(--text); }
 
 .section { display: none; }
 .section.active { display: block; }
@@ -200,13 +230,13 @@ body {
 
 /* ── Karten, wo eine Flaeche wirklich hilft ───────────────────────────────── */
 
-.panel { background: var(--surface); border-radius: 10px; padding: 20px 22px; }
-.panel + .panel { margin-top: 20px; }
+.panel { background: var(--surface); border-radius: var(--r-md); padding: var(--s-5) 22px; }
+.panel + .panel { margin-top: var(--s-5); }
 .panel-title { font-size: 12px; color: var(--text-muted); margin-bottom: 14px; }
 
 /* ── Wochen ───────────────────────────────────────────────────────────────── */
 
-.week-summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(132px, 1fr)); gap: 1px; background: var(--line); border-radius: 8px; overflow: hidden; margin-bottom: 28px; }
+.week-summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(132px, 1fr)); gap: 1px; background: var(--line); border-radius: var(--r-md); overflow: hidden; margin-bottom: var(--s-6); }
 .week-card { background: var(--bg); padding: 12px 14px; }
 .week-card h4 { font-size: 12px; color: var(--text-dim); font-weight: 400; margin-bottom: 4px; }
 .week-card .wval { font-size: 17px; font-weight: 600; font-variant-numeric: tabular-nums; }
@@ -297,35 +327,32 @@ body {
   * { transition: none !important; }
 }
 
-@media (max-width: 780px) {
-  body { padding: 20px 16px 48px; }
-  .charts-grid { grid-template-columns: 1fr; }
-  .chart-full { grid-column: 1; }
-  .answer { grid-template-columns: 1fr; gap: 20px; }
-  .stats { grid-template-columns: 1fr; }
-  .chart-export { opacity: 1; }
-}
 
 /* ── Hero: Fortschritt als ein Modul ──────────────────────────────────────── */
 
+/*
+ * Der Hero ist gegenueber dem ersten Entwurf rund achtzehn Prozent flacher.
+ * Auf einem Bildschirm mit 900 px Hoehe muss der Anfang der Analyse darunter
+ * sichtbar bleiben, sonst zwingt die Zusammenfassung zum Scrollen.
+ */
 .hero {
   background: var(--surface);
-  border-radius: 14px;
-  padding: 28px 30px;
-  margin-bottom: 20px;
+  border-radius: var(--r-lg);
+  padding: 18px 24px 16px;
+  margin-bottom: 14px;
 }
 .hero-headline {
-  font-size: clamp(22px, 2.4vw, 30px);
+  font-size: clamp(20px, 2vw, 26px);
   font-weight: 600;
   letter-spacing: -0.02em;
-  line-height: 1.25;
-  max-width: 26ch;
+  line-height: 1.2;
+  max-width: 30ch;
 }
 .hero-headline .accent { color: var(--accent); }
-.hero-sub { font-size: 14px; color: var(--text-muted); line-height: 1.6; margin-top: 10px; max-width: 62ch; }
+.hero-sub { font-size: 13.5px; color: var(--text-muted); line-height: 1.5; margin-top: 6px; max-width: 68ch; }
 
 /* Fortschrittsstrecke von Start ueber Aktuell bis Ziel. */
-.track { margin: 26px 0 22px; }
+.track { margin: 14px 0 12px; }
 .track-bar { position: relative; height: 6px; border-radius: 3px; background: var(--surface-2); overflow: visible; }
 .track-fill { position: absolute; inset: 0 auto 0 0; border-radius: 3px; background: linear-gradient(90deg, var(--accent) 0%, var(--pos) 100%); }
 .track-marker {
@@ -338,66 +365,106 @@ body {
   border: 3px solid var(--surface);
   transform: translate(-50%, -50%);
 }
-.track-ends { display: flex; justify-content: space-between; margin-top: 12px; font-size: 12px; color: var(--text-dim); }
-.track-ends .num { color: var(--text-muted); }
+.track-ends { display: flex; justify-content: space-between; margin-top: 9px; font-size: 12px; color: var(--text-muted); }
+.track-ends .num { color: var(--text); }
 
 .hero-metrics {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
-  gap: 24px;
-  padding-top: 22px;
+  gap: var(--s-5);
+  padding-top: 14px;
   border-top: 1px solid var(--line);
 }
-.hero-metric-label { font-size: 12px; color: var(--text-dim); margin-bottom: 6px; }
-.hero-metric-value { font-size: 25px; font-weight: 600; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; line-height: 1.1; }
-.hero-metric-sub { font-size: 12px; color: var(--text-muted); margin-top: 5px; }
+.hero-metric-label { font-size: 12px; color: var(--text-dim); margin-bottom: 4px; }
+.hero-metric-value { font-size: 23px; font-weight: 600; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; line-height: 1.1; }
+.hero-metric-sub { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
 
 /* ── Coaching: Beobachtungen, keine Anweisungen ───────────────────────────── */
 
-.coach { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1px; background: var(--line); border-radius: 12px; overflow: hidden; margin-bottom: 28px; }
+/*
+ * Ein Hinweis fuehrt, zwei folgen. Drei gleich grosse Zellen mit Trennlinien
+ * lasen sich wie eine Tabelle und liessen offen, welcher zuerst zu lesen ist.
+ */
+.coach {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+  gap: var(--s-5) var(--s-6);
+  background: var(--surface);
+  border-radius: var(--r-lg);
+  padding: 16px 24px 18px;
+  margin-bottom: 18px;
+}
 .coach:empty { display: none; }
-.coach-item { background: var(--surface); padding: 16px 20px; display: flex; gap: 12px; align-items: flex-start; }
-.coach-dot { width: 7px; height: 7px; border-radius: 50%; margin-top: 6px; flex: none; background: var(--neutral); }
-.coach-text { font-size: 13.5px; line-height: 1.55; color: var(--text); }
-.coach-note { display: block; font-size: 12px; color: var(--text-dim); margin-top: 4px; font-variant-numeric: tabular-nums; }
+
+.coach-kind { display: flex; align-items: center; gap: 7px; font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 7px; }
+.coach-dot { width: 6px; height: 6px; border-radius: 50%; flex: none; background: var(--neutral); }
+
+.coach-primary { border-left: 2px solid var(--line-strong); padding-left: var(--s-5); }
+.coach-primary .coach-text { font-size: 17px; line-height: 1.4; font-weight: 500; color: var(--text); }
+.coach-primary .coach-note { font-size: 12.5px; margin-top: 7px; }
+
+.coach-secondary { display: grid; gap: var(--s-4); align-content: start; }
+.coach-secondary .coach-text { font-size: 13px; line-height: 1.5; color: var(--text-muted); }
+.coach-secondary .coach-note { font-size: 12px; margin-top: 3px; }
+
+.coach-note { display: block; color: var(--text-dim); font-variant-numeric: tabular-nums; }
 
 /* ── Sekundaere Kennzahlen ────────────────────────────────────────────────── */
 
+/*
+ * Drei Gruppen statt sieben gleichfoermiger Spalten. Ernaehrung und Aktivitaet
+ * haben Ziele und bekommen Balken, Regeneration hat keine und wird kompakter
+ * als Indikatorenreihe gezeigt.
+ */
 .metrics {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(128px, 1fr));
+  grid-template-columns: minmax(0, 1.5fr) minmax(0, 0.7fr) minmax(0, 1.1fr);
   gap: 1px;
   background: var(--line);
-  border-radius: 12px;
+  border-radius: var(--r-md);
   overflow: hidden;
-  margin-bottom: 32px;
+  margin-bottom: 18px;
 }
-.metric { background: var(--bg); padding: 14px 16px; }
-.metric-label { font-size: 12px; color: var(--text-dim); margin-bottom: 5px; }
-.metric-value { font-size: 18px; font-weight: 600; font-variant-numeric: tabular-nums; }
-.metric-sub { font-size: 12px; color: var(--text-dim); margin-top: 3px; }
-.metric-bar { height: 3px; border-radius: 2px; background: var(--surface-2); margin-top: 8px; overflow: hidden; }
+.metric-group { background: var(--bg); padding: 12px 18px 13px; min-width: 0; }
+.metric-group-title { font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 9px; }
+
+.metric { padding: 5px 0; }
+.metric + .metric { border-top: 1px solid var(--line); }
+.metric-head { display: flex; justify-content: space-between; align-items: baseline; gap: var(--s-3); }
+.metric-label { font-size: 13px; color: var(--text-muted); }
+.metric-value { font-size: 16px; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--text); }
+.metric-sub { font-size: 12px; color: var(--text-dim); margin-top: 2px; font-variant-numeric: tabular-nums; }
+.metric-bar { height: 3px; border-radius: 2px; background: var(--surface-2); margin-top: 7px; overflow: hidden; }
 .metric-bar span { display: block; height: 100%; border-radius: 2px; }
+
+/* Regeneration: Wert plus Skala, ohne Ziel und ohne Balken. */
+.gauge { display: grid; grid-template-columns: 1fr auto; gap: 2px var(--s-3); align-items: baseline; padding: 5px 0; }
+.gauge + .gauge { border-top: 1px solid var(--line); }
+.gauge-label { font-size: 13px; color: var(--text-muted); }
+.gauge-value { font-size: 16px; font-weight: 600; font-variant-numeric: tabular-nums; text-align: right; }
+.gauge-scale { grid-column: 1 / -1; display: flex; gap: 3px; margin-top: 5px; }
+.gauge-scale i { flex: 1; height: 3px; border-radius: 2px; background: var(--surface-2); }
+.gauge-scale i.on { background: var(--data-soft); }
 
 /* ── Segmentierte Umschalter ──────────────────────────────────────────────── */
 
-.segmented { display: inline-flex; gap: 2px; background: var(--surface); border-radius: 7px; padding: 2px; }
+.segmented { display: inline-flex; gap: 2px; background: var(--surface-2); border-radius: var(--r-sm); padding: 2px; }
 .seg {
   border: none;
   background: none;
-  color: var(--text-dim);
   font-size: 12px;
   font-family: inherit;
   padding: 5px 10px;
-  border-radius: 5px;
+  border-radius: var(--r-sm);
   cursor: pointer;
   white-space: nowrap;
 }
-.seg[aria-pressed="true"] { background: var(--surface-2); color: var(--text); }
-.seg:hover[aria-pressed="false"] { color: var(--text-muted); }
+.seg { color: var(--text-muted); }
+.seg[aria-pressed="true"] { background: var(--surface); color: var(--text); box-shadow: inset 0 -2px 0 0 var(--accent); }
+.seg:hover[aria-pressed="false"] { color: var(--text); background: var(--surface); }
 
 /* Der Gewichtsverlauf bekommt die groesste Flaeche. */
-.chart-hero { background: var(--surface); border-radius: 14px; padding: 22px 24px 18px; margin-bottom: 28px; }
+.chart-hero { background: var(--surface); border-radius: var(--r-lg); padding: 20px 24px 16px; margin-bottom: var(--s-6); }
 .chart-hero .chart-title { border-bottom-color: var(--line-strong); }
 .chart-body-hero { height: 340px; }
 .chart-body-short { height: 180px; }
@@ -408,14 +475,40 @@ body {
 
 /* ── Zielbereiche und Sparklines ──────────────────────────────────────────── */
 
-.range-row { padding: 12px 0; border-bottom: 1px solid var(--line); }
-.range-row:last-child { border-bottom: none; }
-.range-head { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; font-size: 13px; margin-bottom: 9px; }
-.range-head .num { font-variant-numeric: tabular-nums; }
-.range-track { position: relative; height: 6px; border-radius: 3px; background: var(--surface-2); }
-.range-zone { position: absolute; top: 0; bottom: 0; background: rgba(127, 176, 105, 0.22); border-radius: 3px; }
-.range-actual { position: absolute; top: -3px; width: 2px; height: 12px; border-radius: 1px; background: var(--text); }
-.range-scale { display: flex; justify-content: space-between; font-size: 11px; color: var(--text-dim); margin-top: 7px; font-variant-numeric: tabular-nums; }
+/*
+ * Zielbereiche.
+ *
+ * Der eingefaerbte Abschnitt ist der akzeptable Bereich, die senkrechte Marke
+ * der aktuelle Schnitt, die Kerbe der Zielwert selbst. Darunter die Skala von
+ * null bis zum Maximum. Vorher war ohne Legende nicht erkennbar, was die
+ * gruene Flaeche bedeutet.
+ */
+.range-row { padding: 14px 0 20px; border-bottom: 1px solid var(--line); }
+.range-row:last-child { border-bottom: none; padding-bottom: 8px; }
+.range-head { display: flex; justify-content: space-between; align-items: baseline; gap: var(--s-4); font-size: 13px; margin-bottom: 14px; }
+.range-head .name { color: var(--text); }
+.range-head .num { font-variant-numeric: tabular-nums; color: var(--text-muted); }
+.range-head .num b { color: var(--text); font-weight: 600; }
+
+.range-track { position: relative; height: 8px; border-radius: 4px; background: var(--surface-2); }
+.range-zone { position: absolute; top: 0; bottom: 0; border-radius: 4px; }
+.range-zone.ok { background: var(--pos-soft); box-shadow: inset 0 0 0 1px rgba(140, 192, 119, 0.32); }
+
+/* Kerbe am Zielwert. */
+.range-goal { position: absolute; top: -4px; bottom: -4px; width: 2px; background: var(--pos); opacity: 0.8; }
+.range-goal-label { position: absolute; top: 14px; font-size: 11px; color: var(--pos); white-space: nowrap; transform: translateX(-50%); }
+
+/* Marke des aktuellen Werts, mit Beschriftung darunter. */
+.range-actual { position: absolute; top: -5px; width: 3px; height: 18px; border-radius: 2px; background: var(--text); }
+.range-actual-label { position: absolute; top: 14px; font-size: 11px; color: var(--text); white-space: nowrap; transform: translateX(-50%); font-variant-numeric: tabular-nums; }
+
+.range-scale { display: flex; justify-content: space-between; font-size: 11px; color: var(--text-dim); margin-top: 32px; font-variant-numeric: tabular-nums; }
+.range-legend { display: flex; gap: var(--s-5); flex-wrap: wrap; font-size: 11.5px; color: var(--text-dim); margin-top: var(--s-4); padding-top: var(--s-3); border-top: 1px solid var(--line); }
+.range-legend span { display: inline-flex; align-items: center; gap: 6px; }
+.range-legend i { width: 14px; height: 8px; border-radius: 3px; display: inline-block; }
+.range-legend i.zone { background: var(--pos-soft); box-shadow: inset 0 0 0 1px rgba(140, 192, 119, 0.32); }
+.range-legend i.goal { width: 2px; height: 12px; background: var(--pos); border-radius: 1px; }
+.range-legend i.actual { width: 3px; height: 12px; background: var(--text); border-radius: 2px; }
 
 .sparkline-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 22px 36px; }
 .spark { display: grid; grid-template-columns: 1fr auto; gap: 4px 16px; align-items: center; }
@@ -450,3 +543,37 @@ body {
 
 /* Der Titel bleibt links, auch wenn rechts Umschalter und Exportknopf stehen. */
 .chart-title > span:first-child { margin-right: auto; }
+
+/* Tagesverlaeufe gegen ein Ziel brauchen weniger Hoehe als der Gewichtsverlauf. */
+.chart-body-mid { height: 190px; }
+@media (max-width: 780px) { .chart-body-mid { height: 165px; } }
+
+/* ══ Responsive ═══════════════════════════════════════════════════════════════
+ *
+ * Bewusst am Dateiende. Media Queries erhoehen die Spezifitaet nicht, eine
+ * gleich spezifische Basisregel weiter unten gewinnt sonst gegen sie. Genau das
+ * ist passiert: das Kennzahlraster behielt auf dem Handy drei Spalten.
+ */
+
+@media (max-width: 1180px) {
+  /* Regeneration bricht als Erstes um, sie traegt keine Ziele. */
+  .metrics { grid-template-columns: minmax(0, 1.4fr) minmax(0, 0.8fr); }
+  .metrics .metric-group:last-child { grid-column: 1 / -1; }
+  .metrics .metric-group:last-child .gauge { display: inline-grid; width: calc(33.333% - 12px); margin-right: 12px; border-top: none; }
+  .coach { grid-template-columns: 1fr; }
+  .coach-secondary { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+}
+
+@media (max-width: 780px) {
+  body { padding: 20px 16px 48px; }
+  .metrics { grid-template-columns: 1fr; }
+  .metrics .metric-group:last-child .gauge { display: grid; width: auto; margin-right: 0; }
+  .metrics .metric-group:last-child .gauge + .gauge { border-top: 1px solid var(--line); }
+  .coach-secondary { grid-template-columns: 1fr; }
+  .range-scale, .range-legend { font-size: 11px; }
+  .charts-grid { grid-template-columns: 1fr; }
+  .chart-full { grid-column: 1; }
+  .answer { grid-template-columns: 1fr; gap: 20px; }
+  .stats { grid-template-columns: 1fr; }
+  .chart-export { opacity: 1; }
+}

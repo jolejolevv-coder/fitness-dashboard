@@ -186,6 +186,43 @@ Akzeptanz:
 * [x] Kein horizontaler Ueberlauf bei 375 px, nur die Tableiste scrollt seitlich
 * [x] Alle vier Ansichten des Gewichtsverlaufs geprueft, keine Konsolenfehler
 
+## Polish — Kontrast, Hierarchie, Verstaendlichkeit · ABGESCHLOSSEN
+
+Gezielter Durchgang nach dem Redesign, ohne Konzept oder Datenlogik anzufassen.
+
+* **Kontrast.** Sekundaerer Text von 4.8 auf 6.2 zu 1, gedaempfter Text auf
+  8.7 zu 1, Achsenbeschriftungen und Gitter angehoben. Der Abstand zwischen
+  Seitengrund und Analyseflaeche war unter einem Prozentpunkt Helligkeit und ist
+  jetzt sichtbar
+* **Hero rund neunzehn Prozent flacher**, 243 statt 300 px. Auf 1440 mal 900
+  sind 83 px des Gewichtsverlaufs sichtbar, vorher endete die Seite an der
+  Tableiste
+* **Coaching** mit einem fuehrenden Hinweis und zwei kleineren, dazu Rubriken
+  Tempo, Ernaehrung und Trend. Vorher drei gleich schwere Zellen mit Trennlinien
+* **Kennzahlen in drei Gruppen** statt sieben gleicher Spalten: Ernaehrung und
+  Aktivitaet mit Zielbalken, Regeneration als Indikatorenreihe ohne Ziel
+* **Navigation** als zusammenhaengende Leiste auf eigener Flaeche, aktiver
+  Zustand als hellere Flaeche mit Akzentkante statt als einzelner gelber Knopf.
+  Alle Bedienelemente exakt 30 px hoch
+* **Zielbereiche** mit Zielkerbe, beschrifteter Marke, Skala und Legende
+* **Protein und Kalorien** als eigenes Diagramm: Zielline, 7 Tage Mittel, Tage
+  auf der falschen Seite farbig markiert, Tooltip mit Wochentag, Datum, Wert,
+  Ziel und Differenz, Hoehe von 280 auf 190 px
+* **Lint eingerichtet**, ESLint mit typescript-eslint. Die dabei gefundenen
+  sechzehn `any` sind ersetzt, unter anderem durch eine typisierte veraenderbare
+  Sicht auf die Diagrammoptionen
+
+Ein Fehler dabei gefunden und behoben: die responsiven Regeln standen vor den
+Basisregeln. Media Queries erhoehen die Spezifitaet nicht, deshalb gewann die
+spaetere Basisregel und das Kennzahlraster behielt auf dem Handy drei Spalten.
+Die responsiven Regeln stehen jetzt geschlossen am Dateiende.
+
+Akzeptanz:
+* [x] Geprueft bei 1920, 1440, 1024, 768, 430 und 375 px Breite
+* [x] Kein Seitenueberlauf, nur die Tableiste scrollt seitlich
+* [x] Keine abgeschnittenen Texte
+* [x] Lint, Typecheck, 85 Tests und Build sauber
+
 ## Phase 6 — Umstellung und Abschluss
 
 * README mit Setup, Sheet Struktur, Deploy

@@ -37,6 +37,38 @@ export function baseOptions(): ChartOptions<'line' | 'bar'> {
   };
 }
 
+/**
+ * Veraenderbare Sicht auf die Diagrammoptionen.
+ *
+ * Chart.js beschreibt seine Optionen als tief verschachtelte Union mit lauter
+ * optionalen Feldern. Wer daran etwas setzen will, kaempft gegen das Typsystem
+ * statt gegen ein Problem. Diese Form beschreibt genau die Felder, die hier
+ * tatsaechlich gesetzt werden, und bleibt trotzdem ohne `any`.
+ */
+export interface AxisOptions {
+  ticks: Record<string, unknown>;
+  grid: Record<string, unknown>;
+  border?: Record<string, unknown>;
+  stacked?: boolean;
+  beginAtZero?: boolean;
+  grace?: string;
+}
+
+export interface MutableChartOptions {
+  responsive: boolean;
+  maintainAspectRatio: boolean;
+  animation: false;
+  plugins: Record<string, unknown>;
+  scales: { x: AxisOptions; y: AxisOptions };
+  interaction?: Record<string, unknown>;
+  indexAxis?: 'x' | 'y';
+}
+
+/** Grundeinstellungen in veraenderbarer Form, fuer Diagramme mit Sonderwuenschen. */
+export function mutableOptions(): MutableChartOptions {
+  return baseOptions() as unknown as MutableChartOptions;
+}
+
 export function destroyChart(id: string): void {
   const chart = charts.get(id);
   if (chart) {

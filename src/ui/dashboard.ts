@@ -1,7 +1,8 @@
 import type { DailyEntry, WeekBlock } from '../types';
 import { avg } from '../analytics/smoothing';
-import { barChart, baseOptions, lineChart, upsert } from '../charts/base';
+import { barChart, lineChart, mutableOptions, upsert } from '../charts/base';
 import { renderWeightChart, type LegendEntry, type WeightMode } from '../charts/weight';
+import { renderDailyTargetChart } from '../charts/nutrition';
 import { daysDiffer, targetRateKgPerWeek, type Goals } from '../parse/goals';
 import { byId, COLORS, setText } from './dom';
 import { renderCorrelation } from './correlation';
@@ -65,8 +66,14 @@ export function renderDashboard(input: DashboardInput): SectionRenderers | null 
     },
     nutrition: () => {
       renderNutritionRanges(daily, goals);
-      lineChart('proteinChart', allLabels, daily.map((r) => r.protein), COLORS.data, true, proteinTarget);
-      lineChart('caloriesChart', allLabels, daily.map((r) => r.calories), COLORS.data, true, calorieTarget);
+      renderDailyTargetChart({
+        canvasId: 'proteinChart', entries: daily, pick: (e) => e.protein,
+        target: proteinTarget, direction: 'atLeast', unit: 'g',
+      });
+      renderDailyTargetChart({
+        canvasId: 'caloriesChart', entries: daily, pick: (e) => e.calories,
+        target: calorieTarget, direction: 'atMost', unit: 'kcal',
+      });
       barChart('fvChart', allLabels, daily.map((r) => r.fv), COLORS.sky);
       renderMacroChart(daily, goals);
     },
@@ -94,7 +101,7 @@ export function renderDashboard(input: DashboardInput): SectionRenderers | null 
  * Eine Linie darf bei einem beliebigen Wert beginnen.
  */
 function weeklyChart(id: string, labels: string[], values: (number | null)[]): void {
-  const options = baseOptions() as unknown as Record<string, any>;
+  const options = mutableOptions();
   options.scales.y.beginAtZero = false;
   options.scales.y.grace = '15%';
 
@@ -167,7 +174,7 @@ function renderGoalContext(goals: Goals, currentWeightKg: number | null): void {
 }
 
 function renderMacroChart(daily: readonly DailyEntry[], goals: Goals): void {
-  const options = baseOptions() as unknown as Record<string, any>;
+  const options = mutableOptions();
   options.plugins = { legend: { labels: { color: COLORS.muted, font: { size: 11 }, boxWidth: 10, boxHeight: 10 } } };
   options.indexAxis = 'y';
 

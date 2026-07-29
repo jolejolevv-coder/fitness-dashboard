@@ -16,14 +16,28 @@ import type { DailyEntry, SheetValues } from '../src/types';
  * Jede weitere Abweichung ist ein Fehler und laesst diese Suite fallen.
  */
 
-const root = join(import.meta.dirname, '..');
-const load = (p: string): any => JSON.parse(readFileSync(join(root, p), 'utf8'));
+/** Nur die Felder, die diese Suite tatsaechlich liest. */
+interface GoldenDaily {
+  daily: (Record<string, unknown> & { dateObj: string })[];
+  weekBlocks: { avgWeight: number | null }[];
+  kpi: { badgeDays: string; movingAvgWeight: (number | null)[] };
+}
 
-const dailyFixture = load('test/fixtures/daily-tracking.json') as SheetValues;
-const meso1Fixture = load('test/fixtures/mesocycle-1.json') as SheetValues;
-const meso2Fixture = load('test/fixtures/mesocycle-2.json') as SheetValues;
-const goldenDaily = load('test/golden/daily.json');
-const goldenTraining = load('test/golden/training.json');
+interface GoldenTraining {
+  mesocycle1: { exerciseCount: number; weekCount: number; currentWeek: number };
+}
+
+const root = join(import.meta.dirname, '..');
+/** Fixtures und Golden Values sind lose geformt, deshalb `unknown` mit gezielter Umwandlung. */
+function load<T>(p: string): T {
+  return JSON.parse(readFileSync(join(root, p), 'utf8')) as T;
+}
+
+const dailyFixture = load<SheetValues>('test/fixtures/daily-tracking.json');
+const meso1Fixture = load<SheetValues>('test/fixtures/mesocycle-1.json');
+const meso2Fixture = load<SheetValues>('test/fixtures/mesocycle-2.json');
+const goldenDaily = load<GoldenDaily>('test/golden/daily.json');
+const goldenTraining = load<GoldenTraining>('test/golden/training.json');
 
 /** Fester Stichtag, sonst haengt das Ergebnis am Ausfuehrungsdatum. */
 const NOW = new Date(2026, 6, 29);
@@ -62,7 +76,7 @@ describe('Spaltenauflaesung', () => {
 
 describe('Abweichungen gegenueber der Ausgangsfassung', () => {
   const actual = new Map(parsed.daily.map((d) => [iso(d.dateObj)!, d]));
-  const previous = new Map<string, any>(goldenDaily.daily.map((d: any) => [d.dateObj as string, d]));
+  const previous = new Map(goldenDaily.daily.map((d) => [d.dateObj, d]));
 
   it('fuegt genau die erwarteten Tage hinzu und entfernt keinen', () => {
     expect([...actual.keys()].filter((k) => !previous.has(k)).sort()).toEqual(EXPECTED_NEW_DAYS);
@@ -97,7 +111,7 @@ describe('Unveraendert gegenueber der Ausgangsfassung', () => {
   });
 
   it('haelt die Wochenmittel aus dem Sheet', () => {
-    expect(parsed.weekBlocks.map((b) => b.avgWeight)).toEqual(goldenDaily.weekBlocks.map((b: any) => b.avgWeight));
+    expect(parsed.weekBlocks.map((b) => b.avgWeight)).toEqual(goldenDaily.weekBlocks.map((b) => b.avgWeight));
   });
 });
 

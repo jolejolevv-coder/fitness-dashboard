@@ -1,6 +1,6 @@
 import type { Exercise, ParsedTraining } from '../types';
 import { avgRepsFromStr, epley1RM } from '../analytics/strength';
-import { baseOptions, upsert } from '../charts/base';
+import { mutableOptions, upsert } from '../charts/base';
 import { baselineLoad, usableLoad } from '../parse/training';
 import { byId, COLORS, setText, show } from './dom';
 
@@ -140,12 +140,12 @@ function renderVolumeChart(): void {
     };
   });
 
-  const options = baseOptions() as any;
+  const options = mutableOptions();
   options.scales.x.stacked = true;
   options.scales.y.stacked = true;
   options.plugins.legend = { display: true, labels: { color: '#94a3b8', font: { size: 10 }, boxWidth: 10, padding: 8 } };
 
-  upsert('t-volume-chart', { type: 'bar', data: { labels: weekLabels, datasets }, options } as any);
+  upsert('t-volume-chart', { type: 'bar', data: { labels: weekLabels, datasets }, options });
 }
 
 function populateDaySelect(): void {
@@ -207,7 +207,7 @@ export function renderProgression(): void {
   }
 
   {
-    const options = baseOptions() as any;
+    const options = mutableOptions();
     options.plugins = {
       legend: { display: false },
       tooltip: {
@@ -253,7 +253,7 @@ export function renderProgression(): void {
         }],
       },
       options,
-    } as any);
+    });
   }
 
   {
@@ -272,8 +272,8 @@ export function renderProgression(): void {
           spanGaps: true,
         }],
       },
-      options: baseOptions() as any,
-    } as any);
+      options: mutableOptions(),
+    });
   }
 }
 

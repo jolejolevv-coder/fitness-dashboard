@@ -1,7 +1,7 @@
 import type { DailyEntry } from '../types';
 import { movingAvg, MOVING_AVERAGE_WINDOW } from '../analytics/smoothing';
 import { projectToTarget, smoothedWeightSeries, weightTrend } from '../analytics/trend';
-import { baseOptions, upsert } from './base';
+import { mutableOptions, upsert } from './base';
 import { decimal } from '../ui/format';
 
 /**
@@ -93,7 +93,7 @@ function withTooltip(unit: string): Record<string, unknown> {
 }
 
 function options(unit: string, extra: Record<string, unknown> = {}): Record<string, unknown> {
-  const base = baseOptions() as unknown as Record<string, any>;
+  const base = mutableOptions();
   base.plugins = { legend: { display: false }, tooltip: withTooltip(unit) };
   base.scales.x.ticks.maxTicksLimit = 9;
   base.scales.x.ticks.maxRotation = 0;
