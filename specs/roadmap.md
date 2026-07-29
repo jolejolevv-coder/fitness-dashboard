@@ -1,6 +1,6 @@
 # Roadmap
 
-Stand: 29.07.2026. Phasen 0 bis 2 abgeschlossen. Arbeit laeuft auf Branch
+Stand: 29.07.2026. Phasen 0 bis 3 abgeschlossen. Arbeit laeuft auf Branch
 `rewrite`, `main` bleibt bis Phase 6 unangetastet live.
 
 ## Phase 0 — Baseline und Hygiene · ABGESCHLOSSEN
@@ -82,14 +82,24 @@ Akzeptanz:
       jede weitere laesst die Suite fallen
 * [x] Kein `undefined` und kein irrefuehrendes `0` mehr in der Oberflaeche
 
-## Phase 3 — Zielwerte aus dem Sheet
+## Phase 3 — Zielwerte aus dem Sheet · ABGESCHLOSSEN
 
 Details in `specs/features/goals.md`. Vorgabeblock aus `Daily Tracking`, Sollrate
 aus `ROL` im Mesocycle Tab, laufend auf das aktuelle Gewicht umgerechnet.
 
 Akzeptanz:
-* [ ] Kein Zielwert mehr als Literal ausserhalb der Fallbacks
-* [ ] Unlesbarer Vorgabeblock erzeugt einen sichtbaren Hinweis, keinen stillen Default
+* [x] Kein Zielwert mehr als Literal ausserhalb der Rueckfallwerte, per Test gegen
+      den Quelltext abgesichert
+* [x] Unlesbarer Vorgabeblock erzeugt einen sichtbaren Hinweis, keinen stillen Default
+* [x] Beschriftungen und Referenzlinien folgen dem Sheet, `Protein ≥ 200 g` und
+      `Kalorien ≤ 2300,5` stehen nicht mehr im Markup
+* [x] Sollrate wird laufend aus dem aktuellen Gewicht gerechnet, bei 89.8 kg und
+      0.25 Prozent sind das 0.22 kg pro Woche
+* [x] Zielgewicht als einziges Feld im Konfigurationsdialog, optional
+
+Verschoben: laufen High Day und Low Day auseinander, sollen die Referenzlinien
+getrennt gezogen werden. In Mesocycle 1 sind beide identisch, die Trennung waere
+an nichts pruefbar. Bis dahin nennt ein Hinweis die Abweichung.
 
 ## Phase 4 — Analytik
 
@@ -157,6 +167,21 @@ zwischen Bloecken wird an echten Daten entwickelt, nicht an ausgedachten.
 * Wochenexport als Textblock fuer den Chat mit dem Trainer
 
 ## Retrospektive
+
+### Phase 3
+
+**Was lief gut.** Der Test, der den Quelltext selbst nach Zielzahlen durchsucht,
+ist billig und faengt genau die Rueckfaelle, die sonst unbemerkt wieder
+einziehen. Dass die Werte im Sheet standen, hat die Phase auf einen Bruchteil des
+geplanten Aufwands gebracht.
+
+**Wo lagen falsche Annahmen.** Keine nennenswerten. Die Struktur war aus Phase 0
+bekannt, das Parsen lief auf Anhieb.
+
+**Was muss naechstes Mal genauer spezifiziert werden.** Zahlenformate. Der
+Kalorienwert 2300,5 wurde zuerst auf 2301 gerundet angezeigt, was eine Vorgabe
+verfaelscht, die es so nicht gibt. Anzeigeformate gehoeren in die Spec, nicht in
+die Umsetzung.
 
 ### Phase 2
 

@@ -3,6 +3,7 @@ import './styles.css';
 import type { DailyEntry, SheetValues, WeekBlock } from './types';
 import { parseDaily } from './parse/daily';
 import { parseTraining } from './parse/training';
+import { parseGoals, type Goals } from './parse/goals';
 import { MissingColumnsError } from './parse/columns';
 import { fetchDailySheet, fetchTrainingSheet } from './sheets';
 import {
@@ -15,6 +16,7 @@ import {
   saveCredentials,
   type Credentials,
 } from './config/credentials';
+import { getTargets, saveTargets } from './config/targets';
 import { byId, show } from './ui/dom';
 import { renderDashboard } from './ui/dashboard';
 import { filterTrainingDay, renderExerciseTable, renderProgression, renderTraining } from './ui/training';
@@ -26,6 +28,7 @@ const MS_PER_DAY = 864e5;
 
 let allDaily: DailyEntry[] = [];
 let allWeekBlocks: WeekBlock[] = [];
+let goals: Goals | null = null;
 let dateRangeDays = 0;
 
 function input(id: string): HTMLInputElement | null {
@@ -42,6 +45,8 @@ function showConfig(): void {
   set('input-api-key', credentials.apiKey ?? '');
   set('input-sheet-name', credentials.sheetName ?? DEFAULT_DAILY_SHEET);
   set('input-training-sheet-name', credentials.trainingSheetName ?? DEFAULT_TRAINING_SHEET);
+  const target = getTargets().targetWeightKg;
+  set('input-target-weight', target === null ? '' : String(target));
   show('config-banner', true);
 }
 
@@ -57,6 +62,16 @@ function handleSaveConfig(): void {
     return;
   }
   saveCredentials(credentials);
+
+  // Zielgewicht ist optional und steht nirgends im Sheet. Leer heisst: keine Projektion.
+  const rawTarget = input('input-target-weight')?.value.trim() ?? '';
+  const parsedTarget = rawTarget === '' ? null : Number(rawTarget.replace(',', '.'));
+  if (parsedTarget !== null && !Number.isFinite(parsedTarget)) {
+    alert('Zielgewicht muss eine Zahl sein.');
+    return;
+  }
+  saveTargets({ targetWeightKg: parsedTarget });
+
   show('config-banner', false);
   void loadData();
 }
@@ -127,7 +142,7 @@ function applyDateRange(days: number): void {
   for (const button of document.querySelectorAll<HTMLElement>('.range-btn')) {
     button.classList.toggle('active', Number(button.dataset['range']) === days);
   }
-  renderDashboard(filteredDaily(), filteredWeekBlocks(), showError);
+  if (goals) renderDashboard(filteredDaily(), filteredWeekBlocks(), goals, showError);
 }
 
 function showTab(name: string, element: HTMLElement): void {
@@ -141,10 +156,12 @@ function applyParsed(raw: SheetValues, rawTraining: SheetValues): void {
   const { daily, weekBlocks } = parseDaily(raw);
   allDaily = daily;
   allWeekBlocks = weekBlocks;
+  // PHASE 3: Zielwerte kommen aus dem Vorgabeblock des Sheets, nicht aus dem Code.
+  goals = parseGoals(raw, rawTraining);
 
   show('status', false);
   show('dashboard', true);
-  renderDashboard(filteredDaily(), filteredWeekBlocks(), showError);
+  renderDashboard(filteredDaily(), filteredWeekBlocks(), goals, showError);
   renderTraining(rawTraining.length ? parseTraining(rawTraining) : null);
 }
 

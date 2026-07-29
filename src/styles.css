@@ -88,3 +88,5 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 .corr-diff { font-size: 12px; margin-top: 6px; }
 .corr-n { font-size: 11px; color: #475569; margin-top: 10px; }
 @media (max-width: 600px) { .corr-grid { grid-template-columns: 1fr; } }
+
+  .goals-hint { font-size: 11px; color: #f59e0b; margin-top: 6px; max-width: 640px; line-height: 1.4; }
