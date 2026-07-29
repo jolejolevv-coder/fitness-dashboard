@@ -65,6 +65,11 @@ begruendet. Reihenfolge nach Auswirkung.
 11. **Ø Schritte** faellt korrekt auf `–` zurueck statt auf 0
 12. **Kommentare** per `textContent` statt `innerHTML`
 13. **Gesamtverlust** aus geglaetteten Wochenmitteln statt zweier Einzeltage
+14. **Abrufbereich waechst mit.** Gelesen wird heute `A1:AD300`. Ein Wochenblock
+    belegt zwoelf Zeilen, die Daten beginnen in Zeile 31. Damit reicht der
+    Bereich bis etwa Woche 22, also bis Anfang Oktober 2026. Danach fehlen neue
+    Wochen kommentarlos. Der Bereich muss aus der Tabellengroesse abgeleitet
+    oder grosszuegig bemessen werden
 
 Akzeptanz:
 * [ ] Jeder Punkt hat einen fehlschlagenden Test vor und einen gruenen nach dem Fix
