@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { toCsv } from '../src/ui/export';
+import { deviationPct } from '../src/ui/metrics';
 import type { DailyEntry } from '../src/types';
 
 function entry(values: Partial<DailyEntry> = {}): DailyEntry {
@@ -45,5 +46,22 @@ describe('CSV Ausgabe', () => {
     const csv = toCsv([entry({ fv: 0 })]);
     const fields = csv.split('\r\n')[1]!.split(';');
     expect(fields[7]).toBe('0');
+  });
+});
+
+describe('Abweichung vom Ziel', () => {
+  it('zaehlt Ueberschreiten positiv, wo mehr besser ist', () => {
+    expect(deviationPct(210, 200, 'atLeast')).toBeCloseTo(5, 6);
+    expect(deviationPct(10777, 10000, 'atLeast')).toBeCloseTo(7.77, 2);
+  });
+
+  it('zaehlt Unterschreiten positiv, wo weniger besser ist', () => {
+    expect(deviationPct(2282, 2300.5, 'atMost')).toBeCloseTo(0.8, 1);
+    expect(deviationPct(2500, 2300.5, 'atMost')).toBeLessThan(0);
+  });
+
+  it('meldet null, wenn der Schnitt genau auf dem Ziel liegt', () => {
+    expect(deviationPct(200, 200, 'atLeast')).toBe(0);
+    expect(deviationPct(200, 200, 'atMost')).toBe(-0);
   });
 });

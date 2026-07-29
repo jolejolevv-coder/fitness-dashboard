@@ -1,0 +1,172 @@
+import type { DailyEntry } from '../types';
+import { targetRateKgPerWeek, type Goals } from '../parse/goals';
+import { complianceOf } from '../analytics/compliance';
+import { detectPlateau, weightTrend } from '../analytics/trend';
+import { tdeeRange } from '../analytics/tdee';
+import { byId } from './dom';
+import { decimal, integer } from './format';
+
+/**
+ * Beobachtungen zum aktuellen Stand.
+ *
+ * Bewusst keine Anweisungen. Die Kalorienvorgabe trifft der Trainer, und ein
+ * Dashboard, das Gegenvorschlaege macht, ist genau das, was in der
+ * Anforderungsklaerung ausgeschlossen wurde. Jede Aussage beschreibt einen
+ * Zustand und nennt die Zahl, auf der sie beruht.
+ *
+ * Hoechstens drei Aussagen. Wer fuenf Hinweise gleichzeitig zeigt, zeigt keinen.
+ */
+
+const MAX_STATEMENTS = 3;
+
+/** Ab dieser Abweichung von der Sollrate ist das Tempo eine Meldung wert. */
+const RATE_TOLERANCE = 1.3;
+
+/** Unterhalb dieser Compliance wird die schwaechste Saeule benannt. */
+const COMPLIANCE_ATTENTION_PCT = 70;
+
+type Tone = 'pos' | 'warn' | 'neutral';
+
+interface Statement {
+  tone: Tone;
+  text: string;
+  note?: string;
+  /** Hoehere Zahl gewinnt, wenn mehr als drei Aussagen zutreffen. */
+  weight: number;
+}
+
+const TONE_COLORS: Record<Tone, string> = {
+  pos: 'var(--pos)',
+  warn: 'var(--accent)',
+  neutral: 'var(--neutral)',
+};
+
+export function buildStatements(
+  daily: readonly DailyEntry[],
+  goals: Goals,
+): Statement[] {
+  const statements: Statement[] = [];
+  const trend = weightTrend(daily);
+
+  // 1. Tempo gegen Vorgabe.
+  if (trend.ok) {
+    const soll = targetRateKgPerWeek(goals.rateOfLossPct, trend.currentSmoothed);
+    if (soll !== null) {
+      const ist = Math.abs(trend.ratePerWeek);
+      const plan = Math.abs(soll);
+      const note = `${decimal(ist, 2)} kg gegen ${decimal(plan, 2)} kg geplant · Basis ${integer(trend.basisDays)} Tage`;
+      if (ist > plan * RATE_TOLERANCE) {
+        statements.push({ tone: 'warn', weight: 90, note, text: 'Dein Gewichtsverlust liegt deutlich über dem geplanten Bereich.' });
+      } else if (ist < plan / RATE_TOLERANCE) {
+        statements.push({ tone: 'warn', weight: 80, note, text: 'Dein Gewichtsverlust liegt unter dem geplanten Bereich.' });
+      } else {
+        statements.push({ tone: 'pos', weight: 40, note, text: 'Dein Tempo liegt im geplanten Bereich.' });
+      }
+    }
+  }
+
+  // 2. Plateau der letzten zwei Wochen.
+  const proteinTarget = goals.average.proteinG;
+  const proteinCompliance = proteinTarget === null
+    ? null
+    : complianceOf(daily, (e) => e.protein, (v) => v >= proteinTarget).pct;
+  const plateau = detectPlateau(daily, proteinCompliance);
+  if (plateau.ok) {
+    const note = `${decimal(Math.abs(plateau.ratePerWeek), 2)} kg pro Woche · Basis ${integer(plateau.basisDays)} Tage`;
+    if (plateau.status === 'plateau') {
+      statements.push({ tone: 'warn', weight: 95, note, text: 'Die letzten 14 Tage zeigen ein Plateau, obwohl die Ausführung stimmt.' });
+    } else if (plateau.status === 'ausfuehrung') {
+      statements.push({ tone: 'warn', weight: 85, note, text: 'Die letzten 14 Tage stehen still, bei gleichzeitig schwacher Compliance.' });
+    } else {
+      statements.push({ tone: 'pos', weight: 35, note, text: 'Die letzten 14 Tage zeigen kein Plateau.' });
+    }
+  }
+
+  // 3. Schwaechste Saeule der Ausfuehrung.
+  const weakest = weakestPillar(daily, goals);
+  if (weakest) statements.push(weakest);
+
+  // 4. Erhaltungsbedarf, sobald er belastbar ist.
+  const tdee = tdeeRange(daily);
+  if (tdee.ok) {
+    const spread = tdee.high - tdee.low;
+    statements.push({
+      tone: 'neutral',
+      weight: 30,
+      note: `Fenster ${tdee.estimates.map((e) => e.windowDays).join(', ')} Tage`,
+      text: spread > 400
+        ? `Der geschätzte Erhaltungsbedarf streut deutlich, zwischen ${integer(tdee.low)} und ${integer(tdee.high)} kcal.`
+        : `Der geschätzte Erhaltungsbedarf liegt bei ${integer(tdee.low)} bis ${integer(tdee.high)} kcal pro Tag.`,
+    });
+  }
+
+  return statements.sort((a, b) => b.weight - a.weight).slice(0, MAX_STATEMENTS);
+}
+
+/**
+ * Die Zielgroesse mit der schlechtesten Trefferquote.
+ *
+ * Nur gemeldet, wenn sie unter der Aufmerksamkeitsschwelle liegt. Wenn alles
+ * ueber siebzig Prozent liegt, gibt es hier nichts zu sagen.
+ */
+function weakestPillar(daily: readonly DailyEntry[], goals: Goals): Statement | null {
+  const candidates: { name: string; pct: number; hit: number; recorded: number }[] = [];
+
+  const add = (name: string, target: number | null, pick: (e: DailyEntry) => number | null, hit: (v: number) => boolean): void => {
+    if (target === null) return;
+    const result = complianceOf(daily, pick, hit);
+    if (result.pct === null || result.recorded < 14) return;
+    candidates.push({ name, pct: result.pct, hit: result.hit, recorded: result.recorded });
+  };
+
+  add('Die Kalorienvorgabe', goals.average.caloriesKcal, (e) => e.calories, (v) => v <= goals.average.caloriesKcal!);
+  add('Das Proteinziel', goals.average.proteinG, (e) => e.protein, (v) => v >= goals.average.proteinG!);
+  add('Das Schrittziel', goals.average.steps, (e) => e.steps, (v) => v >= goals.average.steps!);
+
+  if (!candidates.length) return null;
+  const worst = candidates.reduce((a, b) => (a.pct <= b.pct ? a : b));
+  if (worst.pct >= COMPLIANCE_ATTENTION_PCT) {
+    return {
+      tone: 'pos',
+      weight: 25,
+      text: 'Alle Zielgrößen liegen über siebzig Prozent Trefferquote.',
+      note: `Schwächste: ${worst.name.toLowerCase()} mit ${integer(worst.pct)} %`,
+    };
+  }
+
+  return {
+    tone: 'warn',
+    weight: 70,
+    text: `${worst.name} ist aktuell die schwächste Stelle deiner Ausführung.`,
+    note: `${integer(worst.hit)} von ${integer(worst.recorded)} erfassten Tagen im Ziel`,
+  };
+}
+
+export function renderCoach(daily: readonly DailyEntry[], goals: Goals): void {
+  const container = byId('coach');
+  if (!container) return;
+
+  const statements = buildStatements(daily, goals);
+  container.replaceChildren(...statements.map((statement) => {
+    const item = document.createElement('div');
+    item.className = 'coach-item';
+
+    const dot = document.createElement('span');
+    dot.className = 'coach-dot';
+    dot.style.background = TONE_COLORS[statement.tone];
+
+    const text = document.createElement('p');
+    text.className = 'coach-text';
+    text.textContent = statement.text;
+
+    if (statement.note) {
+      const note = document.createElement('span');
+      note.className = 'coach-note';
+      note.textContent = statement.note;
+      text.append(note);
+    }
+
+    item.append(dot, text);
+    return item;
+  }));
+}

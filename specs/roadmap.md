@@ -1,6 +1,6 @@
 # Roadmap
 
-Stand: 29.07.2026. Phasen 0 bis 5 abgeschlossen. Arbeit laeuft auf Branch
+Stand: 29.07.2026. Phasen 0 bis 5 sowie das Redesign abgeschlossen. Arbeit laeuft auf Branch
 `rewrite`, `main` bleibt bis Phase 6 unangetastet live.
 
 ## Phase 0 — Baseline und Hygiene · ABGESCHLOSSEN
@@ -150,6 +150,41 @@ Akzeptanz:
       ihrem eigenen Container
 * [ ] Lighthouse Werte nicht gemessen, dafuer fehlt eine erreichbare Instanz mit
       echten Daten. Nachzuholen nach Phase 6
+
+## Redesign — eigenstaendige Oberflaeche · ABGESCHLOSSEN
+
+Nach Rueckmeldung, dass die Optik weiterhin nach Verwaltungsvorlage aussieht.
+Kritik am alten Zustand: fuenfzehn gleich schwere Kaesten, sieben Farben ohne
+Bedeutung, flache Typografie, Chart.js im Auslieferungszustand.
+
+Geaendert wurde die Informationsarchitektur, nicht nur die Farben:
+
+* **Hero.** Ein Satz, eine Fortschrittsstrecke von Start ueber Aktuell zum Ziel,
+  drei primaere Kennzahlen. Ersetzt die vier getrennten Kacheln Start, Aktuell,
+  Verlust und Tage, die zusammengehoeren und trotzdem wie vier Knoepfe aussahen
+* **Coaching.** Bis zu drei Beobachtungen zum aktuellen Stand, nach Gewicht
+  sortiert, jede mit der Zahl dahinter. Ausdruecklich Beobachtungen, keine
+  Anweisungen: die Vorgabe trifft der Trainer
+* **Kennzahlen.** Sekundaer und kleiner. Statt der Trefferquote je Tag steht dort
+  die Abweichung des Schnitts vom Ziel, mit Vorzeichen in die gute Richtung.
+  Protein und Schritte positiv wenn darueber, Kalorien positiv wenn darunter.
+  Vorher zeigte die Kachel Rot, obwohl der Schnitt auf der guten Seite lag
+* **Gewichtsverlauf.** Groesstes Element, mit vier Ansichten: Gewicht mit
+  hervorgehobenen Ausreissern, 7 Tage Trend mit Ausgleichsgeraden, Prognose mit
+  Band bis zum Ziel, Veraenderung als Tagesbilanz. Legende darunter
+* **Unterschiedliche Darstellungen statt gleichartiger Diagramme.** Zielbereiche
+  fuer Makros, Sparklines fuer Wellness, Wochenmittel als Linie statt als Balken,
+  weil Balken eine Nulllinie behaupten, die es bei Gewichten nicht gibt
+* **Designsystem.** Warmes Dunkel statt Marineblau, ein Akzent, semantisches
+  Gruen und Terrakotta, neutrale Datenfarben, Zahlen in Tabellenziffern,
+  deutsches Dezimalkomma und echtes Minuszeichen
+* **Ladezustand** als Skelett statt als Spinner, Zeitraum um 90 Tage erweitert
+
+Akzeptanz:
+* [x] Keine Funktion, keine Berechnung und kein Tab entfernt
+* [x] 85 Tests gruen, Typpruefung und Build sauber
+* [x] Kein horizontaler Ueberlauf bei 375 px, nur die Tableiste scrollt seitlich
+* [x] Alle vier Ansichten des Gewichtsverlaufs geprueft, keine Konsolenfehler
 
 ## Phase 6 — Umstellung und Abschluss
 

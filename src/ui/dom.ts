@@ -19,16 +19,25 @@ export function show(id: string, visible: boolean, display = 'block'): void {
   if (element) element.style.display = visible ? display : 'none';
 }
 
-/** Farbpalette der Oberflaeche. Wandert in Phase 5 in CSS Custom Properties. */
+/**
+ * Farben fuer Diagramme, die dieselben Werte tragen wie die CSS Variablen.
+ *
+ * Chart.js zeichnet auf ein Canvas und kann keine Custom Properties lesen, die
+ * Werte muessen deshalb doppelt vorliegen. Sie sind entsaettigt: neutrale Toene
+ * fuer Daten, Gruen und Terrakotta nur dort, wo etwas gut oder schlecht ist.
+ */
 export const COLORS = {
-  good: '#4ade80',
-  warn: '#fbbf24',
-  bad: '#f87171',
-  muted: '#64748b',
-  dim: '#475569',
-  info: '#38bdf8',
-  accent: '#f59e0b',
-  violet: '#c084fc',
-  indigo: '#818cf8',
-  sky: '#0ea5e9',
+  /** Neutrale Datenfarbe, Standard fuer Verlaeufe. */
+  info: '#d6d2ca',
+  data: '#d6d2ca',
+  accent: '#d0a86b',
+  good: '#7fb069',
+  warn: '#d0a86b',
+  bad: '#cf7d6b',
+  muted: '#a8a49c',
+  dim: '#8d8a83',
+  /** Weitere Verlaufsfarben, bewusst nah beieinander statt bunt. */
+  violet: '#a294a8',
+  indigo: '#8fa0b4',
+  sky: '#93a89c',
 } as const;

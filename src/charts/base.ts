@@ -2,10 +2,9 @@ import { Chart, registerables, type ChartOptions, type ChartType } from 'chart.j
 
 Chart.register(...registerables);
 
-/** Farben der Achsen und Gitter. */
-const GRID_COLOR = '#1e2a3a';
-const TICK_COLOR = '#94a3b8';
-const Y_GRID_COLOR = '#334155';
+/** Farben der Achsen und Gitter, passend zu den CSS Variablen. */
+const TICK_COLOR = '#8d8a83';
+const Y_GRID_COLOR = 'rgba(255, 255, 255, 0.055)';
 
 const charts = new Map<string, Chart>();
 
@@ -23,8 +22,17 @@ export function baseOptions(): ChartOptions<'line' | 'bar'> {
     animation: false,
     plugins: { legend: { display: false }, tooltip: { mode: 'index', intersect: false } },
     scales: {
-      x: { ticks: { color: TICK_COLOR, font: { size: 10 }, maxRotation: 45, autoSkipPadding: 12 }, grid: { color: GRID_COLOR } },
-      y: { ticks: { color: TICK_COLOR, font: { size: 11 } }, grid: { color: Y_GRID_COLOR } },
+      // Senkrechte Gitterlinien tragen nichts bei und verrauschen die Flaeche.
+      x: {
+        ticks: { color: TICK_COLOR, font: { size: 11 }, maxRotation: 0, autoSkip: true, maxTicksLimit: 8 },
+        grid: { display: false },
+        border: { color: 'rgba(255, 255, 255, 0.08)' },
+      },
+      y: {
+        ticks: { color: TICK_COLOR, font: { size: 11 }, padding: 6 },
+        grid: { color: Y_GRID_COLOR },
+        border: { display: false },
+      },
     },
   };
 }
@@ -96,10 +104,12 @@ export function lineChart(
   const datasets: Record<string, unknown>[] = [{
     data,
     borderColor: color,
-    backgroundColor: fill ? `${color}25` : 'transparent',
-    borderWidth: 1.5,
-    pointRadius: 2,
-    pointHoverRadius: 6,
+    backgroundColor: fill ? `${color}14` : 'transparent',
+    borderWidth: 1.75,
+    // Punkte erst beim Zeigen. Achtzig Punkte auf einer Linie sind Rauschen.
+    pointRadius: 0,
+    pointHoverRadius: 4,
+    pointBackgroundColor: color,
     fill,
     tension: 0.3,
     spanGaps: true,
@@ -108,7 +118,7 @@ export function lineChart(
   if (reference !== null) {
     datasets.push({
       data: labels.map(() => reference),
-      borderColor: '#ffffff30',
+      borderColor: '#ffffff26',
       borderDash: [5, 5],
       borderWidth: 1,
       pointRadius: 0,
@@ -119,7 +129,7 @@ export function lineChart(
   if (movingAverage !== null) {
     datasets.push({
       data: movingAverage,
-      borderColor: '#ffffffcc',
+      borderColor: '#d0a86b',
       borderWidth: 2,
       pointRadius: 0,
       fill: false,
@@ -142,10 +152,10 @@ export function barChart(id: string, labels: string[], data: (number | null)[], 
       labels,
       datasets: [{
         data,
-        backgroundColor: `${color}aa`,
-        borderColor: color,
-        borderWidth: 1,
-        borderRadius: 4,
+        backgroundColor: `${color}99`,
+        borderColor: 'transparent',
+        borderWidth: 0,
+        borderRadius: 2,
       }],
     },
     options: baseOptions(),

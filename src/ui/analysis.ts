@@ -31,25 +31,31 @@ function target(value: number | null): string {
   return Number.isInteger(value) ? String(value) : String(value).replace('.', ',');
 }
 
+/**
+ * Eine Zeile der Werteliste.
+ *
+ * Frueher eine Kachel je Kennzahl. Vier gleich grosse Kaesten in vier Farben
+ * sagen nichts darueber, welcher wichtig ist. Eine Liste sagt es auch nicht,
+ * beansprucht aber nicht so zu tun.
+ */
 function card(label: string, value: string, sub: string, color: string): HTMLElement {
   const element = document.createElement('div');
-  element.className = 'kpi-card';
+  element.className = 'stat';
 
-  const labelEl = document.createElement('div');
-  labelEl.className = 'kpi-label';
-  labelEl.textContent = label;
+  const name = document.createElement('span');
+  name.className = 'stat-name';
+  name.textContent = label;
 
-  const valueEl = document.createElement('div');
-  valueEl.className = 'kpi-value';
+  const valueEl = document.createElement('span');
+  valueEl.className = 'stat-value';
   valueEl.style.color = color;
-  valueEl.style.fontSize = value.length > 16 ? '16px' : '';
   valueEl.textContent = value;
 
-  const subEl = document.createElement('div');
-  subEl.className = 'kpi-sub';
-  subEl.textContent = sub;
+  const note = document.createElement('span');
+  note.className = 'stat-note';
+  note.textContent = sub;
 
-  element.append(labelEl, valueEl, subEl);
+  element.append(name, valueEl, note);
   return element;
 }
 

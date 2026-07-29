@@ -5,60 +5,61 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex, nofollow">
 <meta name="description" content="Privates Auswertungs Dashboard.">
-<title>Body Recomp Dashboard</title>
+<title>Body Recomp</title>
 </head>
 <body>
+<div class="wrap">
 
 <div id="config-banner">
   <h3>Einmalige Konfiguration</h3>
   <p>Deine Zugangsdaten werden nur lokal im Browser gespeichert und nie übertragen.<br>
   <strong>Sheet ID:</strong> Der Teil zwischen <code>/d/</code> und <code>/edit</code> in der URL.<br>
-  <strong>Tab-Name:</strong> Genau so wie unten im Sheet angezeigt (z.B. <code>Daily Tracking</code>).</p>
-  <input type="text" id="input-sheet-id" placeholder="Sheet ID (z.B. 19ZErBhSKZH...)" />
+  <strong>Tab Name:</strong> Genau so wie unten im Sheet angezeigt, etwa <code>Daily Tracking</code>.</p>
+  <input type="text" id="input-sheet-id" placeholder="Sheet ID" />
   <input type="password" id="input-api-key" placeholder="Google API Key" />
-  <input type="text" id="input-sheet-name" placeholder='Daily Tracking Tab-Name' value="Daily Tracking" />
-  <input type="text" id="input-training-sheet-name" placeholder='Training Tab-Name (z.B. "Mesocycle 1")' value="Mesocycle 1" />
-  <input type="number" step="0.1" id="input-target-weight" placeholder="Zielgewicht in kg (optional)" />
-  <button id="btn-save-config">Speichern &amp; laden</button>
+  <input type="text" id="input-sheet-name" placeholder="Tab mit den Tagesdaten" value="Daily Tracking" />
+  <input type="text" id="input-training-sheet-name" placeholder="Tab mit dem Mesozyklus" value="Mesocycle 1" />
+  <input type="number" step="0.1" id="input-target-weight" placeholder="Zielgewicht in kg, optional" />
+  <button id="btn-save-config">Speichern und laden</button>
   <button class="secondary" id="btn-cancel-config">Abbrechen</button>
 </div>
 
 <div id="status">
-  <div class="spinner"></div>
-  <p>Verbinde mit Google Sheets…</p>
+  <div class="skeleton-hero">
+    <div class="sk sk-line" style="width:52%;height:26px"></div>
+    <div class="sk sk-line" style="width:70%"></div>
+    <div class="sk sk-track"></div>
+    <div class="sk-row">
+      <div class="sk sk-block"></div><div class="sk sk-block"></div><div class="sk sk-block"></div>
+    </div>
+    <div class="sk sk-chart"></div>
+  </div>
+  <p class="status-note" id="status-note">Verbinde mit Google Sheets…</p>
 </div>
 
 <div id="dashboard">
-  <div class="header">
+
+  <header class="page-head">
     <div>
-      <h1>Body Recomp Dashboard</h1>
-      <p id="header-sub"></p>
+      <h1>Body Recomp</h1>
+      <p class="sub" id="header-sub"></p>
       <div class="goals-hint" id="goals-hint" style="display:none"></div>
-      <div class="last-updated" id="last-updated"></div>
     </div>
-    <div class="badges">
-      <div class="badge">Start<span id="badge-start">–</span></div>
-      <div class="badge">Aktuell<span id="badge-current" style="color:#4ade80">–</span></div>
-      <div class="badge">Verlust<span id="badge-loss" style="color:#4ade80">–</span></div>
-      <div class="badge">Tage<span id="badge-days" style="color:#38bdf8">–</span></div>
-      <button class="btn" id="btn-refresh">Refresh</button>
+    <div class="actions">
+      <span class="last-updated" id="last-updated"></span>
+      <button class="btn" id="btn-refresh">Aktualisieren</button>
       <button class="btn" id="btn-export-csv" title="Gefilterte Tagesdaten als CSV">CSV</button>
-      <button class="btn" id="btn-config" aria-label="Konfiguration">⚙</button>
+      <button class="btn" id="btn-config">Einstellungen</button>
     </div>
-  </div>
+  </header>
 
-  <div class="answer" id="answer-block"></div>
+  <!-- Fortschritt als zusammenhaengendes Modul, nicht als vier einzelne Kacheln. -->
+  <section class="hero" id="hero" aria-label="Fortschritt"></section>
 
-  <div class="kpi-grid">
-    <div class="kpi-card"><div class="kpi-label">Gesamtverlust</div><div class="kpi-value" id="kpi-loss" style="color:#4ade80">–</div><div class="kpi-sub" id="kpi-loss-sub">–</div></div>
-    <div class="kpi-card"><div class="kpi-label">Ø Kalorien</div><div class="kpi-value" id="kpi-kcal" style="color:#38bdf8">–</div><div class="kpi-sub">kcal/Tag</div></div>
-    <div class="kpi-card"><div class="kpi-label">Ø Protein</div><div class="kpi-value" id="kpi-protein" style="color:#fbbf24">–</div><div class="kpi-sub">g/Tag</div></div>
-    <div class="kpi-card"><div class="kpi-label">Ø Schritte</div><div class="kpi-value" id="kpi-steps" style="color:#c084fc">–</div><div class="kpi-sub">pro Tag</div></div>
-    <div class="kpi-card"><div class="kpi-label">Ø Schlaf</div><div class="kpi-value" id="kpi-sleep" style="color:#818cf8">–</div><div class="kpi-sub">Stunden</div></div>
-    <div class="kpi-card"><div class="kpi-label">Ø Energie</div><div class="kpi-value" id="kpi-energy" style="color:#fbbf24">–</div><div class="kpi-sub">von 5</div></div>
-    <div class="kpi-card"><div class="kpi-label" id="kpi-protein-label">Protein</div><div class="kpi-value" id="kpi-protein-compliance">–</div><div class="kpi-sub">Tage-Compliance</div></div>
-    <div class="kpi-card"><div class="kpi-label" id="kpi-cal-label">Kalorien</div><div class="kpi-value" id="kpi-cal-compliance">–</div><div class="kpi-sub">Tage-Compliance</div></div>
-  </div>
+  <!-- Beobachtungen zum aktuellen Stand. Bewusst keine Anweisungen. -->
+  <section class="coach" id="coach" aria-label="Aktueller Stand"></section>
+
+  <section class="metrics" id="metrics" aria-label="Weitere Kennzahlen"></section>
 
   <div class="tab-row">
     <div class="tabs" role="tablist" aria-label="Ansichten">
@@ -69,74 +70,131 @@
       <button class="tab" role="tab" aria-selected="false" tabindex="-1" aria-controls="training" id="tab-training" data-tab="training">Training</button>
       <button class="tab" role="tab" aria-selected="false" tabindex="-1" aria-controls="analysis" id="tab-analysis" data-tab="analysis">Analyse</button>
     </div>
-    <div class="range-btns">
-      <button class="range-btn" aria-pressed="false" data-range="14">14 Tage</button>
-      <button class="range-btn" aria-pressed="false" data-range="30">30 Tage</button>
-      <button class="range-btn" aria-pressed="true" data-range="0">Alle</button>
+    <div class="range-btns" role="group" aria-label="Zeitraum">
+      <button class="range-btn" aria-pressed="false" data-range="14">14 T</button>
+      <button class="range-btn" aria-pressed="false" data-range="30">30 T</button>
+      <button class="range-btn" aria-pressed="false" data-range="90">90 T</button>
+      <button class="range-btn" aria-pressed="true" data-range="0">Gesamt</button>
     </div>
   </div>
 
   <div class="section active" role="tabpanel" aria-labelledby="tab-overview" id="overview">
+    <div class="chart-card chart-hero">
+      <div class="chart-title">
+        <span>Gewichtsverlauf</span>
+        <span class="segmented" role="group" aria-label="Darstellung des Gewichtsverlaufs">
+          <button class="seg" aria-pressed="true" data-mode="weight">Gewicht</button>
+          <button class="seg" aria-pressed="false" data-mode="trend">7 Tage Trend</button>
+          <button class="seg" aria-pressed="false" data-mode="forecast">Prognose</button>
+          <button class="seg" aria-pressed="false" data-mode="delta">Veränderung</button>
+        </span>
+      </div>
+      <div class="chart-body chart-body-hero"><canvas id="weightChart"></canvas></div>
+      <div class="chart-legend" id="weight-legend"></div>
+    </div>
+
     <div class="charts-grid">
-      <div class="chart-card chart-full"><div class="chart-title">Gewichtsverlauf (kg) · weiße Linie = 7-Tage-Ø</div><div class="chart-body"><canvas id="weightChart"></canvas></div></div>
-      <div class="chart-card"><div class="chart-title">Schritte / Tag</div><div class="chart-body"><canvas id="stepsChart"></canvas></div></div>
-      <div class="chart-card"><div class="chart-title">Wöchentliche Ø Gewichte</div><div class="chart-body"><canvas id="weeklyChart"></canvas></div></div>
+      <div class="chart-card">
+        <div class="chart-title"><span>Schritte pro Tag</span></div>
+        <div class="chart-body chart-body-short"><canvas id="stepsChart"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title"><span>Wochenmittel Gewicht</span></div>
+        <div class="chart-body chart-body-short"><canvas id="weeklyChart"></canvas></div>
+      </div>
     </div>
   </div>
 
   <div class="section" role="tabpanel" aria-labelledby="tab-nutrition" id="nutrition">
+    <div class="panel" style="margin-bottom:28px">
+      <div class="panel-title">Zielbereiche im Schnitt</div>
+      <div id="nutrition-ranges"></div>
+    </div>
     <div class="charts-grid">
-      <div class="chart-card chart-full"><div class="chart-title">Protein / Tag (g)</div><div class="chart-body"><canvas id="proteinChart"></canvas></div></div>
-      <div class="chart-card chart-full"><div class="chart-title">Kalorien / Tag</div><div class="chart-body"><canvas id="caloriesChart"></canvas></div></div>
-      <div class="chart-card"><div class="chart-title">Ø Makros: Ist vs. Ziel (g/Tag)</div><div class="chart-body"><canvas id="macroChart"></canvas></div></div>
-      <div class="chart-card"><div class="chart-title">Früchte & Gemüse (g/Tag)</div><div class="chart-body"><canvas id="fvChart"></canvas></div></div>
+      <div class="chart-card chart-full">
+        <div class="chart-title"><span>Protein pro Tag in Gramm</span></div>
+        <div class="chart-body"><canvas id="proteinChart"></canvas></div>
+      </div>
+      <div class="chart-card chart-full">
+        <div class="chart-title"><span>Kalorien pro Tag</span></div>
+        <div class="chart-body"><canvas id="caloriesChart"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title"><span>Makros im Schnitt gegen Ziel</span></div>
+        <div class="chart-body chart-body-short"><canvas id="macroChart"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title"><span>Obst und Gemüse in Gramm</span></div>
+        <div class="chart-body chart-body-short"><canvas id="fvChart"></canvas></div>
+      </div>
     </div>
   </div>
 
   <div class="section" role="tabpanel" aria-labelledby="tab-wellness" id="wellness">
-    <div class="charts-grid">
-      <div class="chart-card"><div class="chart-title">Schlafdauer (h)</div><div class="chart-body"><canvas id="sleepChart"></canvas></div></div>
-      <div class="chart-card"><div class="chart-title">Energylevel (1–5)</div><div class="chart-body"><canvas id="energyChart"></canvas></div></div>
-      <div class="chart-card"><div class="chart-title">Stresslevel (1–5, niedriger = besser)</div><div class="chart-body"><canvas id="stressChart"></canvas></div></div>
-      <div class="chart-card"><div class="chart-title">Verdauung (1–10)</div><div class="chart-body"><canvas id="digestionChart"></canvas></div></div>
+    <div class="panel" style="margin-bottom:28px">
+      <div class="panel-title">Verlauf im Überblick</div>
+      <div class="sparkline-list" id="wellness-sparks"></div>
     </div>
-    <div class="chart-card">
-      <div class="chart-title">Training · Effekt auf Folgetag</div>
+    <div class="charts-grid">
+      <div class="chart-card">
+        <div class="chart-title"><span>Schlafdauer in Stunden</span></div>
+        <div class="chart-body chart-body-short"><canvas id="sleepChart"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title"><span>Energielevel, 1 bis 5</span></div>
+        <div class="chart-body chart-body-short"><canvas id="energyChart"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title"><span>Stresslevel, 1 bis 5, niedriger ist besser</span></div>
+        <div class="chart-body chart-body-short"><canvas id="stressChart"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title"><span>Verdauung</span></div>
+        <div class="chart-body chart-body-short"><canvas id="digestionChart"></canvas></div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-title">Befinden am Tag nach dem Training</div>
       <div id="correlation-content"></div>
     </div>
   </div>
 
   <div class="section" role="tabpanel" aria-labelledby="tab-weeks" id="weeks">
     <div class="week-summary" id="week-cards"></div>
-    <div class="chart-card" style="margin-bottom:16px"><div class="chart-title">Wöchentliche Ø Gewichte</div><div class="chart-body"><canvas id="weekBarChart"></canvas></div></div>
-    <div class="chart-title" style="font-size:14px; color:#94a3b8; margin-bottom:10px;">Notizen aus dem Tracking</div>
-    <div id="comments-container"></div>
+    <div class="chart-card" style="margin-bottom:28px">
+      <div class="chart-title"><span>Wochenmittel Gewicht</span></div>
+      <div class="chart-body"><canvas id="weekBarChart"></canvas></div>
+    </div>
+    <div class="panel">
+      <div class="panel-title">Notizen aus dem Tracking</div>
+      <div id="comments-container"></div>
+    </div>
   </div>
 
   <div class="section" role="tabpanel" aria-labelledby="tab-analysis" id="analysis">
-    <div class="kpi-grid" id="a-kpis" style="margin-bottom:16px"></div>
-    <div class="chart-card" style="margin-bottom:16px">
-      <div class="chart-title">Trend</div>
+    <div class="stats" id="a-kpis" style="margin-bottom:28px"></div>
+    <div class="panel">
+      <div class="panel-title">Trend</div>
       <div id="a-trend-detail"></div>
     </div>
-    <div class="chart-card" style="margin-bottom:16px">
-      <div class="chart-title">Serien und Compliance</div>
+    <div class="panel">
+      <div class="panel-title">Serien und Compliance</div>
       <div id="a-streaks"></div>
     </div>
-    <div class="chart-card">
-      <div class="chart-title">Zusammenhänge</div>
+    <div class="panel">
+      <div class="panel-title">Zusammenhänge</div>
       <div id="correlation-pairs"></div>
     </div>
   </div>
 
   <div class="section" role="tabpanel" aria-labelledby="tab-training" id="training">
-    <div id="t-no-data" style="display:none">Keine Trainingsdaten geladen. Prüfe den Sheet-Namen in der Konfiguration.</div>
+    <div id="t-no-data" style="display:none">Keine Trainingsdaten geladen. Prüfe den Tabnamen in den Einstellungen.</div>
     <div id="t-content" style="display:none">
-      <div class="kpi-grid" style="margin-bottom:16px">
-        <div class="kpi-card"><div class="kpi-label">Aktuelle Woche</div><div class="kpi-value" id="t-current-week" style="color:#f59e0b">–</div><div class="kpi-sub" id="t-week-count">von 12 Wochen</div></div>
-        <div class="kpi-card"><div class="kpi-label">Übungen</div><div class="kpi-value" id="t-exercise-count" style="color:#38bdf8">–</div><div class="kpi-sub">gesamt im Mesozyklus</div></div>
-        <div class="kpi-card"><div class="kpi-label">Volumen W-aktuell</div><div class="kpi-value" id="t-volume-current" style="color:#4ade80">–</div><div class="kpi-sub">Sätze × Reps × kg</div></div>
-        <div class="kpi-card"><div class="kpi-label">Top Progression</div><div class="kpi-value" id="t-top-prog" style="color:#c084fc; font-size:15px">–</div><div class="kpi-sub" id="t-top-prog-sub">–</div></div>
+      <div class="stats" style="margin-bottom:28px">
+        <div class="stat"><span class="stat-name">Aktuelle Woche</span><span class="stat-value num" id="t-current-week">–</span><span class="stat-note" id="t-week-count"></span></div>
+        <div class="stat"><span class="stat-name">Übungen im Mesozyklus</span><span class="stat-value num" id="t-exercise-count">–</span><span class="stat-note"></span></div>
+        <div class="stat"><span class="stat-name">Volumen aktuelle Woche</span><span class="stat-value num" id="t-volume-current">–</span><span class="stat-note">kg gesamt</span></div>
+        <div class="stat"><span class="stat-name">Stärkste Progression</span><span class="stat-value" id="t-top-prog">–</span><span class="stat-note num" id="t-top-prog-sub"></span></div>
       </div>
       <div class="training-controls">
         <div class="ctrl-group">
@@ -148,31 +206,33 @@
           <select id="t-exercise-select"></select>
         </div>
       </div>
-      <div class="charts-grid" style="margin-bottom:16px">
-        <div class="chart-card chart-full">
-          <div class="chart-title">Gewichtsprogression – <span id="t-prog-title" style="color:#f59e0b"></span></div>
-          <div class="chart-body"><canvas id="t-prog-chart"></canvas></div>
+      <div class="chart-card" style="margin-bottom:28px">
+        <div class="chart-title"><span>Lastprogression · <span id="t-prog-title"></span></span></div>
+        <div class="chart-body"><canvas id="t-prog-chart"></canvas></div>
+      </div>
+      <div class="charts-grid">
+        <div class="chart-card">
+          <div class="chart-title"><span>Geschätztes Einwiederholungsmaximum</span></div>
+          <div class="chart-body chart-body-short"><canvas id="t-1rm-chart"></canvas></div>
         </div>
         <div class="chart-card">
-          <div class="chart-title">Epley 1RM Trend (geschätzt, kg)</div>
-          <div class="chart-body"><canvas id="t-1rm-chart"></canvas></div>
-        </div>
-        <div class="chart-card">
-          <div class="chart-title">Volumen nach Muskelgruppe</div>
-          <div class="chart-body"><canvas id="t-volume-chart"></canvas></div>
+          <div class="chart-title"><span>Volumen nach Muskelgruppe</span></div>
+          <div class="chart-body chart-body-short"><canvas id="t-volume-chart"></canvas></div>
         </div>
       </div>
-      <div class="chart-card">
-        <div class="chart-title">Alle Übungen — klicken zum Anzeigen</div>
-        <div style="overflow-x:auto; margin-top:10px">
+      <div class="panel">
+        <div class="panel-title">Alle Übungen, klicken zum Anzeigen</div>
+        <div style="overflow-x:auto">
           <table class="t-table">
-            <thead><tr><th>Übung</th><th>Muskelgruppe</th><th>Tag</th><th>W1 Load</th><th>Aktuell</th><th>Progression</th></tr></thead>
+            <thead><tr><th>Übung</th><th>Muskelgruppe</th><th>Tag</th><th>Start</th><th>Aktuell</th><th>Progression</th></tr></thead>
             <tbody id="t-table-body"></tbody>
           </table>
         </div>
       </div>
     </div>
   </div>
+
+</div>
 </div>
 
 <script type="module" src="/src/main.ts"></script>

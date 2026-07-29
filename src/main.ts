@@ -20,7 +20,10 @@ import { getTargets, saveTargets } from './config/targets';
 import { byId, show } from './ui/dom';
 import { renderDashboard, type SectionRenderers } from './ui/dashboard';
 import { renderAnalysis } from './ui/analysis';
-import { renderAnswerBlock } from './ui/answer-block';
+import { renderHero } from './ui/hero';
+import { renderCoach } from './ui/coach';
+import { renderMetrics } from './ui/metrics';
+import type { WeightMode } from './charts/weight';
 import { filterTrainingDay, renderProgression, renderTraining } from './ui/training';
 import { activeTab, setupRangeButtons, setupTabs } from './ui/tabs';
 import { attachChartExports, downloadCsv } from './ui/export';
@@ -48,6 +51,7 @@ let goals: Goals | null = null;
 let training: ParsedTraining | null = null;
 let sections: SectionRenderers | null = null;
 let dateRangeDays = 0;
+let weightMode: WeightMode = 'weight';
 
 let lastFetchAt = 0;
 let dataTimestamp: number | null = null;
@@ -214,13 +218,50 @@ function applyDateRange(days: number): void {
   renderShared();
 }
 
-/** Kopfbereich, Kennzahlen und Antwortblock. Haengt am Zeitraumfilter. */
+/**
+ * Kopf, Hero, Coaching und sekundaere Kennzahlen.
+ *
+ * Hero, Coaching und Kennzahlen rechnen ueber den gesamten Bestand, weil ihre
+ * Aussagen Fenster von bis zu 56 Tagen brauchen. Die Diagramme folgen dem
+ * Zeitraumfilter.
+ */
 function renderShared(): void {
   if (!goals) return;
-  sections = renderDashboard(filteredDaily(), filteredWeekBlocks(), goals, showError);
-  renderAnswerBlock(allDaily, goals, getTargets().targetWeightKg);
+  const targetWeightKg = getTargets().targetWeightKg;
+
+  renderHero({ daily: allDaily, goals, targetWeightKg });
+  renderCoach(allDaily, goals);
+  renderMetrics(allDaily, goals);
+
+  sections = renderDashboard({
+    daily: filteredDaily(),
+    weekBlocks: filteredWeekBlocks(),
+    goals,
+    weightMode,
+    targetWeightKg,
+    onError: showError,
+  });
+
   markAllDirty();
   renderActiveSection();
+}
+
+/** Umschalter ueber dem Gewichtsverlauf. Zeichnet nur diesen Abschnitt neu. */
+function setWeightMode(mode: WeightMode): void {
+  weightMode = mode;
+  for (const button of document.querySelectorAll<HTMLButtonElement>('.seg')) {
+    button.setAttribute('aria-pressed', String(button.dataset['mode'] === mode));
+  }
+  if (!goals) return;
+  sections = renderDashboard({
+    daily: filteredDaily(),
+    weekBlocks: filteredWeekBlocks(),
+    goals,
+    weightMode,
+    targetWeightKg: getTargets().targetWeightKg,
+    onError: showError,
+  });
+  sections?.['overview']?.();
 }
 
 function applyParsed(raw: SheetValues, rawTraining: SheetValues, timestamp: number, fromCache: boolean): void {
@@ -305,6 +346,10 @@ function wire(): void {
   byId('btn-export-csv')?.addEventListener('click', () => downloadCsv(filteredDaily()));
   byId('t-day-select')?.addEventListener('change', filterTrainingDay);
   byId('t-exercise-select')?.addEventListener('change', renderProgression);
+
+  for (const button of document.querySelectorAll<HTMLButtonElement>('.seg')) {
+    button.addEventListener('click', () => setWeightMode((button.dataset['mode'] ?? 'weight') as WeightMode));
+  }
 
   setupTabs(() => renderActiveSection());
   setupRangeButtons(applyDateRange);

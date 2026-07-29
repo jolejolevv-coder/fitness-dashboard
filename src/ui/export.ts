@@ -97,6 +97,6 @@ export function attachChartExports(): void {
       download(`${canvas.id}-${stamp()}.png`, chart.toBase64Image('image/png', 1));
     });
 
-    title.prepend(button);
+    title.append(button);
   }
 }
