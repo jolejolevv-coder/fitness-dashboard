@@ -65,3 +65,33 @@ describe('Abweichung vom Ziel', () => {
     expect(deviationPct(200, 200, 'atMost')).toBe(-0);
   });
 });
+
+describe('Zielgewicht', () => {
+  /** Minimaler localStorage Ersatz, damit der Test ohne Browser laeuft. */
+  function withStorage(initial: Record<string, string>): void {
+    const store = new Map(Object.entries(initial));
+    (globalThis as { localStorage?: unknown }).localStorage = {
+      getItem: (k: string) => store.get(k) ?? null,
+      setItem: (k: string, v: string) => void store.set(k, v),
+      removeItem: (k: string) => void store.delete(k),
+    };
+  }
+
+  it('nutzt die Vorgabe, solange nichts gespeichert wurde', async () => {
+    withStorage({});
+    const { getTargets, DEFAULT_TARGET_WEIGHT_KG } = await import('../src/config/targets');
+    expect(getTargets().targetWeightKg).toBe(DEFAULT_TARGET_WEIGHT_KG);
+  });
+
+  it('respektiert einen gespeicherten Wert', async () => {
+    withStorage({ fitness_targets_v1: JSON.stringify({ targetWeightKg: 78 }) });
+    const { getTargets } = await import('../src/config/targets');
+    expect(getTargets().targetWeightKg).toBe(78);
+  });
+
+  it('respektiert ein ausdruecklich geleertes Ziel', async () => {
+    withStorage({ fitness_targets_v1: JSON.stringify({ targetWeightKg: null }) });
+    const { getTargets } = await import('../src/config/targets');
+    expect(getTargets().targetWeightKg).toBeNull();
+  });
+});
