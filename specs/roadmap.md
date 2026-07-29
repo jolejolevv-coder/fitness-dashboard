@@ -1,6 +1,6 @@
 # Roadmap
 
-Stand: 29.07.2026. Phasen 0 bis 4 abgeschlossen. Arbeit laeuft auf Branch
+Stand: 29.07.2026. Phasen 0 bis 5 abgeschlossen. Arbeit laeuft auf Branch
 `rewrite`, `main` bleibt bis Phase 6 unangetastet live.
 
 ## Phase 0 — Baseline und Hygiene · ABGESCHLOSSEN
@@ -125,7 +125,7 @@ Die Analytik rechnet immer ueber den gesamten Zeitraum, nie ueber die Auswahl de
 Zeitraumknoepfe. Ein Filter auf 14 Tage wuerde das 28 und das 56 Tage Fenster des
 Erhaltungsbedarfs unmoeglich machen.
 
-## Phase 5 — Antwortblock, Performance, Zugaenglichkeit
+## Phase 5 — Antwortblock, Performance, Zugaenglichkeit · ABGESCHLOSSEN
 
 * Antwortblock nach `specs/features/answer-block.md`, lokaler Tab Nutzungszaehler
 * Charts nur fuer den sichtbaren Tab bauen, bei Refresh Daten aktualisieren statt
@@ -139,9 +139,17 @@ Erhaltungsbedarfs unmoeglich machen.
 * CSV Export der gefilterten Daten, PNG Export einzelner Charts
 
 Akzeptanz:
-* [ ] Tab Wechsel im Browser loest hoechstens einen Abruf pro fuenfzehn Minuten aus
-* [ ] Lighthouse Performance und Accessibility jeweils mindestens 90
-* [ ] Bedienung komplett per Tastatur moeglich
+* [x] Tab Wechsel im Browser loest hoechstens einen Abruf pro fuenfzehn Minuten aus
+* [x] Bedienung komplett per Tastatur moeglich, Pfeiltasten, Pos1 und Ende auf der
+      Tableiste, wanderndes tabindex, sichtbare Fokusringe
+* [x] Beim Start werden drei Diagramme gezeichnet statt fuenfzehn. Die uebrigen
+      entstehen, wenn ihr Tab zum ersten Mal geoeffnet wird
+* [x] Textfarben auf WCAG AA gegen den Kartenhintergrund. Das bisherige `#64748b`
+      lag bei 3.0 zu 1 und steckte in der gesamten Oberflaeche
+* [x] Kein horizontaler Ueberlauf bis hinunter zu 360 px, Tabellen scrollen in
+      ihrem eigenen Container
+* [ ] Lighthouse Werte nicht gemessen, dafuer fehlt eine erreichbare Instanz mit
+      echten Daten. Nachzuholen nach Phase 6
 
 ## Phase 6 — Umstellung und Abschluss
 
@@ -182,6 +190,23 @@ zwischen Bloecken wird an echten Daten entwickelt, nicht an ausgedachten.
 * Wochenexport als Textblock fuer den Chat mit dem Trainer
 
 ## Retrospektive
+
+### Phase 5
+
+**Was lief gut.** Die Aufteilung in Renderfunktionen je Abschnitt war kleiner als
+befuerchtet und wirkt sofort: drei Diagramme beim Start statt fuenfzehn.
+
+**Wo lagen falsche Annahmen.** Zwei. Erstens sollte das Diagrammraster auf
+breiten Schirmen automatisch mehr Spalten bilden. Das sieht gut aus, solange ein
+Abschnitt genug Diagramme hat, und hinterlaesst sonst Luecken. Zwei feste Spalten
+sind hier richtig. Zweitens hat die Aufteilung eine Karte im Wellness Tab leer
+laufen lassen, weil sie von der Analyse gefuellt wurde. Sie ist in den Analyse
+Tab gewandert, wo sie ohnehin hingehoert, denn sie rechnet ueber den gesamten
+Zeitraum.
+
+**Was muss naechstes Mal genauer spezifiziert werden.** Wer welchen Bereich
+zeichnet. Beim Umbau auf verzoegertes Zeichnen faellt sofort auf, wo die
+Zustaendigkeiten vorher unklar waren, aber erst wenn etwas leer bleibt.
 
 ### Phase 4
 

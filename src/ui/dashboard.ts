@@ -1,14 +1,16 @@
 import type { DailyEntry, WeekBlock } from '../types';
 import { avg, fmt, movingAvg } from '../analytics/smoothing';
 import { weightChange } from '../analytics/weight';
-import type { ChartOptions } from 'chart.js';
-import { barChart, baseOptions, Chart, destroyChart, lineChart, register } from '../charts/base';
+import { barChart, baseOptions, lineChart, upsert } from '../charts/base';
 import { daysDiffer, targetRateKgPerWeek, type Goals } from '../parse/goals';
 import { byId, COLORS, setColor, setText } from './dom';
 import { renderCorrelation } from './correlation';
 
 /** Wird ausgeloest, wenn keine verwertbaren Gewichtsdaten vorliegen. */
 export type ErrorHandler = (message: string) => void;
+
+/** Renderfunktion je Abschnitt, damit nur der sichtbare Tab gezeichnet wird. */
+export type SectionRenderers = Record<string, () => void>;
 
 /** Schwellen fuer die Einfaerbung der Compliance Kacheln. */
 const COMPLIANCE_THRESHOLDS = { good: 80, fair: 60 } as const;
@@ -28,7 +30,7 @@ function weekLabel(block: WeekBlock, index: number): string {
   const last = block.rows[block.rows.length - 1]!.dateObj;
   const from = first ? `${first.getDate()}.${first.getMonth() + 1}` : '';
   const to = last ? `${last.getDate()}.${last.getMonth() + 1}` : '';
-  return `W${index + 1} (${from}–${to})`;
+  return `W${index + 1} (${from} bis ${to})`;
 }
 
 function complianceColor(percent: number | null): string {
@@ -38,11 +40,6 @@ function complianceColor(percent: number | null): string {
   return COLORS.bad;
 }
 
-/** Zielzahl ohne unnoetige Nachkommastelle, mit deutschem Dezimalkomma. */
-function formatTarget(value: number): string {
-  return Number.isInteger(value) ? String(value) : String(value).replace('.', ',');
-}
-
 /** Anteil der Tage, die ein Ziel erfuellen. Null, wenn kein Tag den Wert traegt. */
 function compliance(entries: readonly DailyEntry[], pick: (e: DailyEntry) => number | null, hit: (v: number) => boolean): number | null {
   const withValue = entries.filter((e) => pick(e) !== null);
@@ -50,20 +47,30 @@ function compliance(entries: readonly DailyEntry[], pick: (e: DailyEntry) => num
   return Math.round((withValue.filter((e) => hit(pick(e)!)).length / withValue.length) * 100);
 }
 
+/** Zielzahl ohne unnoetige Nachkommastelle, mit deutschem Dezimalkomma. */
+function formatTarget(value: number): string {
+  return Number.isInteger(value) ? String(value) : String(value).replace('.', ',');
+}
+
+/**
+ * Zeichnet Kopfbereich und Kennzahlleiste und liefert die Renderfunktionen der
+ * einzelnen Abschnitte zurueck.
+ *
+ * Die Abschnitte werden nicht sofort gezeichnet. Vorher entstanden bei jedem
+ * Refresh vierzehn Diagramme, auch die in unsichtbaren Tabs.
+ */
 export function renderDashboard(
   daily: readonly DailyEntry[],
   weekBlocks: readonly WeekBlock[],
   goals: Goals,
   onError: ErrorHandler,
-): void {
+): SectionRenderers | null {
   const rows = daily.filter((d) => d.weight !== null && !isNaN(d.weight));
   if (!rows.length) {
     onError('Keine gueltigen Gewichtsdaten gefunden.');
-    return;
+    return null;
   }
 
-  const labels = rows.map(dayLabel);
-  const first = rows[0]!.weight!;
   const signed = (v: number, digits = 1): string => `${v < 0 ? '' : '+'}${v.toFixed(digits)}`;
 
   // Gesamtverlust ist die erste gegen die letzte Waegung. Der Versuch, hier
@@ -81,22 +88,21 @@ export function renderDashboard(
     ? `geglaettet ${change.from.toFixed(1)} → ${change.to.toFixed(1)} kg · ${signed(change.change)} kg`
     : '–');
 
-  // PHASE 2: Ernaehrung und Wellness rechnen ueber alle erfassten Tage, nicht
-  // mehr nur ueber Tage mit Waegung. Ein Tag ohne Gewicht kann vollstaendige
-  // Makros tragen, und dann gehoert er in den Durchschnitt.
+  // Ernaehrung und Wellness rechnen ueber alle erfassten Tage, nicht nur ueber
+  // Tage mit Waegung. Ein Tag ohne Gewicht kann vollstaendige Makros tragen.
   const avgCalories = avg(daily.map((r) => r.calories));
   const avgProtein = avg(daily.map((r) => r.protein));
   const avgSteps = avg(daily.map((r) => r.steps));
 
   setText('kpi-kcal', avgCalories === null ? '–' : String(Math.round(avgCalories)));
   setText('kpi-protein', avgProtein === null ? '–' : `${Math.round(avgProtein)}g`);
-  setText('kpi-steps', avgSteps === null ? '–' : Math.round(avgSteps).toLocaleString('de'));
+  setText('kpi-steps', avgSteps === null ? '–' : Math.round(avgSteps).toLocaleString('de-DE'));
   setText('kpi-sleep', `${fmt(avg(daily.map((r) => r.sleep)))}h`);
   setText('kpi-energy', `${fmt(avg(daily.map((r) => r.energy)))}/5`);
-  setText('last-updated', `Zuletzt geladen: ${new Date().toLocaleTimeString('de-DE')}`);
 
   const proteinTarget = goals.average.proteinG ?? 0;
   const calorieTarget = goals.average.caloriesKcal ?? 0;
+
   const proteinCompliance = compliance(daily, (r) => r.protein, (v) => v >= proteinTarget);
   setText('kpi-protein-compliance', proteinCompliance === null ? '–' : `${proteinCompliance}%`);
   setColor('kpi-protein-compliance', complianceColor(proteinCompliance));
@@ -105,53 +111,54 @@ export function renderDashboard(
   setText('kpi-cal-compliance', calorieCompliance === null ? '–' : `${calorieCompliance}%`);
   setColor('kpi-cal-compliance', complianceColor(calorieCompliance));
 
-  // PHASE 3: Beschriftungen und Referenzlinien folgen dem Vorgabeblock des
-  // Sheets. Vorher standen 200 g und 2300 kcal fest im Markup.
+  // Beschriftungen und Referenzlinien folgen dem Vorgabeblock des Sheets.
   setText('kpi-protein-label', `Protein ≥ ${formatTarget(proteinTarget)} g`);
   setText('kpi-cal-label', `Kalorien ≤ ${formatTarget(calorieTarget)}`);
   renderGoalContext(goals, change?.to ?? null);
 
-  // Uebersicht
-  lineChart('weightChart', labels, rows.map((r) => r.weight), COLORS.info, true, first, movingAvg(rows.map((r) => r.weight)));
-  barChart('stepsChart', labels, rows.map((r) => r.steps), COLORS.violet);
-
+  const labels = rows.map(dayLabel);
+  const allLabels = daily.map(dayLabel);
   const weekLabels = weekBlocks.map(weekLabel);
   const weekAverages = weekBlocks.map((b) => b.avgWeight ?? avg(b.rows.map((r) => r.weight)));
-  barChart('weeklyChart', weekLabels, weekAverages, COLORS.sky);
 
-  // Ernaehrung und Wellness ueber alle erfassten Tage, mit eigener Beschriftung,
-  // weil dieser Satz Tage groesser ist als der mit Waegung.
-  const allLabels = daily.map(dayLabel);
-  lineChart('proteinChart', allLabels, daily.map((r) => r.protein), COLORS.warn, true, proteinTarget);
-  lineChart('caloriesChart', allLabels, daily.map((r) => r.calories), COLORS.bad, true, calorieTarget);
-  barChart('fvChart', allLabels, daily.map((r) => r.fv), COLORS.good);
-  renderMacroChart(avgProtein, avg(daily.map((r) => r.carbs)), avg(daily.map((r) => r.fat)), goals);
-
-  lineChart('sleepChart', allLabels, daily.map((r) => r.sleep), COLORS.indigo, true, WELLNESS_REFERENCES.sleepH);
-  lineChart('energyChart', allLabels, daily.map((r) => r.energy), COLORS.warn, true, WELLNESS_REFERENCES.energy);
-  lineChart('stressChart', allLabels, daily.map((r) => r.stress), COLORS.bad, true, WELLNESS_REFERENCES.stress);
-  lineChart('digestionChart', allLabels, daily.map((r) => r.digestion), COLORS.good, true, WELLNESS_REFERENCES.digestion);
-  renderCorrelation(daily);
-
-  // Wochen
-  renderWeekCards(weekBlocks);
-  barChart('weekBarChart', weekLabels, weekAverages, COLORS.info);
-  renderComments(daily);
+  return {
+    overview: () => {
+      lineChart('weightChart', labels, rows.map((r) => r.weight), COLORS.info, true, rows[0]!.weight, movingAvg(rows.map((r) => r.weight)));
+      barChart('stepsChart', labels, rows.map((r) => r.steps), COLORS.violet);
+      barChart('weeklyChart', weekLabels, weekAverages, COLORS.sky);
+    },
+    nutrition: () => {
+      lineChart('proteinChart', allLabels, daily.map((r) => r.protein), COLORS.warn, true, proteinTarget);
+      lineChart('caloriesChart', allLabels, daily.map((r) => r.calories), COLORS.bad, true, calorieTarget);
+      barChart('fvChart', allLabels, daily.map((r) => r.fv), COLORS.good);
+      renderMacroChart(avgProtein, avg(daily.map((r) => r.carbs)), avg(daily.map((r) => r.fat)), goals);
+    },
+    wellness: () => {
+      lineChart('sleepChart', allLabels, daily.map((r) => r.sleep), COLORS.indigo, true, WELLNESS_REFERENCES.sleepH);
+      lineChart('energyChart', allLabels, daily.map((r) => r.energy), COLORS.warn, true, WELLNESS_REFERENCES.energy);
+      lineChart('stressChart', allLabels, daily.map((r) => r.stress), COLORS.bad, true, WELLNESS_REFERENCES.stress);
+      lineChart('digestionChart', allLabels, daily.map((r) => r.digestion), COLORS.good, true, WELLNESS_REFERENCES.digestion);
+      renderCorrelation(daily);
+    },
+    weeks: () => {
+      renderWeekCards(weekBlocks);
+      barChart('weekBarChart', weekLabels, weekAverages, COLORS.info);
+      renderComments(daily);
+    },
+  };
 }
 
 /**
  * Kopfzeile und Hinweis zur Herkunft der Zielwerte.
  *
  * Die Sollrate wird laufend aus dem aktuellen Gewicht berechnet, weil der
- * Trainer sie in Prozent vorgibt. Bei 0.25 Prozent und 89.8 kg sind das
- * 0.22 kg pro Woche, bei 92 kg waeren es 0.24.
+ * Trainer sie in Prozent vorgibt.
  */
 function renderGoalContext(goals: Goals, currentWeightKg: number | null): void {
   const rate = targetRateKgPerWeek(goals.rateOfLossPct, currentWeightKg);
   const parts = ['Makrocycle 1', 'Ziel: Body Recomp'];
   if (rate !== null) {
-    const direction = rate < 0 ? 'Abnahme' : 'Zunahme';
-    parts.push(`Sollrate ${Math.abs(rate).toFixed(2)} kg/Woche ${direction}`);
+    parts.push(`Sollrate ${Math.abs(rate).toFixed(2)} kg/Woche ${rate < 0 ? 'Abnahme' : 'Zunahme'}`);
   }
   setText('header-sub', parts.join(' · '));
 
@@ -170,14 +177,10 @@ function renderGoalContext(goals: Goals, currentWeightKg: number | null): void {
 }
 
 function renderMacroChart(protein: number | null, carbs: number | null, fat: number | null, goals: Goals): void {
-  destroyChart('macroChart');
-  const element = byId('macroChart');
-  if (!(element instanceof HTMLCanvasElement)) return;
-
   const options = baseOptions();
-  options.plugins = { legend: { labels: { color: '#94a3b8', font: { size: 11 } } } };
+  options.plugins = { legend: { labels: { color: COLORS.muted, font: { size: 11 } } } };
 
-  register('macroChart', new Chart(element, {
+  upsert('macroChart', {
     type: 'bar',
     data: {
       labels: ['Protein', 'Carbs', 'Fett'],
@@ -200,8 +203,8 @@ function renderMacroChart(protein: number | null, carbs: number | null, fat: num
         },
       ],
     },
-    options: options as ChartOptions<'bar'>,
-  }));
+    options,
+  });
 }
 
 function renderWeekCards(weekBlocks: readonly WeekBlock[]): void {
@@ -246,7 +249,7 @@ function renderComments(daily: readonly DailyEntry[]): void {
 
   if (!withComment.length) {
     const empty = document.createElement('p');
-    empty.style.cssText = 'color:#475569;font-size:13px';
+    empty.className = 'analysis-note';
     empty.textContent = 'Keine Notizen vorhanden.';
     container.replaceChildren(empty);
     return;

@@ -1,21 +1,30 @@
-import { Chart, registerables, type ChartOptions } from 'chart.js';
+import { Chart, registerables, type ChartOptions, type ChartType } from 'chart.js';
 
 Chart.register(...registerables);
 
-/** Farben der Achsen und Gitter. Wandern in Phase 5 in CSS Custom Properties. */
+/** Farben der Achsen und Gitter. */
 const GRID_COLOR = '#1e2a3a';
-const TICK_COLOR = '#64748b';
+const TICK_COLOR = '#94a3b8';
 const Y_GRID_COLOR = '#334155';
 
 const charts = new Map<string, Chart>();
 
+/**
+ * Grundeinstellungen aller Diagramme.
+ *
+ * `maintainAspectRatio: false` statt der frueheren Hoehenattribute am Canvas.
+ * Die Hoehe kommt jetzt aus dem umgebenden `.chart-body`, sonst wurde aus einem
+ * Diagramm auf breiten Bildschirmen ein flacher Streifen.
+ */
 export function baseOptions(): ChartOptions<'line' | 'bar'> {
   return {
     responsive: true,
+    maintainAspectRatio: false,
+    animation: false,
     plugins: { legend: { display: false }, tooltip: { mode: 'index', intersect: false } },
     scales: {
-      x: { ticks: { color: TICK_COLOR, font: { size: 9 }, maxRotation: 45 }, grid: { color: GRID_COLOR } },
-      y: { ticks: { color: TICK_COLOR, font: { size: 10 } }, grid: { color: Y_GRID_COLOR } },
+      x: { ticks: { color: TICK_COLOR, font: { size: 10 }, maxRotation: 45, autoSkipPadding: 12 }, grid: { color: GRID_COLOR } },
+      y: { ticks: { color: TICK_COLOR, font: { size: 11 } }, grid: { color: Y_GRID_COLOR } },
     },
   };
 }
@@ -28,14 +37,51 @@ export function destroyChart(id: string): void {
   }
 }
 
+export function getChart(id: string): Chart | undefined {
+  return charts.get(id);
+}
+
+export function chartIds(): string[] {
+  return [...charts.keys()];
+}
+
 function canvas(id: string): HTMLCanvasElement | null {
   const element = document.getElementById(id);
   return element instanceof HTMLCanvasElement ? element : null;
 }
 
-/** Registriert ein Diagramm, nachdem ein eventuelles Vorgaengerdiagramm entfernt wurde. */
-export function register(id: string, chart: Chart): void {
-  charts.set(id, chart);
+/**
+ * Erzeugt ein Diagramm oder aktualisiert das vorhandene.
+ *
+ * Vorher wurde bei jedem Refresh jedes Diagramm zerstoert und neu gebaut, was
+ * sichtbar flackert. Passen Typ und Anzahl der Datensaetze, werden nur die Daten
+ * ersetzt.
+ */
+export interface ChartSpec {
+  type: ChartType;
+  data: { labels?: unknown[]; datasets: Record<string, unknown>[] };
+  options?: unknown;
+}
+
+export function upsert(id: string, config: ChartSpec): void {
+  const ctx = canvas(id);
+  if (!ctx) return;
+
+  const existing = charts.get(id);
+  // Chart.js beschreibt seine Konfiguration als Union, in der `type` optional ist.
+  const existingType = existing ? (existing.config as { type?: ChartType }).type : undefined;
+  if (existing && existingType === config.type && existing.data.datasets.length === config.data.datasets.length) {
+    existing.data.labels = config.data.labels ?? [];
+    config.data.datasets.forEach((dataset, index) => {
+      Object.assign(existing.data.datasets[index]!, dataset);
+    });
+    if (config.options) existing.options = config.options as ChartOptions;
+    existing.update('none');
+    return;
+  }
+
+  destroyChart(id);
+  charts.set(id, new Chart(ctx, config as never));
 }
 
 export function lineChart(
@@ -47,11 +93,7 @@ export function lineChart(
   reference: number | null = null,
   movingAverage: (number | null)[] | null = null,
 ): void {
-  destroyChart(id);
-  const ctx = canvas(id);
-  if (!ctx) return;
-
-  const datasets: any[] = [{
+  const datasets: Record<string, unknown>[] = [{
     data,
     borderColor: color,
     backgroundColor: fill ? `${color}25` : 'transparent',
@@ -66,7 +108,7 @@ export function lineChart(
   if (reference !== null) {
     datasets.push({
       data: labels.map(() => reference),
-      borderColor: '#ffffff22',
+      borderColor: '#ffffff30',
       borderDash: [5, 5],
       borderWidth: 1,
       pointRadius: 0,
@@ -77,7 +119,7 @@ export function lineChart(
   if (movingAverage !== null) {
     datasets.push({
       data: movingAverage,
-      borderColor: '#ffffffbb',
+      borderColor: '#ffffffcc',
       borderWidth: 2,
       pointRadius: 0,
       fill: false,
@@ -86,15 +128,15 @@ export function lineChart(
     });
   }
 
-  register(id, new Chart(ctx, { type: 'line', data: { labels, datasets }, options: baseOptions() as ChartOptions<'line'> }));
+  upsert(id, {
+    type: 'line',
+    data: { labels, datasets },
+    options: baseOptions(),
+  });
 }
 
 export function barChart(id: string, labels: string[], data: (number | null)[], color: string): void {
-  destroyChart(id);
-  const ctx = canvas(id);
-  if (!ctx) return;
-
-  register(id, new Chart(ctx, {
+  upsert(id, {
     type: 'bar',
     data: {
       labels,
@@ -106,8 +148,9 @@ export function barChart(id: string, labels: string[], data: (number | null)[], 
         borderRadius: 4,
       }],
     },
-    options: baseOptions() as ChartOptions<'bar'>,
-  }));
+    options: baseOptions(),
+  });
 }
 
+export type { ChartType };
 export { Chart };

@@ -1,6 +1,6 @@
 import type { Exercise, ParsedTraining } from '../types';
 import { avgRepsFromStr, epley1RM } from '../analytics/strength';
-import { baseOptions, Chart, destroyChart, register } from '../charts/base';
+import { baseOptions, upsert } from '../charts/base';
 import { baselineLoad, usableLoad } from '../parse/training';
 import { byId, COLORS, setText, show } from './dom';
 
@@ -140,16 +140,12 @@ function renderVolumeChart(): void {
     };
   });
 
-  destroyChart('t-volume-chart');
-  const element = byId('t-volume-chart');
-  if (!(element instanceof HTMLCanvasElement)) return;
-
   const options = baseOptions() as any;
   options.scales.x.stacked = true;
   options.scales.y.stacked = true;
   options.plugins.legend = { display: true, labels: { color: '#94a3b8', font: { size: 10 }, boxWidth: 10, padding: 8 } };
 
-  register('t-volume-chart', new Chart(element, { type: 'bar', data: { labels: weekLabels, datasets }, options }));
+  upsert('t-volume-chart', { type: 'bar', data: { labels: weekLabels, datasets }, options } as any);
 }
 
 function populateDaySelect(): void {
@@ -210,9 +206,7 @@ export function renderProgression(): void {
     oneRepMax.push(load && reps ? epley1RM(load, reps) : null);
   }
 
-  destroyChart('t-prog-chart');
-  const progressionCanvas = byId('t-prog-chart');
-  if (progressionCanvas instanceof HTMLCanvasElement) {
+  {
     const options = baseOptions() as any;
     options.plugins = {
       legend: { display: false },
@@ -241,7 +235,7 @@ export function renderProgression(): void {
       },
     };
 
-    register('t-prog-chart', new Chart(progressionCanvas, {
+    upsert('t-prog-chart', {
       type: 'line',
       data: {
         labels,
@@ -259,13 +253,11 @@ export function renderProgression(): void {
         }],
       },
       options,
-    }));
+    } as any);
   }
 
-  destroyChart('t-1rm-chart');
-  const oneRmCanvas = byId('t-1rm-chart');
-  if (oneRmCanvas instanceof HTMLCanvasElement) {
-    register('t-1rm-chart', new Chart(oneRmCanvas, {
+  {
+    upsert('t-1rm-chart', {
       type: 'line',
       data: {
         labels,
@@ -281,7 +273,7 @@ export function renderProgression(): void {
         }],
       },
       options: baseOptions() as any,
-    }));
+    } as any);
   }
 }
 

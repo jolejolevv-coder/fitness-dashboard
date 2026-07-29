@@ -1,6 +1,6 @@
 import './styles.css';
 
-import type { DailyEntry, SheetValues, WeekBlock } from './types';
+import type { DailyEntry, ParsedTraining, SheetValues, WeekBlock } from './types';
 import { parseDaily } from './parse/daily';
 import { parseTraining } from './parse/training';
 import { parseGoals, type Goals } from './parse/goals';
@@ -18,23 +18,49 @@ import {
 } from './config/credentials';
 import { getTargets, saveTargets } from './config/targets';
 import { byId, show } from './ui/dom';
-import { renderDashboard } from './ui/dashboard';
+import { renderDashboard, type SectionRenderers } from './ui/dashboard';
 import { renderAnalysis } from './ui/analysis';
-import { filterTrainingDay, renderExerciseTable, renderProgression, renderTraining } from './ui/training';
+import { renderAnswerBlock } from './ui/answer-block';
+import { filterTrainingDay, renderProgression, renderTraining } from './ui/training';
+import { activeTab, setupRangeButtons, setupTabs } from './ui/tabs';
+import { attachChartExports, downloadCsv } from './ui/export';
 
-/** PHASE 1: Ladepolitik unveraendert. Die Umstellung erfolgt in Phase 5. */
-const REFRESH_INTERVAL_MS = 5 * 60 * 1000;
+/**
+ * Ladepolitik.
+ *
+ * Kein Intervall mehr. Die Daten aendern sich einmal am Tag, alles dazwischen
+ * war Flackern ohne Informationsgewinn. Geladen wird beim Oeffnen, auf Knopfdruck
+ * und bei Rueckkehr auf den Tab, letzteres nur wenn der letzte Abruf laenger als
+ * die Sperre zurueckliegt.
+ */
+const REFRESH_LOCK_MS = 15 * 60 * 1000;
+
+/** Wie oft die Altersangabe der Daten neu geschrieben wird. Ohne Netzzugriff. */
+const AGE_TICK_MS = 60 * 1000;
 
 const MS_PER_DAY = 864e5;
+
+const SECTION_NAMES = ['overview', 'nutrition', 'wellness', 'weeks', 'training', 'analysis'] as const;
 
 let allDaily: DailyEntry[] = [];
 let allWeekBlocks: WeekBlock[] = [];
 let goals: Goals | null = null;
+let training: ParsedTraining | null = null;
+let sections: SectionRenderers | null = null;
 let dateRangeDays = 0;
+
+let lastFetchAt = 0;
+let dataTimestamp: number | null = null;
+let dataFromCache = false;
+let statusSuffix = '';
+
+const dirty = new Set<string>();
 
 function input(id: string): HTMLInputElement | null {
   return byId<HTMLInputElement>(id);
 }
+
+// ── Konfiguration ────────────────────────────────────────────────────────────
 
 function showConfig(): void {
   const credentials = getCredentials();
@@ -49,6 +75,7 @@ function showConfig(): void {
   const target = getTargets().targetWeightKg;
   set('input-target-weight', target === null ? '' : String(target));
   show('config-banner', true);
+  input('input-sheet-id')?.focus();
 }
 
 function handleSaveConfig(): void {
@@ -62,7 +89,6 @@ function handleSaveConfig(): void {
     alert('Bitte Sheet ID und API Key eingeben.');
     return;
   }
-  saveCredentials(credentials);
 
   // Zielgewicht ist optional und steht nirgends im Sheet. Leer heisst: keine Projektion.
   const rawTarget = input('input-target-weight')?.value.trim() ?? '';
@@ -71,12 +97,15 @@ function handleSaveConfig(): void {
     alert('Zielgewicht muss eine Zahl sein.');
     return;
   }
-  saveTargets({ targetWeightKg: parsedTarget });
-  renderAnalysisTab();
 
+  saveCredentials(credentials);
+  saveTargets({ targetWeightKg: parsedTarget });
   show('config-banner', false);
-  void loadData();
+  if (goals) renderShared();
+  void loadData(true);
 }
+
+// ── Status ───────────────────────────────────────────────────────────────────
 
 function showError(message: string): void {
   const status = byId('status');
@@ -108,10 +137,26 @@ function showSpinner(text: string): void {
   status.style.display = 'block';
 }
 
-function setLastUpdated(text: string): void {
+/** Alter der angezeigten Daten, damit nie unklar ist, was gerade zu sehen ist. */
+function updateDataAge(): void {
   const element = byId('last-updated');
-  if (element) element.textContent = text;
+  if (!element) return;
+  if (dataTimestamp === null) {
+    element.textContent = statusSuffix;
+    return;
+  }
+
+  const minutes = Math.floor((Date.now() - dataTimestamp) / 60000);
+  const age = minutes < 1 ? 'gerade eben'
+    : minutes < 60 ? `vor ${minutes} min`
+    : minutes < 60 * 24 ? `vor ${Math.floor(minutes / 60)} h`
+    : `vor ${Math.floor(minutes / (60 * 24))} Tagen`;
+
+  const clock = new Date(dataTimestamp).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+  element.textContent = `${dataFromCache ? 'Cache' : 'Sheet'} · ${clock} Uhr · ${age}${statusSuffix}`;
 }
+
+// ── Zeitraum und Abschnitte ──────────────────────────────────────────────────
 
 function cutoffDate(): Date | null {
   return dateRangeDays > 0 ? new Date(Date.now() - dateRangeDays * MS_PER_DAY) : null;
@@ -124,11 +169,8 @@ function filteredDaily(): DailyEntry[] {
 }
 
 /**
- * PHASE 2: der Zeitraumfilter wirkt auch auf die Wochenansicht.
- *
- * Vorher filterte er nur die Tagesdaten, waehrend Wochenkarten und Wochenchart
- * unveraendert alle Wochen zeigten. Ein Block zaehlt dazu, wenn sein letzter Tag
- * im Zeitraum liegt.
+ * Der Zeitraumfilter wirkt auch auf die Wochenansicht. Ein Block zaehlt dazu,
+ * wenn sein letzter Tag im Zeitraum liegt.
  */
 function filteredWeekBlocks(): WeekBlock[] {
   const cutoff = cutoffDate();
@@ -139,43 +181,61 @@ function filteredWeekBlocks(): WeekBlock[] {
   });
 }
 
-function applyDateRange(days: number): void {
-  dateRangeDays = days;
-  for (const button of document.querySelectorAll<HTMLElement>('.range-btn')) {
-    button.classList.toggle('active', Number(button.dataset['range']) === days);
-  }
-  if (goals) renderDashboard(filteredDaily(), filteredWeekBlocks(), goals, showError);
+function markAllDirty(): void {
+  for (const name of SECTION_NAMES) dirty.add(name);
+}
+
+function rendererFor(name: string): (() => void) | undefined {
+  if (name === 'training') return () => renderTraining(training);
+  if (name === 'analysis') return renderAnalysisTab;
+  return sections?.[name];
+}
+
+/** Zeichnet den sichtbaren Abschnitt, falls seine Daten sich geaendert haben. */
+function renderActiveSection(): void {
+  const name = activeTab();
+  if (!name || !dirty.has(name)) return;
+  rendererFor(name)?.();
+  dirty.delete(name);
 }
 
 /**
- * Die Analytik rechnet immer ueber den gesamten Zeitraum, nie ueber die
- * Auswahl der Zeitraumknoepfe. Ein Filter auf 14 Tage wuerde das 28 und das
- * 56 Tage Fenster des Erhaltungsbedarfs unmoeglich machen.
+ * Die Analytik rechnet immer ueber den gesamten Zeitraum, nie ueber die Auswahl
+ * der Zeitraumknoepfe. Ein Filter auf 14 Tage wuerde das 28 und das 56 Tage
+ * Fenster des Erhaltungsbedarfs unmoeglich machen.
  */
 function renderAnalysisTab(): void {
   if (!goals) return;
   renderAnalysis(allDaily, goals, getTargets().targetWeightKg);
 }
 
-function showTab(name: string, element: HTMLElement): void {
-  for (const section of document.querySelectorAll('.section')) section.classList.remove('active');
-  for (const tab of document.querySelectorAll('.tab')) tab.classList.remove('active');
-  byId(name)?.classList.add('active');
-  element.classList.add('active');
+function applyDateRange(days: number): void {
+  dateRangeDays = days;
+  renderShared();
 }
 
-function applyParsed(raw: SheetValues, rawTraining: SheetValues): void {
-  const { daily, weekBlocks } = parseDaily(raw);
-  allDaily = daily;
-  allWeekBlocks = weekBlocks;
-  // PHASE 3: Zielwerte kommen aus dem Vorgabeblock des Sheets, nicht aus dem Code.
+/** Kopfbereich, Kennzahlen und Antwortblock. Haengt am Zeitraumfilter. */
+function renderShared(): void {
+  if (!goals) return;
+  sections = renderDashboard(filteredDaily(), filteredWeekBlocks(), goals, showError);
+  renderAnswerBlock(allDaily, goals, getTargets().targetWeightKg);
+  markAllDirty();
+  renderActiveSection();
+}
+
+function applyParsed(raw: SheetValues, rawTraining: SheetValues, timestamp: number, fromCache: boolean): void {
+  const parsed = parseDaily(raw);
+  allDaily = parsed.daily;
+  allWeekBlocks = parsed.weekBlocks;
   goals = parseGoals(raw, rawTraining);
+  training = rawTraining.length ? parseTraining(rawTraining) : null;
+  dataTimestamp = timestamp;
+  dataFromCache = fromCache;
 
   show('status', false);
   show('dashboard', true);
-  renderDashboard(filteredDaily(), filteredWeekBlocks(), goals, showError);
-  renderAnalysisTab();
-  renderTraining(rawTraining.length ? parseTraining(rawTraining) : null);
+  renderShared();
+  updateDataAge();
 }
 
 function describe(error: unknown): string {
@@ -185,7 +245,9 @@ function describe(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
 }
 
-export async function loadData(): Promise<void> {
+// ── Laden ────────────────────────────────────────────────────────────────────
+
+export async function loadData(force = false): Promise<void> {
   const credentials = getCredentials();
   if (!hasCredentials(credentials)) {
     show('config-banner', true);
@@ -193,19 +255,24 @@ export async function loadData(): Promise<void> {
     return;
   }
 
-  const cache = loadCache();
-  if (cache) {
-    try {
-      applyParsed(cache.raw, cache.rawTraining);
-      setLastUpdated(`Cache: ${new Date(cache.ts).toLocaleTimeString('de-DE')} · Aktualisiere…`);
-    } catch {
-      // Ein unlesbarer Cache darf den frischen Abruf nicht verhindern.
+  if (!force && Date.now() - lastFetchAt < REFRESH_LOCK_MS) return;
+
+  if (dataTimestamp === null) {
+    const cache = loadCache();
+    if (cache) {
+      try {
+        statusSuffix = ' · aktualisiere';
+        applyParsed(cache.raw, cache.rawTraining, cache.ts, true);
+      } catch {
+        // Ein unlesbarer Cache darf den frischen Abruf nicht verhindern.
+      }
+    } else {
+      showSpinner('Lade Daten von Google Sheets…');
+      show('dashboard', false);
     }
-  } else {
-    showSpinner('Lade Daten von Google Sheets…');
-    show('dashboard', false);
   }
 
+  lastFetchAt = Date.now();
   try {
     const [raw, rawTraining] = await Promise.all([
       fetchDailySheet(credentials.sheetId, credentials.apiKey, credentials.sheetName || DEFAULT_DAILY_SHEET),
@@ -216,42 +283,39 @@ export async function loadData(): Promise<void> {
         }),
     ]);
     saveCache(raw, rawTraining);
-    applyParsed(raw, rawTraining);
+    statusSuffix = '';
+    applyParsed(raw, rawTraining, Date.now(), false);
   } catch (error) {
-    if (!cache) showError(describe(error));
-    else setLastUpdated(`Cache · Abruf fehlgeschlagen: ${describe(error)}`);
+    if (dataTimestamp === null) {
+      showError(describe(error));
+    } else {
+      statusSuffix = ` · Abruf fehlgeschlagen: ${describe(error)}`;
+      updateDataAge();
+    }
   }
 }
+
+// ── Verdrahtung ──────────────────────────────────────────────────────────────
 
 function wire(): void {
   byId('btn-save-config')?.addEventListener('click', handleSaveConfig);
   byId('btn-cancel-config')?.addEventListener('click', () => show('config-banner', false));
-  byId('btn-refresh')?.addEventListener('click', () => void loadData());
+  byId('btn-refresh')?.addEventListener('click', () => void loadData(true));
   byId('btn-config')?.addEventListener('click', showConfig);
+  byId('btn-export-csv')?.addEventListener('click', () => downloadCsv(filteredDaily()));
   byId('t-day-select')?.addEventListener('change', filterTrainingDay);
   byId('t-exercise-select')?.addEventListener('change', renderProgression);
 
-  for (const tab of document.querySelectorAll<HTMLElement>('.tab')) {
-    tab.addEventListener('click', () => {
-      const target = tab.dataset['tab'];
-      if (target) showTab(target, tab);
-    });
-  }
-
-  for (const button of document.querySelectorAll<HTMLElement>('.range-btn')) {
-    button.addEventListener('click', () => applyDateRange(Number(button.dataset['range'])));
-  }
+  setupTabs(() => renderActiveSection());
+  setupRangeButtons(applyDateRange);
+  attachChartExports();
 
   document.addEventListener('visibilitychange', () => {
     if (!document.hidden) void loadData();
   });
-  window.setInterval(() => {
-    if (!document.hidden) void loadData();
-  }, REFRESH_INTERVAL_MS);
+
+  window.setInterval(updateDataAge, AGE_TICK_MS);
 }
 
 wire();
-void loadData();
-
-// Wird von der Uebungstabelle nach einem Klick gebraucht.
-export { renderExerciseTable };
+void loadData(true);
