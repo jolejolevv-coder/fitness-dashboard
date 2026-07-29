@@ -16,7 +16,7 @@ committet, weder oeffentlich noch privat.
 
 ## Aufbereitung
 
-Ein Skript `scripts/make-fixtures.ts` erzeugt aus dem Export JSON Fixtures unter
+Ein Skript `scripts/make_fixtures.py` erzeugt aus dem Export JSON Fixtures unter
 `test/fixtures/`, und zwar in exakt der Form, die die Sheets API liefert, naemlich
 ein Array von Zeilen aus Zeichenketten. Damit testen die Parser gegen dieselbe
 Datenform, die sie auch produktiv sehen, und nicht gegen eine bequemere.

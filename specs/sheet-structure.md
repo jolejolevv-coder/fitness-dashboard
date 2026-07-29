@@ -13,7 +13,7 @@ Das Arbeitsblatt hat 14 Tabs. Das Dashboard nutzt zwei davon.
 | --- | --- | --- | --- |
 | Daily Tracking | 1086 | ja | Tagesdaten und Vorgabeblock |
 | Mesocycle 1 | 324 | ja | abgeschlossener Trainingsblock |
-| Mesocycle 2 | 324 | nein, noch nicht | bereits angelegt und vorbefuellt |
+| Mesocycle 2 | 324 | nein, noch nicht | angelegt, Uebungen geplant, noch ohne Lasten |
 | Zeitverlauf | 116 | nein | 466 befuellte Zellen, ungeprueft |
 | Sizes | 33 | nein | nur 21 befuellte Zellen, praktisch ungenutzt |
 | Supplements | 91 | nein | ungeprueft |
@@ -114,12 +114,28 @@ unbrauchbar, `Mesocycle 2` ist offenbar eine Kopie.
 
 Diese Punkte gehen als Anforderungen in Phase 2 ein.
 
-**Die Lastspalten sind in allen zwoelf Wochen vorbefuellt**, in beiden Tabs. Die
-heutige Ermittlung der aktuellen Woche nimmt die hoechste Woche mit einer Last
-und liefert deshalb immer 12. Bei `Mesocycle 2` wuerde sie ab dem ersten Tag 12
-melden. Der belastbare Hinweis auf den Stand steht stattdessen in der Spalte
-`Trainingday` des Daily Tracking, kodiert als `D1 W1 M1`. Der juengste Eintrag
-dort ist die Wahrheit. Am 03.08.2026 steht dort bereits `D1 W1 M2`.
+**Lastwerte in der Notation `55x2` werden zu 552 kg.** Einunddreissig Werte in
+`Mesocycle 1` verwenden diese Schreibweise fuer Uebungen mit zwei Seiten oder
+zwei Kurzhanteln. `num()` entfernt alles Nichtnumerische und macht aus `55x2`
+die Zahl 552, aus `7,5x2` die Zahl 7.52. Betroffen sind Lastprogression,
+1RM Schaetzung, Gesamtvolumen und Volumenverteilung nach Muskelgruppe. Haeufigste
+Formen: `55x2` sechsmal, `40x2`, `50x2`, `60x2` und `9x2` je viermal, `7,5x2`
+dreimal, dazu `45x2`, `16x2` und `24x2`.
+
+Ebenfalls betroffen, wenn auch selten: Bereichsangaben wie `40-50` und `25-30`.
+`num()` liefert dort die Untergrenze.
+
+**Die aktuelle Trainingswoche wird korrekt ermittelt.** Eine fruehere Annahme,
+die Lastspalten seien in allen zwoelf Wochen vorbefuellt und die Wochenermittlung
+liefere deshalb immer 12, war ein Messfehler bei der Erhebung. Die Wochen 10 bis
+12 von `Mesocycle 1` sind leer, die Ermittlung liefert korrekt Woche 9.
+`Mesocycle 2` enthaelt noch keine Lasten und wird korrekt als leer erkannt.
+
+Ein besserer Hinweis auf den Stand existiert trotzdem: die Spalte `Trainingday`
+im Daily Tracking, kodiert als `D1 W1 M1`. Sie ist datiert, nennt den Mesozyklus
+explizit und laeuft der Lasteintragung nicht hinterher. Am 03.08.2026 steht dort
+bereits `D1 W1 M2`. Sie wird die Quelle fuer die Erkennung des aktiven Blocks,
+nicht als Fehlerbehebung, sondern als Verbesserung.
 
 **`Rest` ist ein gueltiger Wert in `Trainingday`.** Die heutige Auswertung
 Trainingstag gegen Ruhetag prueft nur auf nicht leer und ungleich `-` und zaehlt
@@ -135,6 +151,21 @@ fehlen in jeder Auswertung.
 **Notizen stehen in zwei Spalten.** Das Dashboard liest nur `L`. Die vier
 Eintraege in `AC`, der laut Kopfzeile eigentlichen Kommentarspalte, sind
 unsichtbar. Beide Spalten muessen gelesen werden.
+
+**Gleichnamige Uebungen ueberschreiben sich nicht, sie verschwinden.** Der Parser
+merkt sich je Uebungsnamen nur den ersten Treffer. In `Mesocycle 1` tragen 36
+Uebungsvarianten Lasten, es bleiben 28 uebrig. Acht Varianten fallen ersatzlos
+weg, darunter `Butterfly Neutral Grip`, `Leg Extensions` und
+`Standing Calf Raise Machine`, die an zwei verschiedenen Trainingstagen
+vorkommen und damit unterschiedliche Trainingsplaetze sind. Der Schluessel muss
+kuenftig aus Tag und Name bestehen, nicht aus dem Namen allein.
+
+**Tippfehler in der Lastspalte schlagen bis in die Kennzahlleiste durch.** Bei
+`Standing Calf Raise Machine` steht in Woche 1 der Wert `9-9`, vermutlich gemeint
+war 90. `num()` liefert daraus 9. Die Kachel Top Progression meldet deshalb einen
+Zuwachs von 900 Prozent von 9 auf 90 kg. Der Wert im Sheet gehoert korrigiert,
+der Parser muss solche Eingaben aber als unplausibel kennzeichnen statt sie zu
+verrechnen.
 
 **Der `num()` Fehler ist real, aber klein.** Er betrifft genau zwei Werte im
 gesamten Bestand. Die urspruengliche Einschaetzung, er betreffe die Wellness

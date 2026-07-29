@@ -13,12 +13,12 @@ Stand: 29.07.2026. Phase 0 abgeschlossen. Arbeit laeuft auf Branch `rewrite`,
 * [ ] Google API Key in der Cloud Console auf HTTP Referrer `me.nahobinoco.com/*`
       und auf die Sheets API beschraenken. Offen, nur von der Nutzer erledigbar
 
-## Phase 1 — Migration auf Vite und TypeScript, ohne Verhaltensaenderung
+## Phase 1 — Migration auf Vite und TypeScript · ABGESCHLOSSEN
 
 Ziel: gleiche Zahlen, gleiche Optik, neue Struktur.
 
 * Vite Projekt, `base: '/fitness-dashboard/'`, tsconfig strict
-* `scripts/make-fixtures.ts` erzeugt aus dem Export JSON Fixtures in der Datenform
+* `scripts/make_fixtures.py` erzeugt aus dem Export JSON Fixtures in der Datenform
   der Sheets API. Kommentarspalten werden dabei durch Platzhalter ersetzt
 * Golden Values aus der heutigen Logik festhalten, siehe
   `specs/features/test-fixtures.md`
@@ -34,31 +34,37 @@ Ausnahme ist die Spaltenzuordnung, weil sie das Fundament der Fehlerfreiheit ist
 und keine Zahl veraendert, solange die Kopfzeilen unveraendert sind.
 
 Akzeptanz:
-* [ ] Alle Golden Values exakt reproduziert
-* [ ] `npm run build` erzeugt `dist/`, `npm test` laeuft ohne Netzzugriff durch
-* [ ] Parser Tests gruen, auch gegen einen Tab mit fehlender Spalte
+* [x] Alle Golden Values exakt reproduziert, 12 Tests gruen
+* [x] `npm run build` erzeugt `dist/`, `npm test` laeuft ohne Netzzugriff durch
+* [x] Parser Tests gruen, auch gegen einen Tab mit fehlender Spalte
 
 ## Phase 2 — Korrektheit
 
 Ziel: die Zahlen stimmen. Jede Abweichung von den Golden Values wird im Commit
 begruendet. Reihenfolge nach Auswirkung.
 
-1. **Aktuelle Trainingswoche.** Heute immer 12, weil alle Lastspalten
-   vorbefuellt sind. Quelle wird die Spalte `Trainingday` im Daily Tracking mit
-   ihrer Kodierung `D1 W1 M1`. Der juengste Eintrag bestimmt Mesozyklus und Woche
-2. **`Rest` ist kein Trainingstag.** Die Auswertung Trainingstag gegen Ruhetag
+1. **Lastnotation `55x2`.** Einunddreissig Werte werden heute zu Unsinn, `55x2`
+   wird zu 552 kg. Betrifft Lastprogression, 1RM Schaetzung, Gesamtvolumen und
+   Volumenverteilung. Die Bedeutung der Notation ist mit der Nutzer zu klaeren, siehe
+   offene Frage unten. Ebenfalls zu behandeln: Bereichsangaben wie `40-50`
+2. **Gleichnamige Uebungen an verschiedenen Tagen.** Acht von 36 Varianten in
+   `Mesocycle 1` verschwinden, weil der Parser nach Namen entdoppelt. Der
+   Schluessel muss aus Trainingstag und Name bestehen
+3. **Unplausible Lasten kennzeichnen.** Ein `9-9` in der Lastspalte wird heute zu
+   9 und erzeugt in der Kachel Top Progression einen Zuwachs von 900 Prozent
+4. **`Rest` ist kein Trainingstag.** Die Auswertung Trainingstag gegen Ruhetag
    zaehlt heute jeden nicht leeren Eintrag als Training, also auch `Rest`
-3. **Tage ohne Gewicht bleiben erhalten.** Zwei Tage mit `?` in der
+5. **Tage ohne Gewicht bleiben erhalten.** Zwei Tage mit `?` in der
    Gewichtsspalte verlieren heute je 13 befuellte Felder. Ein Gewicht darf
    Bedingung fuer die Gewichtskurve sein, nicht fuer die gesamte Zeile
-4. **Notizen aus beiden Spalten**, `L` und `AC`, statt nur aus `L`
-5. **Zeitraumfilter** wirkt auch auf Wochenkarten, Wochenchart und Notizen
-6. **`num()` erhaelt echte Nullwerte.** Betrifft zwei Werte im Bestand
-7. **Uebungstabelle** prueft auf `undefined` statt nur auf `null`
-8. **Mesozykluslaenge** aus der erkannten Wochenzahl statt hart verdrahteter 12
-9. **Ø Schritte** faellt korrekt auf `–` zurueck statt auf 0
-10. **Kommentare** per `textContent` statt `innerHTML`
-11. **Gesamtverlust** aus geglaetteten Wochenmitteln statt zweier Einzeltage
+6. **Notizen aus beiden Spalten**, `L` und `AC`, statt nur aus `L`
+7. **Zeitraumfilter** wirkt auch auf Wochenkarten, Wochenchart und Notizen
+8. **`num()` erhaelt echte Nullwerte.** Betrifft zwei Werte im Bestand
+9. **Uebungstabelle** prueft auf `undefined` statt nur auf `null`
+10. **Mesozykluslaenge** aus der erkannten Wochenzahl statt hart verdrahteter 12
+11. **Ø Schritte** faellt korrekt auf `–` zurueck statt auf 0
+12. **Kommentare** per `textContent` statt `innerHTML`
+13. **Gesamtverlust** aus geglaetteten Wochenmitteln statt zweier Einzeltage
 
 Akzeptanz:
 * [ ] Jeder Punkt hat einen fehlschlagenden Test vor und einen gruenen nach dem Fix
@@ -117,6 +123,15 @@ Automatische Erkennung aller `Mesocycle N` Tabs, Umschalter zwischen Bloecken,
 blockuebergreifender Verlauf je Uebung. Die Zusammenfuehrung von Uebungsnamen
 zwischen Bloecken wird an echten Daten entwickelt, nicht an ausgedachten.
 
+## Offene Fragen
+
+* Was bedeutet die Lastnotation `55x2` genau. Zwei Kurzhanteln zu je 55 kg, oder
+  55 kg je Seite an einer Maschine. Fuer die Progression je Uebung ist die Zahl
+  vor dem `x` ausreichend und vergleichbar, fuer das Gesamtvolumen ist das
+  Produkt richtig. Vorschlag: beide Werte parsen und speichern, Progression auf
+  der Zahl vor dem `x`, Volumen auf dem Produkt
+* Zielgewicht fuer die Projektion
+
 ## Zurueckgestellt
 
 * `Zeitverlauf`, `Sizes` und `Supplements` werden vom Dashboard nicht gelesen.
@@ -125,6 +140,24 @@ zwischen Bloecken wird an echten Daten entwickelt, nicht an ausgedachten.
 * Wochenexport als Textblock fuer den Chat mit dem Trainer
 
 ## Retrospektive
+
+### Phase 1
+
+**Was lief gut.** Die Golden Values haben ihren Zweck sofort erfuellt. Zwoelf
+Tests, alle gruen beim ersten Durchlauf, und der erste Durchlauf hat nebenbei
+einen falschen Befund aus Phase 0 widerlegt. Die Fixtures in der Datenform der
+API statt in einer bequemeren Form waren die richtige Entscheidung, die
+Eigenheiten der Darstellung, Komma gegen Punkt und Text gegen Zahl im selben
+Feld, waeren sonst nie in die Tests gekommen.
+
+**Wo lagen falsche Annahmen.** Der Umfang der Trainingsfehler wurde unterschaetzt.
+Erst der Blick auf die laufende Oberflaeche hat gezeigt, dass die Kachel Top
+Progression 900 Prozent meldet und dass acht Uebungsvarianten fehlen. Beides
+haette man am Code sehen koennen, hat man aber nicht.
+
+**Was muss naechstes Mal genauer spezifiziert werden.** Eine Migration ohne
+Verhaltensaenderung braucht neben den Golden Values einen Blick auf die laufende
+Oberflaeche. Zahlen, die stimmen, koennen trotzdem Unsinn anzeigen.
 
 ### Phase 0
 
@@ -135,9 +168,12 @@ echte Fehler mit spuerbarer Auswirkung.
 **Wo lagen falsche Annahmen.** Drei Stueck. Erstens wurde die Tragweite des
 `num()` Fehlers deutlich ueberschaetzt, tatsaechlich betrifft er zwei Werte.
 Zweitens wurde angenommen, die Zielwerte muessten irgendwo neu erfasst werden,
-obwohl sie seit jeher im Sheet stehen. Drittens galt die Ermittlung der aktuellen
-Trainingswoche als korrekt, obwohl sie durch vorbefuellte Lastspalten immer 12
-liefert.
+obwohl sie seit jeher im Sheet stehen. Drittens wurde ein Fehler in der
+Ermittlung der aktuellen Trainingswoche behauptet, den es nicht gibt. Ursache war
+ein Spaltenversatz in der eigenen Erhebung, gelesen wurde `Tempo` statt `Load`.
+Aufgefallen ist es erst, als die Golden Values mit der echten Logik erzeugt
+wurden. Lehre daraus: Befunde aus einer Nebenrechnung gelten erst, wenn der
+Produktivcode sie bestaetigt.
 
 **Was muss naechstes Mal genauer spezifiziert werden.** Die echten Daten gehoeren
 an den Anfang, nicht in die Mitte. Vier der sieben Entscheidungen aus der

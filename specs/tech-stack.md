@@ -11,7 +11,7 @@
 | Tests | Vitest | Laeuft ohne Zusatzkonfiguration mit Vite. Getestet werden Parser und Analytik, nicht das DOM |
 | Datenquelle | Google Sheets API v4, lesend, API Key | Unveraendert. Kein OAuth, weil kein Backend existiert, das ein Token halten koennte |
 | Spaltenzuordnung | ueber Spaltennamen, nicht ueber Spaltennummern | Der Trainer hat Schreibrechte am Sheet. Eine eingefuegte Spalte darf keine stille Fehlinterpretation erzeugen |
-| Zielwerte | Konfigurationsdialog, localStorage | Das Sheet soll unangetastet bleiben. Details in `specs/features/goals-in-settings.md` |
+| Zielwerte | aus dem Vorgabeblock des Sheets | Sie stehen dort bereits, es muss nichts angelegt und nichts eingetippt werden. Details in `specs/features/goals.md` |
 | Hosting | GitHub Pages, Deploy ueber GitHub Actions | Ein Build Schritt schliesst das Ausliefern aus dem Repository Root aus |
 | Styling | Plain CSS mit Custom Properties | Farben liegen heute an rund 60 Stellen im Markup |
 
@@ -86,7 +86,7 @@ Worker, kein Offlinebetrieb.
       tables.ts
     styles.css
   /scripts
-    make-fixtures.ts   erzeugt Testfixtures aus dem lokalen Sheet Export
+    make_fixtures.py   erzeugt Testfixtures aus dem lokalen Sheet Export
   /test
     fixtures/          committet, aus dem Export erzeugt
   /testdata            Rohexport, in .gitignore, nie committet
