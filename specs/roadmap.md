@@ -1,6 +1,6 @@
 # Roadmap
 
-Stand: 29.07.2026. Phasen 0 bis 5 sowie das Redesign abgeschlossen. Arbeit laeuft auf Branch
+Stand: 29.07.2026. Alle Phasen abgeschlossen, die Seite laeuft in der neuen Fassung. Arbeit laeuft auf Branch
 `rewrite`, `main` bleibt bis Phase 6 unangetastet live.
 
 ## Phase 0 — Baseline und Hygiene · ABGESCHLOSSEN
@@ -223,14 +223,23 @@ Akzeptanz:
 * [x] Keine abgeschnittenen Texte
 * [x] Lint, Typecheck, 85 Tests und Build sauber
 
-## Phase 6 — Umstellung und Abschluss
+## Phase 6 — Umstellung und Abschluss · ABGESCHLOSSEN
 
-* README mit Setup, Sheet Struktur, Deploy
-* ADR fuer die Stack Entscheidung
-* GitHub Actions Workflow, Pages Quelle von Legacy auf Actions umstellen
-* Merge auf `main`. Rueckfallweg ist Tag `v0-legacy` plus Umschalten der Pages
-  Quelle, zusammen unter fuenf Minuten
-* Retrospektive ausfuellen
+* [x] README mit Setup, Sheet Struktur, Deploy
+* [x] ADR fuer die Stack Entscheidung
+* [x] GitHub Actions Workflow, Pages Quelle von Legacy auf Actions umgestellt
+* [x] Merge auf `main`, im Schnellvorlauf, weil `rewrite` direkt darauf aufsetzte
+* [x] Live geprueft: HTTP 200, Buendel und Stilblatt unter dem Basispfad
+      erreichbar, keine Konsolenfehler
+* [x] Messwerte in keinem Commit, per Abruf gegen raw.githubusercontent bestaetigt
+
+Rueckfallweg bleibt Tag `v0-legacy` plus Zuruecksetzen der Pages Quelle auf
+`Deploy from a branch`, zusammen unter fuenf Minuten.
+
+Vor dem ersten Push wurde die Branchhistorie umgeschrieben. Fixtures, Golden
+Values und der Rohexport tauchen in keinem Commit auf, ebenso wenig Klarname,
+Startgewicht und Koerpergroesse. Nach dem Push waere das nicht mehr moeglich
+gewesen.
 
 ## Phase 7 — Blockuebergreifende Trainingshistorie
 
@@ -262,6 +271,24 @@ zwischen Bloecken wird an echten Daten entwickelt, nicht an ausgedachten.
 * Wochenexport als Textblock fuer den Chat mit dem Trainer
 
 ## Retrospektive
+
+### Phase 6
+
+**Was lief gut.** Die Umstellung spaet zu machen war richtig. Zwischen dem Push
+auf `main` und dem Umschalten der Pages Quelle lieferte die Seite kurz die
+Vite Quelldatei aus, weil das Legacy Verfahren das Wurzelverzeichnis nimmt.
+Waere das in Phase 1 passiert, haette es Wochen gedauert statt zwei Minuten.
+
+**Wo lagen falsche Annahmen.** Bei der Frage, was in ein oeffentliches
+Repository gehoert. Die Fixtures gegen echte Daten waren fachlich richtig und
+haben mehrere Fehler gefunden, die synthetische Zeilen nie gezeigt haetten. Dass
+diese Dateien damit auch 80 Tage Gesundheitsdaten in ein oeffentliches
+Repository tragen wuerden, stand in keiner Spec und ist erst unmittelbar vor dem
+Push aufgefallen.
+
+**Was muss naechstes Mal genauer spezifiziert werden.** Bei jeder Datei, die
+committet wird, gehoert die Frage dazu, wer sie am Ende lesen kann. Nicht erst
+beim Deploy.
 
 ### Phase 5
 
