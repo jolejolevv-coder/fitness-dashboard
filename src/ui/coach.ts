@@ -1,10 +1,11 @@
 import type { DailyEntry } from '../types';
 import { targetRateKgPerWeek, type Goals } from '../parse/goals';
 import { complianceOf } from '../analytics/compliance';
+import { avg } from '../analytics/smoothing';
 import { detectPlateau, weightTrend } from '../analytics/trend';
 import { tdeeRange } from '../analytics/tdee';
 import { byId } from './dom';
-import { decimal, integer } from './format';
+import { decimal, integer, signed } from './format';
 
 /**
  * Beobachtungen zum aktuellen Stand.
@@ -108,35 +109,72 @@ export function buildStatements(
   return statements.sort((a, b) => b.weight - a.weight).slice(0, MAX_STATEMENTS);
 }
 
+interface Pillar {
+  /** Bezeichnung im Satz, etwa `deine Kalorien`. */
+  name: string;
+  pct: number;
+  hit: number;
+  recorded: number;
+  /** Abweichung des Schnitts vom Ziel in Prozent, positiv in die gute Richtung. */
+  deviation: number | null;
+}
+
 /**
  * Die Zielgroesse mit der schlechtesten Trefferquote.
  *
- * Nur gemeldet, wenn sie unter der Aufmerksamkeitsschwelle liegt. Wenn alles
- * ueber siebzig Prozent liegt, gibt es hier nichts zu sagen.
+ * Trefferquote und Schnitt sagen Verschiedenes, und beide gehoeren in den Satz.
+ * Der Schnitt kann auf der guten Seite liegen, waehrend nur die Haelfte der Tage
+ * trifft. Genau das ist bei den Kalorien der Fall: 0.8 Prozent unter der Vorgabe
+ * im Mittel, aber nur 43 von 81 Tagen darunter. Ein Satz, der nur von der
+ * schwaechsten Stelle spricht, widerspricht dann der Kachel daneben.
  */
 function weakestPillar(daily: readonly DailyEntry[], goals: Goals): Statement | null {
-  const candidates: { name: string; pct: number; hit: number; recorded: number }[] = [];
+  const candidates: Pillar[] = [];
 
-  const add = (name: string, target: number | null, pick: (e: DailyEntry) => number | null, hit: (v: number) => boolean): void => {
+  const add = (
+    name: string,
+    target: number | null,
+    pick: (e: DailyEntry) => number | null,
+    hit: (v: number) => boolean,
+    direction: 'atLeast' | 'atMost',
+  ): void => {
     if (target === null) return;
     const result = complianceOf(daily, pick, hit);
     if (result.pct === null || result.recorded < 14) return;
-    candidates.push({ name, pct: result.pct, hit: result.hit, recorded: result.recorded });
+    const mean = avg(daily.map(pick));
+    const raw = mean === null ? null : ((mean - target) / target) * 100;
+    const deviation = raw === null ? null : direction === 'atMost' ? -raw : raw;
+    candidates.push({ name, pct: result.pct, hit: result.hit, recorded: result.recorded, deviation });
   };
 
-  add('Die Kalorienvorgabe', goals.average.caloriesKcal, (e) => e.calories, (v) => v <= goals.average.caloriesKcal!);
-  add('Das Proteinziel', goals.average.proteinG, (e) => e.protein, (v) => v >= goals.average.proteinG!);
-  add('Das Schrittziel', goals.average.steps, (e) => e.steps, (v) => v >= goals.average.steps!);
+  add('deine Kalorien', goals.average.caloriesKcal, (e) => e.calories, (v) => v <= goals.average.caloriesKcal!, 'atMost');
+  add('dein Protein', goals.average.proteinG, (e) => e.protein, (v) => v >= goals.average.proteinG!, 'atLeast');
+  add('deine Schritte', goals.average.steps, (e) => e.steps, (v) => v >= goals.average.steps!, 'atLeast');
 
   if (!candidates.length) return null;
   const worst = candidates.reduce((a, b) => (a.pct <= b.pct ? a : b));
+  const days = `${integer(worst.hit)} von ${integer(worst.recorded)} Tagen im Ziel`;
+
   if (worst.pct >= COMPLIANCE_ATTENTION_PCT) {
     return {
       tone: 'pos',
       kind: 'Ernährung',
       weight: 25,
       text: 'Alle Zielgrößen liegen über siebzig Prozent Trefferquote.',
-      note: `Schwächste: ${worst.name.toLowerCase()} mit ${integer(worst.pct)} %`,
+      note: `Schwächste: ${worst.name} mit ${integer(worst.pct)} %`,
+    };
+  }
+
+  // Schnitt auf der guten Seite, aber wenige Tage im Ziel: das ist Streuung,
+  // keine zu hohe Zufuhr. Der Satz muss beides nennen, sonst widerspricht er
+  // der Kennzahl daneben.
+  if (worst.deviation !== null && worst.deviation >= 0) {
+    return {
+      tone: 'warn',
+      kind: 'Ernährung',
+      weight: 70,
+      text: `Im Schnitt triffst du ${worst.name}, von Tag zu Tag schwanken sie aber stark.`,
+      note: `${days} · Schnitt ${signed(worst.deviation, 1)} % gegenüber der Vorgabe`,
     };
   }
 
@@ -144,8 +182,10 @@ function weakestPillar(daily: readonly DailyEntry[], goals: Goals): Statement | 
     tone: 'warn',
     kind: 'Ernährung',
     weight: 70,
-    text: `${worst.name} ist aktuell die schwächste Stelle deiner Ausführung.`,
-    note: `${integer(worst.hit)} von ${integer(worst.recorded)} erfassten Tagen im Ziel`,
+    text: `Bei ${worst.name} liegst du im Schnitt und an den meisten Tagen neben der Vorgabe.`,
+    note: worst.deviation === null
+      ? days
+      : `${days} · Schnitt ${signed(worst.deviation, 1)} % gegenüber der Vorgabe`,
   };
 }
 
