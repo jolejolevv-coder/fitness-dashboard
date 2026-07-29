@@ -1,6 +1,4 @@
 import { describe, it, expect } from 'vitest';
-import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
 
 import { num } from '../src/parse/num';
 import { parseLoad, markImplausible } from '../src/parse/load';
@@ -9,14 +7,11 @@ import { parseDaily } from '../src/parse/daily';
 import { baselineLoad, parseTraining, usableLoad } from '../src/parse/training';
 import { weightChange } from '../src/analytics/weight';
 import type { DailyEntry, SheetValues } from '../src/types';
+import { hasFixtures, load } from './fixtures';
 
-const root = join(import.meta.dirname, '..');
-/** Fixtures und Golden Values sind lose geformt, deshalb `unknown` mit gezielter Umwandlung. */
-function load<T>(p: string): T {
-  return JSON.parse(readFileSync(join(root, p), 'utf8')) as T;
-}
-const dailyFixture = load<SheetValues>('test/fixtures/daily-tracking.json');
-const meso1Fixture = load<SheetValues>('test/fixtures/mesocycle-1.json');
+const EMPTY = [] as SheetValues;
+const dailyFixture = hasFixtures ? load<SheetValues>('test/fixtures/daily-tracking.json') : EMPTY;
+const meso1Fixture = hasFixtures ? load<SheetValues>('test/fixtures/mesocycle-1.json') : EMPTY;
 const NOW = new Date(2026, 6, 29);
 
 describe('num', () => {
@@ -96,8 +91,8 @@ describe('Trainingsmarker', () => {
   });
 });
 
-describe('Tage ohne Waegung', () => {
-  const { daily } = parseDaily(dailyFixture, undefined, NOW);
+describe.skipIf(!hasFixtures)('Tage ohne Waegung', () => {
+  const { daily } = hasFixtures ? parseDaily(dailyFixture, undefined, NOW) : { daily: [] };
   const find = (date: string): DailyEntry | undefined => daily.find((d) => d.date === date);
 
   it('behaelt den 25.06., an dem nur Wellness und Schritte erfasst sind', () => {
@@ -132,8 +127,8 @@ describe('Tage ohne Waegung', () => {
   });
 });
 
-describe('Wochenbloecke', () => {
-  const { weekBlocks } = parseDaily(dailyFixture, undefined, NOW);
+describe.skipIf(!hasFixtures)('Wochenbloecke', () => {
+  const { weekBlocks } = hasFixtures ? parseDaily(dailyFixture, undefined, NOW) : { weekBlocks: [] };
 
   it('setzt im ersten Block kein Delta, weil dort das Wochenmittel steht', () => {
     expect(weekBlocks[0]!.delta).toBeNull();
@@ -163,8 +158,8 @@ describe('Gesamtveraenderung des Gewichts', () => {
   });
 });
 
-describe('Trainingsprogression', () => {
-  const parsed = parseTraining(meso1Fixture)!;
+describe.skipIf(!hasFixtures)('Trainingsprogression', () => {
+  const parsed = parseTraining(meso1Fixture) ?? { exercises: {}, weekCount: 0, currentWeek: 0, unparsableLoads: [] };
   const calf = Object.values(parsed.exercises).filter((e) => e.name.startsWith('Standing Calf Raise'));
 
   it('rechnet 55x2 als 110 kg', () => {

@@ -11,7 +11,7 @@ Stand: 29.07.2026. Phasen 0 bis 5 sowie das Redesign abgeschlossen. Arbeit laeuf
 * [x] Sheet Struktur vollstaendig erhoben und in `specs/sheet-structure.md`
       festgehalten, einschliesslich sechs bisher unbekannter Befunde
 * [ ] Google API Key in der Cloud Console auf HTTP Referrer `me.nahobinoco.com/*`
-      und auf die Sheets API beschraenken. Offen, nur von der Nutzer erledigbar
+      und auf die Sheets API beschraenken. Offen, nur vom Nutzer erledigbar
 
 ## Phase 1 — Migration auf Vite und TypeScript · ABGESCHLOSSEN
 
@@ -45,7 +45,7 @@ begruendet. Reihenfolge nach Auswirkung.
 
 1. **Lastnotation `55x2`.** Einunddreissig Werte werden heute zu Unsinn, `55x2`
    wird zu 552 kg. Betrifft Lastprogression, 1RM Schaetzung, Gesamtvolumen und
-   Volumenverteilung. Die Bedeutung der Notation ist mit der Nutzer zu klaeren, siehe
+   Volumenverteilung. Die Bedeutung der Notation ist mit dem Nutzer zu klaeren, siehe
    offene Frage unten. Ebenfalls zu behandeln: Bereichsangaben wie `40-50`
 2. **Gleichnamige Uebungen an verschiedenen Tagen.** Acht von 36 Varianten in
    `Mesocycle 1` verschwinden, weil der Parser nach Namen entdoppelt. Der

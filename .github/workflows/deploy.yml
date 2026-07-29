@@ -36,8 +36,14 @@ jobs:
 
       - run: npm ci
 
+      - run: npm run lint
+
       # Typpruefung und Tests laufen vor dem Build. Eine rote Suite darf nicht
       # ausgeliefert werden.
+      #
+      # Die Suiten gegen echte Sheet Daten werden hier uebersprungen, weil die
+      # Fixtures Messwerte enthalten und deshalb nicht versioniert sind. Sie
+      # laufen lokal ueber `npm run check`.
       - run: npm run typecheck
       - run: npm test
 

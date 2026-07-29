@@ -54,8 +54,17 @@ Meldung ab.
 ## Testdaten
 
 Tests laufen gegen Fixtures aus einem echten Export, nicht gegen ausgedachte
-Zeilen. Der Rohexport liegt unter `testdata/` und wird nie versioniert, die
-daraus erzeugten Fixtures unter `test/fixtures/` schon.
+Zeilen. **Weder der Rohexport noch die daraus erzeugten Fixtures und Golden
+Values sind versioniert.** Sie enthalten Gewicht, Makros, Schlaf, Stress und
+Schritte einer realen Person, und das gehoert nicht in ein oeffentliches
+Repository. Die Messwerte stammen ohnehin aus dem Sheet und sind ein
+Entwicklungsbehelf, kein Bestandteil des Produkts.
+
+Ohne diese Dateien werden die davon abhaengigen Suiten uebersprungen statt
+fehlzuschlagen, `npm test` laeuft also auch bei einem frischen Auschecken durch.
+Genau so verhaelt sich die Pipeline.
+
+Erzeugt werden sie aus einem eigenen Export:
 
 ```bash
 python3 scripts/make_fixtures.py testdata/<export>.xlsx

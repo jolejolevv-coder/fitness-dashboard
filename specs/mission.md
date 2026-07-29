@@ -2,10 +2,11 @@
 
 ## Warum das existiert
 
-der Nutzer trackt taeglich Gewicht, Makros, Schlaf, Stress, Energie, Verdauung und
-Schritte in einem Google Sheet, dazu einen Mesozyklus mit Trainingsgewichten.
-Die Entscheidungen daraus, also Kalorienanpassung und Programmierung, trifft sein
-Personal Trainer, der Schreibrechte auf demselben Sheet hat.
+Der Nutzer trackt taeglich Gewicht, Makros, Schlaf, Stress, Energie, Verdauung
+und Schritte in einem Google Sheet, dazu einen Mesozyklus mit
+Trainingsgewichten. Die Entscheidungen daraus, also Kalorienanpassung und
+Programmierung, trifft sein Personal Trainer, der Schreibrechte auf demselben
+Sheet hat.
 
 Das Dashboard trifft diese Entscheidungen nicht nach. Es hat zwei Aufgaben:
 
@@ -13,8 +14,8 @@ Das Dashboard trifft diese Entscheidungen nicht nach. Es hat zwei Aufgaben:
 erzeugen soll. Nicht um zu widersprechen, sondern um frueh zu merken, wenn etwas
 nicht aufgeht, und ihn dann gezielt anzusprechen statt vier Wochen zu warten.
 
-**Rechenschaft.** Haelt der Nutzer seinen Teil der Abmachung ein, und zwar bevor der
-Trainer es ihm sagt. Damit das Gespraech um Programmierung geht und nicht darum,
+**Rechenschaft.** Haelt der Nutzer seinen Teil der Abmachung ein, und zwar bevor
+der Trainer es ihm sagt. Damit das Gespraech um Programmierung geht und nicht darum,
 ob Protein getroffen wurde.
 
 Verstehen, Motivation und die Faehigkeit zur begruendeten Zweitmeinung sind

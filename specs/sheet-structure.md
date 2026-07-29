@@ -1,7 +1,7 @@
 # Sheet Struktur
 
 Erhoben am 29.07.2026 aus einem vollstaendigen Export des Arbeitsblatts
-`Makrocycle 1 - N. N. - 4 Day´s Body Recomposition`. Diese Datei ist die
+`Makrocycle 1 - 4 Day´s Body Recomposition`. Diese Datei ist die
 Referenz fuer das Parsing. Der Rohexport liegt unter `testdata/` und ist
 versionsausgeschlossen.
 
@@ -35,9 +35,12 @@ Hier stehen die Zielwerte des Trainers. Sie muessen nicht eingetippt werden.
 High Day und Low Day tragen in diesem Block identische Werte. Das Parsing darf
 das nicht voraussetzen, im naechsten Block koennen sie auseinanderlaufen.
 
-Weitere Stammdaten: `G1` Name, `M1` Ziel, `G4` Beginn 04.05.2026, `M4`
-Startgewicht, `G7` Geburtsdatum, `M7` Groesse. Der tatsaechliche
-Trackingbeginn ist der 07.05.2026, die drei Zeilen davor sind leer.
+Weitere Stammdaten: `G1` Name, `M1` Ziel, `G4` Beginn, `M4` Startgewicht,
+`G7` Geburtsdatum, `M7` Groesse. Die konkreten Werte stehen bewusst nicht in
+dieser Datei, sie gehoert zu einem oeffentlichen Repository.
+
+Der Trackingbeginn liegt drei Tage nach dem in `G4` genannten Beginn, die
+Zeilen davor sind leer.
 
 ### Kopfzeile, Zeile 29
 

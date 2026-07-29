@@ -10,16 +10,13 @@ import {
   targetRateKgPerWeek,
 } from '../src/parse/goals';
 import type { SheetValues } from '../src/types';
+import { hasFixtures, load, root } from './fixtures';
 
-const root = join(import.meta.dirname, '..');
-/** Fixtures und Golden Values sind lose geformt, deshalb `unknown` mit gezielter Umwandlung. */
-function load<T>(p: string): T {
-  return JSON.parse(readFileSync(join(root, p), 'utf8')) as T;
-}
-const dailyFixture = load<SheetValues>('test/fixtures/daily-tracking.json');
-const meso1Fixture = load<SheetValues>('test/fixtures/mesocycle-1.json');
+const EMPTY = [] as SheetValues;
+const dailyFixture = hasFixtures ? load<SheetValues>('test/fixtures/daily-tracking.json') : EMPTY;
+const meso1Fixture = hasFixtures ? load<SheetValues>('test/fixtures/mesocycle-1.json') : EMPTY;
 
-describe('Vorgabeblock aus dem Sheet', () => {
+describe.skipIf(!hasFixtures)('Vorgabeblock aus dem Sheet', () => {
   const goals = parseGoals(dailyFixture, meso1Fixture);
 
   it('liest den Wochenschnitt des Trainers', () => {
@@ -52,7 +49,7 @@ describe('Vorgabeblock aus dem Sheet', () => {
 });
 
 describe('Rate of Loss', () => {
-  it('liest ROL aus dem Mesocycle Tab', () => {
+  it.skipIf(!hasFixtures)('liest ROL aus dem Mesocycle Tab', () => {
     expect(parseRateOfLoss(meso1Fixture)).toBe(0.25);
   });
 
@@ -73,7 +70,7 @@ describe('Rate of Loss', () => {
   });
 });
 
-describe('Verhalten bei umgebautem Sheet', () => {
+describe.skipIf(!hasFixtures)('Verhalten bei umgebautem Sheet', () => {
   it('faellt auf Rueckfallwerte zurueck und sagt es', () => {
     const withoutBlock = dailyFixture.map((row) => row.map((c) => (c === 'Day' ? 'Tag' : c)));
     const goals = parseGoals(withoutBlock, meso1Fixture);

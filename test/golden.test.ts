@@ -1,11 +1,10 @@
 import { describe, it, expect } from 'vitest';
-import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
 
 import { parseDaily, resolveDailyColumns } from '../src/parse/daily';
 import { parseTraining } from '../src/parse/training';
 import { avg, movingAvg } from '../src/analytics/smoothing';
 import type { DailyEntry, SheetValues } from '../src/types';
+import { hasFixtures, load } from './fixtures';
 
 /**
  * Vergleich gegen die Ausgangsfassung.
@@ -27,17 +26,19 @@ interface GoldenTraining {
   mesocycle1: { exerciseCount: number; weekCount: number; currentWeek: number };
 }
 
-const root = join(import.meta.dirname, '..');
-/** Fixtures und Golden Values sind lose geformt, deshalb `unknown` mit gezielter Umwandlung. */
-function load<T>(p: string): T {
-  return JSON.parse(readFileSync(join(root, p), 'utf8')) as T;
-}
 
-const dailyFixture = load<SheetValues>('test/fixtures/daily-tracking.json');
-const meso1Fixture = load<SheetValues>('test/fixtures/mesocycle-1.json');
-const meso2Fixture = load<SheetValues>('test/fixtures/mesocycle-2.json');
-const goldenDaily = load<GoldenDaily>('test/golden/daily.json');
-const goldenTraining = load<GoldenTraining>('test/golden/training.json');
+// Ohne lokale Testdaten bleiben die Werte leer und alle Suiten werden
+// uebersprungen. Gelesen wird trotzdem beim Laden des Moduls, deshalb der Wächter.
+const EMPTY = [] as SheetValues;
+const dailyFixture = hasFixtures ? load<SheetValues>('test/fixtures/daily-tracking.json') : EMPTY;
+const meso1Fixture = hasFixtures ? load<SheetValues>('test/fixtures/mesocycle-1.json') : EMPTY;
+const meso2Fixture = hasFixtures ? load<SheetValues>('test/fixtures/mesocycle-2.json') : EMPTY;
+const goldenDaily = hasFixtures
+  ? load<GoldenDaily>('test/golden/daily.json')
+  : ({ daily: [], weekBlocks: [], kpi: { badgeDays: '', movingAvgWeight: [] } } satisfies GoldenDaily);
+const goldenTraining = hasFixtures
+  ? load<GoldenTraining>('test/golden/training.json')
+  : ({ mesocycle1: { exerciseCount: 0, weekCount: 0, currentWeek: 0 } } satisfies GoldenTraining);
 
 /** Fester Stichtag, sonst haengt das Ergebnis am Ausfuehrungsdatum. */
 const NOW = new Date(2026, 6, 29);
@@ -45,7 +46,7 @@ const NOW = new Date(2026, 6, 29);
 const iso = (d: Date | null): string | null =>
   d ? `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}` : null;
 
-const parsed = parseDaily(dailyFixture, undefined, NOW);
+const parsed = hasFixtures ? parseDaily(dailyFixture, undefined, NOW) : { daily: [], weekBlocks: [] };
 
 /**
  * Tage, die neu hinzukommen, weil ein fehlendes Gewicht die Zeile nicht mehr
@@ -59,7 +60,7 @@ const EXPECTED_FIELD_CHANGES = [
   { date: '2026-07-06', field: 'digestion', before: null, after: 0, reason: 'echte Null bleibt erhalten' },
 ];
 
-describe('Spaltenauflaesung', () => {
+describe.skipIf(!hasFixtures)('Spaltenauflaesung', () => {
   it('findet alle Spalten des Daily Tracking, einschliesslich der zweiten Notizspalte', () => {
     expect(resolveDailyColumns(dailyFixture)).toMatchObject({
       date: 0, weight: 1, time: 2, protein: 4, carbs: 5, fat: 6, fiber: 7,
@@ -74,7 +75,7 @@ describe('Spaltenauflaesung', () => {
   });
 });
 
-describe('Abweichungen gegenueber der Ausgangsfassung', () => {
+describe.skipIf(!hasFixtures)('Abweichungen gegenueber der Ausgangsfassung', () => {
   const actual = new Map(parsed.daily.map((d) => [iso(d.dateObj)!, d]));
   const previous = new Map(goldenDaily.daily.map((d) => [d.dateObj, d]));
 
@@ -99,7 +100,7 @@ describe('Abweichungen gegenueber der Ausgangsfassung', () => {
   });
 });
 
-describe('Unveraendert gegenueber der Ausgangsfassung', () => {
+describe.skipIf(!hasFixtures)('Unveraendert gegenueber der Ausgangsfassung', () => {
   const weighed = parsed.daily.filter((d) => d.weight !== null && !isNaN(d.weight));
 
   it('haelt die Anzahl der Waegungen', () => {
@@ -115,7 +116,7 @@ describe('Unveraendert gegenueber der Ausgangsfassung', () => {
   });
 });
 
-describe('Mesocycle Tabs', () => {
+describe.skipIf(!hasFixtures)('Mesocycle Tabs', () => {
   it('behaelt gleichnamige Uebungen verschiedener Trainingstage', () => {
     const actual = parseTraining(meso1Fixture)!;
     expect(Object.keys(actual.exercises).length).toBeGreaterThan(goldenTraining.mesocycle1.exerciseCount);
@@ -131,7 +132,7 @@ describe('Mesocycle Tabs', () => {
   });
 });
 
-describe('Kennzahlen ueber alle erfassten Tage', () => {
+describe.skipIf(!hasFixtures)('Kennzahlen ueber alle erfassten Tage', () => {
   const all: readonly DailyEntry[] = parsed.daily;
 
   it('rechnet Ernaehrung und Wellness nicht mehr nur ueber Tage mit Waegung', () => {

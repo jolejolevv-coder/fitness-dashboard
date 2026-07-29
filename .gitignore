@@ -10,3 +10,8 @@ dist/
 
 # Vorschau mit Fixtures, nur lokal
 public/preview/
+
+# Messwerte bleiben lokal. Sie stammen aus dem Sheet und sind ein
+# Entwicklungsbehelf, kein Bestandteil des Produkts.
+test/fixtures/
+test/golden/
