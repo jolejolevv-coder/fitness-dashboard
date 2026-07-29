@@ -1,0 +1,9 @@
+# Rohexporte des Google Sheets, nie versionieren
+testdata/
+
+# Build und Abhaengigkeiten
+node_modules/
+dist/
+
+# macOS
+.DS_Store
