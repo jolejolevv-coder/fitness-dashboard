@@ -1,5 +1,6 @@
 import type { DailyEntry, WeekBlock } from '../types';
 import { avg, fmt, movingAvg } from '../analytics/smoothing';
+import { weightChange } from '../analytics/weight';
 import type { ChartOptions } from 'chart.js';
 import { barChart, baseOptions, Chart, destroyChart, lineChart, register } from '../charts/base';
 import { COMPLIANCE_THRESHOLDS, GOALS } from '../config/goals';
@@ -47,33 +48,40 @@ export function renderDashboard(daily: readonly DailyEntry[], weekBlocks: readon
 
   const labels = rows.map(dayLabel);
   const first = rows[0]!.weight!;
-  const last = rows[rows.length - 1]!.weight!;
-  const loss = last - first;
   const signed = (v: number, digits = 1): string => `${v < 0 ? '' : '+'}${v.toFixed(digits)}`;
 
-  setText('badge-start', `${first.toFixed(1)} kg`);
-  setText('badge-current', `${last.toFixed(1)} kg`);
-  setText('badge-loss', `${signed(loss)} kg`);
+  // PHASE 2: Start, Aktuell und Verlust aus geglaetteten Mitteln statt aus zwei
+  // Einzelwaegungen. Die erste Waegung lag mit 99.9 kg deutlich ueber dem Trend
+  // und praegte damit die Titelzahl.
+  const change = weightChange(rows);
+  setText('badge-start', change ? `${change.from.toFixed(1)} kg` : '–');
+  setText('badge-current', change ? `${change.to.toFixed(1)} kg` : '–');
+  setText('badge-loss', change ? `${signed(change.change)} kg` : '–');
   setText('badge-days', `${rows.length} Tage`);
-  setText('kpi-loss', `${signed(loss)} kg`);
-  setText('kpi-loss-sub', `${first.toFixed(1)} → ${last.toFixed(1)} kg`);
+  setText('kpi-loss', change ? `${signed(change.change)} kg` : '–');
+  setText('kpi-loss-sub', change
+    ? `${change.from.toFixed(1)} → ${change.to.toFixed(1)} kg · Ø ${change.window} Tage`
+    : '–');
 
-  const avgCalories = avg(rows.map((r) => r.calories));
-  const avgProtein = avg(rows.map((r) => r.protein));
-  const avgSteps = avg(rows.map((r) => r.steps));
+  // PHASE 2: Ernaehrung und Wellness rechnen ueber alle erfassten Tage, nicht
+  // mehr nur ueber Tage mit Waegung. Ein Tag ohne Gewicht kann vollstaendige
+  // Makros tragen, und dann gehoert er in den Durchschnitt.
+  const avgCalories = avg(daily.map((r) => r.calories));
+  const avgProtein = avg(daily.map((r) => r.protein));
+  const avgSteps = avg(daily.map((r) => r.steps));
 
   setText('kpi-kcal', avgCalories === null ? '–' : String(Math.round(avgCalories)));
   setText('kpi-protein', avgProtein === null ? '–' : `${Math.round(avgProtein)}g`);
   setText('kpi-steps', avgSteps === null ? '–' : Math.round(avgSteps).toLocaleString('de'));
-  setText('kpi-sleep', `${fmt(avg(rows.map((r) => r.sleep)))}h`);
-  setText('kpi-energy', `${fmt(avg(rows.map((r) => r.energy)))}/5`);
+  setText('kpi-sleep', `${fmt(avg(daily.map((r) => r.sleep)))}h`);
+  setText('kpi-energy', `${fmt(avg(daily.map((r) => r.energy)))}/5`);
   setText('last-updated', `Zuletzt geladen: ${new Date().toLocaleTimeString('de-DE')}`);
 
-  const proteinCompliance = compliance(rows, (r) => r.protein, (v) => v >= GOALS.proteinG);
+  const proteinCompliance = compliance(daily, (r) => r.protein, (v) => v >= GOALS.proteinG);
   setText('kpi-protein-compliance', proteinCompliance === null ? '–' : `${proteinCompliance}%`);
   setColor('kpi-protein-compliance', complianceColor(proteinCompliance));
 
-  const calorieCompliance = compliance(rows, (r) => r.calories, (v) => v <= GOALS.caloriesKcal);
+  const calorieCompliance = compliance(daily, (r) => r.calories, (v) => v <= GOALS.caloriesKcal);
   setText('kpi-cal-compliance', calorieCompliance === null ? '–' : `${calorieCompliance}%`);
   setColor('kpi-cal-compliance', complianceColor(calorieCompliance));
 
@@ -85,17 +93,18 @@ export function renderDashboard(daily: readonly DailyEntry[], weekBlocks: readon
   const weekAverages = weekBlocks.map((b) => b.avgWeight ?? avg(b.rows.map((r) => r.weight)));
   barChart('weeklyChart', weekLabels, weekAverages, COLORS.sky);
 
-  // Ernaehrung
-  lineChart('proteinChart', labels, rows.map((r) => r.protein), COLORS.warn, true, GOALS.proteinG);
-  lineChart('caloriesChart', labels, rows.map((r) => r.calories), COLORS.bad, true, GOALS.caloriesKcal);
-  barChart('fvChart', labels, rows.map((r) => r.fv), COLORS.good);
-  renderMacroChart(avg(rows.map((r) => r.protein)), avg(rows.map((r) => r.carbs)), avg(rows.map((r) => r.fat)));
+  // Ernaehrung und Wellness ueber alle erfassten Tage, mit eigener Beschriftung,
+  // weil dieser Satz Tage groesser ist als der mit Waegung.
+  const allLabels = daily.map(dayLabel);
+  lineChart('proteinChart', allLabels, daily.map((r) => r.protein), COLORS.warn, true, GOALS.proteinG);
+  lineChart('caloriesChart', allLabels, daily.map((r) => r.calories), COLORS.bad, true, GOALS.caloriesKcal);
+  barChart('fvChart', allLabels, daily.map((r) => r.fv), COLORS.good);
+  renderMacroChart(avgProtein, avg(daily.map((r) => r.carbs)), avg(daily.map((r) => r.fat)));
 
-  // Wellness
-  lineChart('sleepChart', labels, rows.map((r) => r.sleep), COLORS.indigo, true, GOALS.sleepH);
-  lineChart('energyChart', labels, rows.map((r) => r.energy), COLORS.warn, true, GOALS.energyRef);
-  lineChart('stressChart', labels, rows.map((r) => r.stress), COLORS.bad, true, GOALS.stressRef);
-  lineChart('digestionChart', labels, rows.map((r) => r.digestion), COLORS.good, true, GOALS.digestionRef);
+  lineChart('sleepChart', allLabels, daily.map((r) => r.sleep), COLORS.indigo, true, GOALS.sleepH);
+  lineChart('energyChart', allLabels, daily.map((r) => r.energy), COLORS.warn, true, GOALS.energyRef);
+  lineChart('stressChart', allLabels, daily.map((r) => r.stress), COLORS.bad, true, GOALS.stressRef);
+  lineChart('digestionChart', allLabels, daily.map((r) => r.digestion), COLORS.good, true, GOALS.digestionRef);
   renderCorrelation(daily);
 
   // Wochen

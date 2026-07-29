@@ -1,17 +1,33 @@
 /**
  * Wandelt eine Sheet Zelle in eine Zahl.
  *
- * PHASE 1: woertlich uebernommen aus der urspruenglichen index.html, inklusive
- * zweier bekannter Fehler. Beide werden erst in Phase 2 behoben, damit die
- * Migration gegen unveraenderte Golden Values geprueft werden kann.
+ * Die Zellen sind uneinheitlich: `97,8` als Zahl mit Komma, `99.9` als Text mit
+ * Punkt, `97,53 Kg` mit angehaengter Einheit, `?` und `#REF!` als Platzhalter.
  *
- * Fehler 1: `parseFloat(...) || null` macht aus einer echten 0 ein null.
- * Fehler 2: das Entfernen aller nicht numerischen Zeichen macht aus der
- *           Lastnotation `55x2` die Zahl 552. Siehe specs/sheet-structure.md.
+ * PHASE 2, zwei Aenderungen gegenueber der urspruenglichen Fassung:
+ *
+ * 1. Eine echte 0 bleibt erhalten. Vorher machte `parseFloat(...) || null`
+ *    daraus null. Betraf im Bestand zwei Werte, je einen in Fruits & Vegetables
+ *    und in Verdauung.
+ * 2. Gelesen wird die Zahl am Anfang der Zelle, statt alle nicht numerischen
+ *    Zeichen zu entfernen. Vorher wurde aus `55x2` die Zahl 552.
  */
+
+/** Zahl am Anfang der Zelle, optional mit Vorzeichen und Dezimaltrenner. */
+const LEADING_NUMBER = /^-?\d+(?:\.\d+)?/;
+
+const PLACEHOLDERS = new Set(['', '-', '?', '#REF!', '#N/A', '#DIV/0!', '#VALUE!']);
+
 export function num(v: string | undefined | null): number | null {
-  if (!v || v === '#REF!' || v === '#N/A' || v === '-' || v === '') return null;
-  return parseFloat(String(v).replace(',', '.').replace(/[^\d.\-]/g, '')) || null;
+  if (v === null || v === undefined) return null;
+  const text = String(v).trim();
+  if (PLACEHOLDERS.has(text)) return null;
+
+  const match = LEADING_NUMBER.exec(text.replace(',', '.'));
+  if (!match) return null;
+
+  const value = parseFloat(match[0]);
+  return Number.isFinite(value) ? value : null;
 }
 
 /** Datum im Format `d.m.yyyy`, wie es die Sheets API in dieser Tabelle liefert. */

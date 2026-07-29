@@ -7,3 +7,6 @@ dist/
 
 # macOS
 .DS_Store
+
+# Vorschau mit Fixtures, nur lokal
+public/preview/

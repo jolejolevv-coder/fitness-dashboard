@@ -35,6 +35,9 @@ RANGES = {
 # damit keine persoenlichen Notizen in versionierte Testdaten geraten.
 COMMENT_COLUMNS = {"Daily Tracking": (12, 29)}
 
+# Beschriftungen, an denen die Kopfzeile erkannt wird.
+HEADER_MARKERS = {"Daily Tracking": {"Date", "Weight", "Calories"}}
+
 PLACEHOLDER = "Notiz {n}"
 
 
@@ -86,7 +89,16 @@ def trim_trailing(items):
     return items[:end]
 
 
-def extract(worksheet, max_row, max_col, comment_columns):
+def find_header_row(worksheet, max_row, max_col, markers):
+    """Zeile, die alle geforderten Beschriftungen traegt. Sie darf nicht anonymisiert werden."""
+    for r in range(1, max_row + 1):
+        labels = {str(worksheet.cell(r, c).value or "").strip() for c in range(1, max_col + 1)}
+        if markers.issubset(labels):
+            return r
+    return 0
+
+
+def extract(worksheet, max_row, max_col, comment_columns, header_row):
     counter = 0
     rows = []
     for r in range(1, max_row + 1):
@@ -94,7 +106,9 @@ def extract(worksheet, max_row, max_col, comment_columns):
         for c in range(1, max_col + 1):
             cell = worksheet.cell(r, c)
             text = format_cell(cell)
-            if text and c in comment_columns:
+            # Nur Inhalte unterhalb der Kopfzeile ersetzen. Wird die Kopfzeile
+            # mit anonymisiert, findet die Spaltenauflaesung die Spalte nicht mehr.
+            if text and c in comment_columns and r > header_row:
                 counter += 1
                 text = PLACEHOLDER.format(n=counter)
             row.append(text)
@@ -122,11 +136,15 @@ def main():
             print(f"Tab fehlt, uebersprungen: {tab}")
             continue
         worksheet = workbook[tab]
+        rows_limit = min(max_row, worksheet.max_row)
+        cols_limit = min(max_col, worksheet.max_column)
+        header_row = find_header_row(worksheet, rows_limit, cols_limit, HEADER_MARKERS.get(tab, set()))
         rows = extract(
             worksheet,
-            min(max_row, worksheet.max_row),
-            min(max_col, worksheet.max_column),
+            rows_limit,
+            cols_limit,
             set(COMMENT_COLUMNS.get(tab, ())),
+            header_row,
         )
         out = target / f"{name}.json"
         out.write_text(json.dumps(rows, ensure_ascii=False, indent=1), encoding="utf-8")

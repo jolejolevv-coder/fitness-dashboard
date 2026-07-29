@@ -18,8 +18,6 @@ export const GOALS = {
   stressRef: 3,
   /** Referenzlinie Verdauung. */
   digestionRef: 5,
-  /** Laenge eines Mesozyklus in Wochen, Anzeige in der Kennzahlleiste. */
-  mesocycleWeeks: 12,
 } as const;
 
 /** Schwellen fuer die Einfaerbung der Compliance Kacheln. */

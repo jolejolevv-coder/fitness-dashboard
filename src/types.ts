@@ -41,20 +41,34 @@ export interface ParsedDaily {
 
 /** Eine Uebungswoche innerhalb eines Mesozyklus. */
 export interface ExerciseWeek {
+  /** Gesamtlast in kg. `55x2` ergibt 110. */
   load: number | null;
   sets: number;
   repsActual: string;
+  /** Unveraenderter Zellinhalt der Lastspalte. */
+  loadRaw: string;
+  /** Der Wert musste geraten werden, etwa bei einer Bereichsangabe. */
+  uncertain: boolean;
+  /** Weicht so stark vom Median der Uebung ab, dass ein Tippfehler naheliegt. */
+  implausible: boolean;
 }
 
 export interface Exercise {
+  /** Eindeutiger Schluessel aus Trainingstag und Name. */
+  key: string;
+  /** Anzeigename, wie im Sheet. */
+  name: string;
   day: string;
   muscleGroup: string;
   weeks: ExerciseWeek[];
 }
 
 export interface ParsedTraining {
+  /** Schluessel ist `day||name`, nicht der Name allein. */
   exercises: Record<string, Exercise>;
   weekCount: number;
   /** Hoechste Woche mit einer eingetragenen Last. */
   currentWeek: number;
+  /** Zellen, die nicht gelesen werden konnten, fuer einen Hinweis in der Oberflaeche. */
+  unparsableLoads: string[];
 }

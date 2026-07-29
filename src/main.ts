@@ -96,10 +96,30 @@ function setLastUpdated(text: string): void {
   if (element) element.textContent = text;
 }
 
+function cutoffDate(): Date | null {
+  return dateRangeDays > 0 ? new Date(Date.now() - dateRangeDays * MS_PER_DAY) : null;
+}
+
 function filteredDaily(): DailyEntry[] {
-  if (dateRangeDays <= 0) return allDaily;
-  const cutoff = new Date(Date.now() - dateRangeDays * MS_PER_DAY);
+  const cutoff = cutoffDate();
+  if (!cutoff) return allDaily;
   return allDaily.filter((r) => r.dateObj && r.dateObj >= cutoff);
+}
+
+/**
+ * PHASE 2: der Zeitraumfilter wirkt auch auf die Wochenansicht.
+ *
+ * Vorher filterte er nur die Tagesdaten, waehrend Wochenkarten und Wochenchart
+ * unveraendert alle Wochen zeigten. Ein Block zaehlt dazu, wenn sein letzter Tag
+ * im Zeitraum liegt.
+ */
+function filteredWeekBlocks(): WeekBlock[] {
+  const cutoff = cutoffDate();
+  if (!cutoff) return allWeekBlocks;
+  return allWeekBlocks.filter((block) => {
+    const last = block.rows[block.rows.length - 1]?.dateObj;
+    return last ? last >= cutoff : false;
+  });
 }
 
 function applyDateRange(days: number): void {
@@ -107,7 +127,7 @@ function applyDateRange(days: number): void {
   for (const button of document.querySelectorAll<HTMLElement>('.range-btn')) {
     button.classList.toggle('active', Number(button.dataset['range']) === days);
   }
-  renderDashboard(filteredDaily(), allWeekBlocks, showError);
+  renderDashboard(filteredDaily(), filteredWeekBlocks(), showError);
 }
 
 function showTab(name: string, element: HTMLElement): void {
@@ -124,7 +144,7 @@ function applyParsed(raw: SheetValues, rawTraining: SheetValues): void {
 
   show('status', false);
   show('dashboard', true);
-  renderDashboard(filteredDaily(), weekBlocks, showError);
+  renderDashboard(filteredDaily(), filteredWeekBlocks(), showError);
   renderTraining(rawTraining.length ? parseTraining(rawTraining) : null);
 }
 

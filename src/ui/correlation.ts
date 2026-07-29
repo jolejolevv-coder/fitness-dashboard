@@ -1,5 +1,6 @@
 import type { DailyEntry } from '../types';
 import { avg, fmt } from '../analytics/smoothing';
+import { parseTrainingMarker } from '../parse/trainingday';
 import { byId, COLORS } from './dom';
 
 /**
@@ -37,8 +38,10 @@ export function renderCorrelation(daily: readonly DailyEntry[]): void {
     const next = sorted[i + 1]!;
     if ((next.dateObj!.getTime() - today.dateObj!.getTime()) / 864e5 > MAX_GAP_DAYS) continue;
 
-    const isTraining = Boolean(today.training && today.training.trim() && today.training.trim() !== '-');
-    const bucket = isTraining ? training : rest;
+    // PHASE 2: `Rest` und freie Notizen zaehlen nicht mehr als Training.
+    const marker = parseTrainingMarker(today.training);
+    if (marker.kind === 'unknown') continue;
+    const bucket = marker.kind === 'training' ? training : rest;
     if (next.energy !== null) bucket.energy.push(next.energy);
     if (next.sleep !== null) bucket.sleep.push(next.sleep);
   }

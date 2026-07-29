@@ -5,9 +5,9 @@ import { cell, findHeaderRow, resolveColumns, type ColumnMap, type ColumnSpec } 
 /**
  * Spalten des Tabs `Daily Tracking`.
  *
- * Die Notizspalte traegt keine Kopfzeile, sie wird ueber ihren Index gefunden.
- * Die beschriftete Spalte `Comments` wird in Phase 1 bewusst noch nicht gelesen,
- * weil das eine Verhaltensaenderung waere. Siehe Phase 2 der Roadmap.
+ * Notizen stehen an zwei Stellen. Die Spalte `L` traegt keine Kopfzeile und wird
+ * ueber ihren Index gefunden, die Spalte `AC` ist als `Comments` beschriftet.
+ * Beide werden gelesen, vorher nur `L`.
  */
 export const DAILY_COLUMNS: readonly ColumnSpec[] = [
   { key: 'date', header: 'Date', required: true },
@@ -20,6 +20,7 @@ export const DAILY_COLUMNS: readonly ColumnSpec[] = [
   { key: 'fv', header: 'Fruits & Vegetables' },
   { key: 'calories', header: 'Calories' },
   { key: 'note', fallbackIndex: 11 },
+  { key: 'comments', header: 'Comments' },
   { key: 'sleep', header: 'Sleep' },
   { key: 'sleepQ', fallbackIndex: 13 },
   { key: 'digestion', header: 'Verdauung' },
@@ -34,7 +35,16 @@ const HEADER_MARKERS = ['Date', 'Weight', 'Calories'] as const;
 const WEEK_AVERAGE_LABEL = 'durchschnitt';
 const WEEK_DELTA_PREFIX = 'gewicht';
 
-/** Ermittelt die Spaltenzuordnung des Tabs. Wirft bei fehlender Pflichtspalte. */
+/** Spalten, von denen mindestens eine befuellt sein muss, damit eine Zeile ein Tag ist. */
+const CONTENT_KEYS = [
+  'weight', 'protein', 'carbs', 'fat', 'fiber', 'fv', 'calories',
+  'sleep', 'sleepQ', 'digestion', 'stress', 'energy', 'steps', 'training',
+  'note', 'comments',
+] as const;
+
+/** Trennzeichen, wenn ein Tag Notizen in beiden Spalten traegt. */
+const NOTE_SEPARATOR = ' · ';
+
 export function resolveDailyColumns(rows: SheetValues): ColumnMap {
   const headerIndex = findHeaderRow(rows, HEADER_MARKERS);
   if (headerIndex < 0) {
@@ -44,17 +54,31 @@ export function resolveDailyColumns(rows: SheetValues): ColumnMap {
 }
 
 /**
- * Eine Datenzeile braucht ein gueltiges Datum und ein gueltiges Gewicht.
+ * Eine Zeile ist ein Tag, wenn sie ein gueltiges Datum und mindestens einen
+ * befuellten Wert traegt.
  *
- * PHASE 1: Verhalten unveraendert. Dass ein fehlendes Gewicht die gesamte Zeile
- * verwirft, kostet heute zwei Tage mit je 13 befuellten Feldern. Behebung in Phase 2.
+ * PHASE 2: das Gewicht ist keine Bedingung mehr. Vorher verwarf ein `?` in der
+ * Gewichtsspalte die gesamte Zeile. Am 25. und 26.06.2026 gingen dadurch je 13
+ * befuellte Felder verloren.
+ *
+ * Zeilen mit einem Datum in der Zukunft sind Planung, keine Daten, und bleiben
+ * aussen vor.
  */
-function isDataRow(row: SheetRow, columns: ColumnMap): boolean {
-  const date = cell(row, columns, 'date');
+function isDataRow(row: SheetRow, columns: ColumnMap, now: Date): boolean {
+  const date = parseDate(cell(row, columns, 'date'));
   if (!date) return false;
-  if (!parseDate(date)) return false;
-  const weight = num(cell(row, columns, 'weight'));
-  return weight !== null && !isNaN(weight);
+  if (date > now) return false;
+  return CONTENT_KEYS.some((key) => {
+    const value = cell(row, columns, key);
+    return value !== undefined && value.trim() !== '';
+  });
+}
+
+function combineNotes(row: SheetRow, columns: ColumnMap): string {
+  const parts = [cell(row, columns, 'note'), cell(row, columns, 'comments')]
+    .map((v) => (v ?? '').trim())
+    .filter((v) => v !== '' && v !== '-');
+  return parts.join(NOTE_SEPARATOR);
 }
 
 function toEntry(row: SheetRow, columns: ColumnMap): DailyEntry {
@@ -70,7 +94,7 @@ function toEntry(row: SheetRow, columns: ColumnMap): DailyEntry {
     fiber: num(read('fiber')),
     fv: num(read('fv')),
     calories: num(read('calories')),
-    comment: read('note') ?? '',
+    comment: combineNotes(row, columns),
     sleep: num(read('sleep')),
     sleepQ: num(read('sleepQ')),
     digestion: num(read('digestion')),
@@ -86,9 +110,10 @@ function toEntry(row: SheetRow, columns: ColumnMap): DailyEntry {
  *
  * Wochenbloecke werden durch die Zeile `Durchschnitt` abgeschlossen. Die darauf
  * folgende Zeile `Gewichtsveraenderung` traegt das Delta zur Vorwoche. Im ersten
- * Block steht dort das Wochenmittel selbst, nicht ein Delta.
+ * Block steht dort das Wochenmittel selbst, nicht ein Delta, deshalb wird das
+ * Delta des ersten Blocks verworfen.
  */
-export function parseDaily(rows: SheetValues, columns?: ColumnMap): ParsedDaily {
+export function parseDaily(rows: SheetValues, columns?: ColumnMap, now: Date = new Date()): ParsedDaily {
   const cols = columns ?? resolveDailyColumns(rows);
   const daily: DailyEntry[] = [];
   const weekBlocks: WeekBlock[] = [];
@@ -98,7 +123,7 @@ export function parseDaily(rows: SheetValues, columns?: ColumnMap): ParsedDaily 
     const row = rows[i];
     if (!row) continue;
 
-    if (isDataRow(row, cols)) {
+    if (isDataRow(row, cols, now)) {
       const entry = toEntry(row, cols);
       daily.push(entry);
       currentWeek.push(entry);
@@ -109,7 +134,10 @@ export function parseDaily(rows: SheetValues, columns?: ColumnMap): ParsedDaily 
     if (label === WEEK_AVERAGE_LABEL && currentWeek.length > 0) {
       const next = rows[i + 1];
       const nextLabel = (next ? (cell(next, cols, 'date') ?? '') : '').toLowerCase();
-      const delta = nextLabel.startsWith(WEEK_DELTA_PREFIX) ? num(cell(next!, cols, 'weight')) : null;
+      const isFirstBlock = weekBlocks.length === 0;
+      const delta = !isFirstBlock && nextLabel.startsWith(WEEK_DELTA_PREFIX)
+        ? num(cell(next!, cols, 'weight'))
+        : null;
       weekBlocks.push({ rows: [...currentWeek], avgWeight: num(cell(row, cols, 'weight')), delta });
       currentWeek = [];
     }

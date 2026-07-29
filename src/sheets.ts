@@ -10,9 +10,17 @@ import type { SheetValues } from './types';
 
 const API_BASE = 'https://sheets.googleapis.com/v4/spreadsheets';
 
-/** Bereiche exakt wie bisher, damit sich am gelieferten Datenumfang nichts aendert. */
-export const DAILY_RANGE = 'A1:AD300';
-export const TRAINING_RANGE = 'A1:FZ200';
+/**
+ * Unbegrenzte Spaltenbereiche.
+ *
+ * PHASE 2: vorher `A1:AD300` und `A1:FZ200`. Ein Wochenblock im Daily Tracking
+ * belegt zwoelf Zeilen und die Daten beginnen in Zeile 31, damit haette die
+ * Grenze bei Zeile 300 etwa ab Woche 22 neue Wochen kommentarlos abgeschnitten,
+ * also ab Anfang Oktober 2026. Die API liefert bei offenen Bereichen nur die
+ * tatsaechlich belegten Zeilen.
+ */
+export const DAILY_RANGE = 'A:AD';
+export const TRAINING_RANGE = 'A:FZ';
 
 interface SheetsErrorBody {
   error?: { message?: string };

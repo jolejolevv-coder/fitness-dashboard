@@ -1,7 +1,7 @@
 import type { Exercise, ParsedTraining } from '../types';
 import { avgRepsFromStr, epley1RM } from '../analytics/strength';
 import { baseOptions, Chart, destroyChart, register } from '../charts/base';
-import { GOALS } from '../config/goals';
+import { baselineLoad, usableLoad } from '../parse/training';
 import { byId, COLORS, setText, show } from './dom';
 
 const MUSCLE_COLORS = [
@@ -28,14 +28,17 @@ interface State {
 
 let state: State | null = null;
 
-function loadOf(exercise: Exercise, weekIndex: number): number | null {
-  return exercise.weeks[weekIndex]?.load ?? null;
-}
-
+/**
+ * Volumen einer Uebungswoche.
+ *
+ * Unplausible Lasten gehen nicht ein, sonst schlaegt ein Tippfehler in der
+ * Lastspalte bis in die Volumenverteilung durch.
+ */
 function volumeOf(exercise: Exercise, weekIndex: number): number {
-  const week = exercise.weeks[weekIndex];
-  if (!week?.load) return 0;
-  return (week.sets || FALLBACK_SETS) * (avgRepsFromStr(week.repsActual) ?? FALLBACK_REPS) * week.load;
+  const load = usableLoad(exercise, weekIndex);
+  if (!load) return 0;
+  const week = exercise.weeks[weekIndex]!;
+  return (week.sets || FALLBACK_SETS) * (avgRepsFromStr(week.repsActual) ?? FALLBACK_REPS) * load;
 }
 
 export function renderTraining(parsed: ParsedTraining | null): void {
@@ -52,8 +55,8 @@ export function renderTraining(parsed: ParsedTraining | null): void {
 
   setText('t-current-week', String(state.currentWeek));
   setText('t-exercise-count', String(Object.keys(state.exercises).length));
-  const weeksLabel = byId('t-week-count');
-  if (weeksLabel) weeksLabel.textContent = `von ${GOALS.mesocycleWeeks} Wochen`;
+  // PHASE 2: Wochenzahl aus dem Sheet statt der verdrahteten 12.
+  setText('t-week-count', `von ${state.weekCount} Wochen`);
 
   renderVolumeKpi();
   renderTopProgression();
@@ -73,21 +76,35 @@ function renderVolumeKpi(): void {
   setText('t-volume-current', Math.round(total).toLocaleString('de'));
 }
 
+/**
+ * Progression einer Uebung in Prozent.
+ *
+ * PHASE 2: Grundlage ist die erste Woche mit brauchbarer Last, nicht mehr
+ * zwingend Woche 1. Als unplausibel markierte Werte bleiben aussen vor. Vorher
+ * meldete die Kachel 900 Prozent, weil in einer Zelle `9-9` statt `90` stand.
+ */
+function progressionPct(exercise: Exercise, currentWeek: number): number | null {
+  const base = baselineLoad(exercise);
+  const current = usableLoad(exercise, currentWeek - 1);
+  if (!base || current === null || current <= 0) return null;
+  return ((current - base.load) / base.load) * 100;
+}
+
 function renderTopProgression(): void {
   if (!state) return;
   let topName = '–';
   let topPct = -Infinity;
   let topSub = '–';
 
-  for (const [name, exercise] of Object.entries(state.exercises)) {
-    const first = loadOf(exercise, 0);
-    const current = loadOf(exercise, state.currentWeek - 1);
-    if (!first || !current) continue;
-    const pct = ((current - first) / first) * 100;
+  for (const exercise of Object.values(state.exercises)) {
+    const pct = progressionPct(exercise, state.currentWeek);
+    if (pct === null) continue;
     if (pct > topPct) {
+      const base = baselineLoad(exercise)!;
+      const current = usableLoad(exercise, state.currentWeek - 1)!;
       topPct = pct;
-      topName = name;
-      topSub = `+${pct.toFixed(0)}% (${first}→${current} kg)`;
+      topName = exercise.name;
+      topSub = `+${pct.toFixed(0)}% (${base.load}→${current} kg)`;
     }
   }
 
@@ -150,12 +167,18 @@ function populateExerciseSelect(dayFilter: string): void {
   if (!select || !state) return;
 
   const previous = select.value;
-  const names = Object.entries(state.exercises)
-    .filter(([, exercise]) => !dayFilter || exercise.day === dayFilter)
-    .map(([name]) => name)
-    .sort();
+  const entries = Object.values(state.exercises)
+    .filter((exercise) => !dayFilter || exercise.day === dayFilter)
+    .sort((a, b) => a.name.localeCompare(b.name));
 
-  select.replaceChildren(...names.map((name) => new Option(name, name, false, name === previous)));
+  // Wert ist der Schluessel aus Tag und Name, damit gleichnamige Uebungen an
+  // verschiedenen Tagen unterscheidbar bleiben.
+  select.replaceChildren(...entries.map((exercise) => new Option(
+    dayFilter ? exercise.name : `${exercise.name} · ${exercise.day.replace('Day ', 'D')}`,
+    exercise.key,
+    false,
+    exercise.key === previous,
+  )));
 }
 
 export function filterTrainingDay(): void {
@@ -167,12 +190,12 @@ export function filterTrainingDay(): void {
 
 export function renderProgression(): void {
   if (!state) return;
-  const name = byId<HTMLSelectElement>('t-exercise-select')?.value;
-  if (!name) return;
-  const exercise = state.exercises[name];
+  const key = byId<HTMLSelectElement>('t-exercise-select')?.value;
+  if (!key) return;
+  const exercise = state.exercises[key];
   if (!exercise) return;
 
-  setText('t-prog-title', name);
+  setText('t-prog-title', exercise.name);
 
   const labels: string[] = [];
   const loads: (number | null)[] = [];
@@ -181,9 +204,10 @@ export function renderProgression(): void {
   for (let weekIndex = 0; weekIndex < state.currentWeek; weekIndex++) {
     const week = exercise.weeks[weekIndex];
     labels.push(`W${weekIndex + 1}`);
-    loads.push(week?.load ?? null);
+    const load = usableLoad(exercise, weekIndex);
+    loads.push(load);
     const reps = avgRepsFromStr(week?.repsActual);
-    oneRepMax.push(week?.load && reps ? epley1RM(week.load, reps) : null);
+    oneRepMax.push(load && reps ? epley1RM(load, reps) : null);
   }
 
   destroyChart('t-prog-chart');
@@ -203,8 +227,14 @@ export function renderProgression(): void {
             const lines: string[] = [];
             if (week?.sets) lines.push(`Saetze: ${week.sets}`);
             if (week?.repsActual) lines.push(`Reps: ${week.repsActual}`);
+            const load = usableLoad(exercise, weekIndex);
             const reps = avgRepsFromStr(week?.repsActual);
-            if (week?.load && reps) lines.push(`1RM est.: ${epley1RM(week.load, reps)} kg`);
+            if (load && reps) lines.push(`1RM est.: ${epley1RM(load, reps)} kg`);
+            if (week && week.loadRaw && week.loadRaw !== String(week.load)) {
+              lines.push(`Eintrag: ${week.loadRaw}`);
+            }
+            if (week?.implausible) lines.push('Wert unplausibel, nicht verrechnet');
+            if (week?.uncertain) lines.push('Bereichsangabe, Mittelwert verwendet');
             return lines;
           },
         },
@@ -282,21 +312,21 @@ export function renderExerciseTable(): void {
   if (!body) return;
 
   const dayFilter = byId<HTMLSelectElement>('t-day-select')?.value ?? '';
-  const entries = Object.entries(state.exercises)
-    .filter(([, exercise]) => !dayFilter || exercise.day === dayFilter)
-    .sort((a, b) => (a[1].day || '').localeCompare(b[1].day || '') || a[0].localeCompare(b[0]));
+  const entries = Object.values(state.exercises)
+    .filter((exercise) => !dayFilter || exercise.day === dayFilter)
+    .sort((a, b) => (a.day || '').localeCompare(b.day || '') || a.name.localeCompare(b.name));
 
-  const rows = entries.map(([name, exercise]) => {
-    const first = loadOf(exercise, 0);
-    const current = loadOf(exercise, state!.currentWeek - 1);
-    const delta = first && current ? ((current - first) / first) * 100 : null;
+  const rows = entries.map((exercise) => {
+    const base = baselineLoad(exercise);
+    const current = usableLoad(exercise, state!.currentWeek - 1);
+    const delta = progressionPct(exercise, state!.currentWeek);
 
     const tr = document.createElement('tr');
     tr.append(
-      textCell(name, 'font-weight:500;max-width:200px;overflow:hidden;text-overflow:ellipsis'),
+      textCell(exercise.name, 'font-weight:500;max-width:200px;overflow:hidden;text-overflow:ellipsis'),
       textCell(exercise.muscleGroup, `color:${COLORS.muted}`),
       textCell((exercise.day || '').replace('Day ', 'D'), `color:${COLORS.muted};font-size:11px`),
-      textCell(first !== null ? `${first} kg` : '–', 'color:#94a3b8'),
+      textCell(base ? `${base.load} kg` : '–', 'color:#94a3b8'),
       textCell(current !== null ? `${current} kg` : '–', `font-weight:600;color:${COLORS.accent}`),
     );
 
@@ -307,7 +337,7 @@ export function renderExerciseTable(): void {
     tr.addEventListener('click', () => {
       const select = byId<HTMLSelectElement>('t-exercise-select');
       if (select) {
-        select.value = name;
+        select.value = exercise.key;
         renderProgression();
       }
     });

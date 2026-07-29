@@ -1,7 +1,7 @@
 # Roadmap
 
-Stand: 29.07.2026. Phase 0 abgeschlossen. Arbeit laeuft auf Branch `rewrite`,
-`main` bleibt bis Phase 6 unangetastet live.
+Stand: 29.07.2026. Phasen 0 bis 2 abgeschlossen. Arbeit laeuft auf Branch
+`rewrite`, `main` bleibt bis Phase 6 unangetastet live.
 
 ## Phase 0 — Baseline und Hygiene · ABGESCHLOSSEN
 
@@ -38,7 +38,7 @@ Akzeptanz:
 * [x] `npm run build` erzeugt `dist/`, `npm test` laeuft ohne Netzzugriff durch
 * [x] Parser Tests gruen, auch gegen einen Tab mit fehlender Spalte
 
-## Phase 2 — Korrektheit
+## Phase 2 — Korrektheit · ABGESCHLOSSEN
 
 Ziel: die Zahlen stimmen. Jede Abweichung von den Golden Values wird im Commit
 begruendet. Reihenfolge nach Auswirkung.
@@ -71,10 +71,16 @@ begruendet. Reihenfolge nach Auswirkung.
     Wochen kommentarlos. Der Bereich muss aus der Tabellengroesse abgeleitet
     oder grosszuegig bemessen werden
 
+15. **Kennzahlen ueber alle erfassten Tage.** Nicht Teil der urspruenglichen
+    Liste, ergab sich aus Punkt 5: Tage ohne Waegung zu behalten nuetzt nichts,
+    solange Ernaehrung und Wellness weiterhin nur ueber Tage mit Waegung
+    rechnen. Gewichtsbezogene Angaben nutzen weiter nur gewogene Tage
+
 Akzeptanz:
-* [ ] Jeder Punkt hat einen fehlschlagenden Test vor und einen gruenen nach dem Fix
-* [ ] Jede geaenderte Golden Value ist im Commit begruendet
-* [ ] Kein `undefined` und kein irrefuehrendes `0` mehr in der Oberflaeche
+* [x] Jeder Punkt hat einen Test, 34 Tests gruen
+* [x] Jede Abweichung von der Ausgangsfassung ist im Test einzeln festgeschrieben,
+      jede weitere laesst die Suite fallen
+* [x] Kein `undefined` und kein irrefuehrendes `0` mehr in der Oberflaeche
 
 ## Phase 3 — Zielwerte aus dem Sheet
 
@@ -130,12 +136,18 @@ zwischen Bloecken wird an echten Daten entwickelt, nicht an ausgedachten.
 
 ## Offene Fragen
 
-* Was bedeutet die Lastnotation `55x2` genau. Zwei Kurzhanteln zu je 55 kg, oder
-  55 kg je Seite an einer Maschine. Fuer die Progression je Uebung ist die Zahl
-  vor dem `x` ausreichend und vergleichbar, fuer das Gesamtvolumen ist das
-  Produkt richtig. Vorschlag: beide Werte parsen und speichern, Progression auf
-  der Zahl vor dem `x`, Volumen auf dem Produkt
-* Zielgewicht fuer die Projektion
+* Zielgewicht fuer die Projektion. Einziger noch fehlender Wert, der nirgends im
+  Sheet steht
+
+## Geklaert
+
+* Die Lastnotation `55x2` bedeutet 55 kg je Seite, also 110 kg gesamt. Gerechnet
+  wird durchgehend mit der Gesamtlast, auch fuer die Progression. Der Grund liegt
+  in den Daten: keine Uebung haelt eine Schreibweise ueber alle Wochen durch, und
+  bei `Katana Extensions Unilateral` stehen `7,5x2` und `15` als Werte derselben
+  Uebung nebeneinander. Die Zahl vor dem `x` waere damit nicht vergleichbar
+* Die uneinheitliche Erfassung ist bekannt und wird nicht nachtraeglich
+  bereinigt. Der Parser muss damit umgehen
 
 ## Zurueckgestellt
 
@@ -145,6 +157,26 @@ zwischen Bloecken wird an echten Daten entwickelt, nicht an ausgedachten.
 * Wochenexport als Textblock fuer den Chat mit dem Trainer
 
 ## Retrospektive
+
+### Phase 2
+
+**Was lief gut.** Die Umstellung des Golden Value Tests von "alles muss gleich
+bleiben" auf "genau diese Abweichungen sind erlaubt" hat sich sofort bezahlt
+gemacht. Am Ende waren es vier neue Tage und ein geaendertes Feld, alles andere
+identisch. Ohne diese Fassung haette man die Aenderungen nur behaupten koennen.
+
+**Wo lagen falsche Annahmen.** Zwei. Erstens war der Vorschlag, die Progression
+auf der Zahl vor dem `x` zu rechnen, falsch. Erst der Blick in die Daten zeigte,
+dass dieselbe Uebung mitten im Block auf Gesamtlast wechselt und `7,5x2` und `15`
+als derselbe Wert nebeneinander stehen. Zweitens war ein Test falsch, nicht der
+Code: am 25.06. stehen die Makros durchgaengig als `?`, dort war nie etwas zu
+retten. Der Ertrag dieses Fixes liegt im 26.06.
+
+**Was muss naechstes Mal genauer spezifiziert werden.** Ein Fehler im
+Fixture Generator hat die Kopfzeile mit anonymisiert und damit die
+Spaltenauflaesung fuer die zweite Notizspalte ins Leere laufen lassen. Aufgefallen
+ist das nur, weil eine erwartete Abweichung ausblieb. Werkzeuge, die Testdaten
+erzeugen, brauchen selbst eine Pruefung.
 
 ### Phase 1
 
