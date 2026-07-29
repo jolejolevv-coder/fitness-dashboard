@@ -19,6 +19,7 @@ import {
 import { getTargets, saveTargets } from './config/targets';
 import { byId, show } from './ui/dom';
 import { renderDashboard } from './ui/dashboard';
+import { renderAnalysis } from './ui/analysis';
 import { filterTrainingDay, renderExerciseTable, renderProgression, renderTraining } from './ui/training';
 
 /** PHASE 1: Ladepolitik unveraendert. Die Umstellung erfolgt in Phase 5. */
@@ -71,6 +72,7 @@ function handleSaveConfig(): void {
     return;
   }
   saveTargets({ targetWeightKg: parsedTarget });
+  renderAnalysisTab();
 
   show('config-banner', false);
   void loadData();
@@ -145,6 +147,16 @@ function applyDateRange(days: number): void {
   if (goals) renderDashboard(filteredDaily(), filteredWeekBlocks(), goals, showError);
 }
 
+/**
+ * Die Analytik rechnet immer ueber den gesamten Zeitraum, nie ueber die
+ * Auswahl der Zeitraumknoepfe. Ein Filter auf 14 Tage wuerde das 28 und das
+ * 56 Tage Fenster des Erhaltungsbedarfs unmoeglich machen.
+ */
+function renderAnalysisTab(): void {
+  if (!goals) return;
+  renderAnalysis(allDaily, goals, getTargets().targetWeightKg);
+}
+
 function showTab(name: string, element: HTMLElement): void {
   for (const section of document.querySelectorAll('.section')) section.classList.remove('active');
   for (const tab of document.querySelectorAll('.tab')) tab.classList.remove('active');
@@ -162,6 +174,7 @@ function applyParsed(raw: SheetValues, rawTraining: SheetValues): void {
   show('status', false);
   show('dashboard', true);
   renderDashboard(filteredDaily(), filteredWeekBlocks(), goals, showError);
+  renderAnalysisTab();
   renderTraining(rawTraining.length ? parseTraining(rawTraining) : null);
 }
 

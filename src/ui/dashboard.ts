@@ -66,17 +66,19 @@ export function renderDashboard(
   const first = rows[0]!.weight!;
   const signed = (v: number, digits = 1): string => `${v < 0 ? '' : '+'}${v.toFixed(digits)}`;
 
-  // PHASE 2: Start, Aktuell und Verlust aus geglaetteten Mitteln statt aus zwei
-  // Einzelwaegungen. Die erste Waegung lag mit 99.9 kg deutlich ueber dem Trend
-  // und praegte damit die Titelzahl.
+  // Gesamtverlust ist die erste gegen die letzte Waegung. Der Versuch, hier
+  // geglaettete Mittel zu zeigen, wurde zurueckgenommen: die erste Waegung ist
+  // eine echte Messung und die Zahl, ueber die gesprochen wird. Die geglaettete
+  // Betrachtung steht als Detail darunter, die Analytik rechnet weiter mit ihr.
   const change = weightChange(rows);
-  setText('badge-start', change ? `${change.from.toFixed(1)} kg` : '–');
-  setText('badge-current', change ? `${change.to.toFixed(1)} kg` : '–');
-  setText('badge-loss', change ? `${signed(change.change)} kg` : '–');
+  const rawLoss = change ? change.lastRaw - change.firstRaw : null;
+  setText('badge-start', change ? `${change.firstRaw.toFixed(1)} kg` : '–');
+  setText('badge-current', change ? `${change.lastRaw.toFixed(1)} kg` : '–');
+  setText('badge-loss', rawLoss !== null ? `${signed(rawLoss)} kg` : '–');
   setText('badge-days', `${rows.length} Tage`);
-  setText('kpi-loss', change ? `${signed(change.change)} kg` : '–');
+  setText('kpi-loss', rawLoss !== null ? `${signed(rawLoss)} kg` : '–');
   setText('kpi-loss-sub', change
-    ? `${change.from.toFixed(1)} → ${change.to.toFixed(1)} kg · Ø ${change.window} Tage`
+    ? `geglaettet ${change.from.toFixed(1)} → ${change.to.toFixed(1)} kg · ${signed(change.change)} kg`
     : '–');
 
   // PHASE 2: Ernaehrung und Wellness rechnen ueber alle erfassten Tage, nicht

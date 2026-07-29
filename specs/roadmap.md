@@ -1,6 +1,6 @@
 # Roadmap
 
-Stand: 29.07.2026. Phasen 0 bis 3 abgeschlossen. Arbeit laeuft auf Branch
+Stand: 29.07.2026. Phasen 0 bis 4 abgeschlossen. Arbeit laeuft auf Branch
 `rewrite`, `main` bleibt bis Phase 6 unangetastet live.
 
 ## Phase 0 — Baseline und Hygiene · ABGESCHLOSSEN
@@ -64,7 +64,11 @@ begruendet. Reihenfolge nach Auswirkung.
 10. **Mesozykluslaenge** aus der erkannten Wochenzahl statt hart verdrahteter 12
 11. **Ø Schritte** faellt korrekt auf `–` zurueck statt auf 0
 12. **Kommentare** per `textContent` statt `innerHTML`
-13. **Gesamtverlust** aus geglaetteten Wochenmitteln statt zweier Einzeltage
+13. **Gesamtverlust** aus geglaetteten Wochenmitteln statt zweier Einzeltage.
+    ZURUECKGENOMMEN nach Rueckmeldung. Der Gesamtverlust zeigt wieder die erste
+    gegen die letzte Waegung, also 99.9 auf 89.7 kg. Die erste Waegung ist eine
+    echte Messung und die Zahl, ueber die gesprochen wird. Geglaettet steht als
+    Detail in der Unterzeile, die Analytik rechnet unveraendert geglaettet
 14. **Abrufbereich waechst mit.** Gelesen wird heute `A1:AD300`. Ein Wochenblock
     belegt zwoelf Zeilen, die Daten beginnen in Zeile 31. Damit reicht der
     Bereich bis etwa Woche 22, also bis Anfang Oktober 2026. Danach fehlen neue
@@ -101,14 +105,25 @@ Verschoben: laufen High Day und Low Day auseinander, sollen die Referenzlinien
 getrennt gezogen werden. In Mesocycle 1 sind beide identisch, die Trennung waere
 an nichts pruefbar. Bis dahin nennt ein Hinweis die Abweichung.
 
-## Phase 4 — Analytik
+## Phase 4 — Analytik · ABGESCHLOSSEN
 
 Details in `specs/features/analytics.md`. TDEE Schaetzer, Trend und
-Zielprojektion, Plateau Erkennung, Streaks und Korrelationen.
+Zielprojektion, Plateau Erkennung, Streaks und Korrelationen, dazu ein eigener
+Tab `Analyse`.
 
 Akzeptanz:
-* [ ] Jede Kennzahl hat Unit Tests gegen synthetische Verlaeufe mit bekanntem Ergebnis
-* [ ] Jede Kennzahl nennt ihre Datenbasis und verweigert die Aussage bei zu duenner Lage
+* [x] Jede Kennzahl hat Unit Tests gegen synthetische Verlaeufe mit bekanntem
+      Ergebnis, 76 Tests gruen
+* [x] Jede Kennzahl nennt ihre Datenbasis und verweigert die Aussage bei zu
+      duenner Lage, mit Grund statt mit einem Strich
+* [x] TDEE als Spanne ueber die verfuegbaren Fenster, verweigerte Fenster werden
+      benannt
+* [x] Projektion als Band aus dem Standardfehler der Rate, keine Punktprognose
+* [x] Kein Grenzwert und keine Konstante als Literal im Berechnungscode
+
+Die Analytik rechnet immer ueber den gesamten Zeitraum, nie ueber die Auswahl der
+Zeitraumknoepfe. Ein Filter auf 14 Tage wuerde das 28 und das 56 Tage Fenster des
+Erhaltungsbedarfs unmoeglich machen.
 
 ## Phase 5 — Antwortblock, Performance, Zugaenglichkeit
 
@@ -167,6 +182,24 @@ zwischen Bloecken wird an echten Daten entwickelt, nicht an ausgedachten.
 * Wochenexport als Textblock fuer den Chat mit dem Trainer
 
 ## Retrospektive
+
+### Phase 4
+
+**Was lief gut.** Synthetische Reihen mit analytisch bekanntem Ergebnis haben
+sofort einen Fehler gezeigt, der sonst nie aufgefallen waere: auf einem exakt
+linearen Verlust von 0.7 kg pro Woche lieferte die Regression 0.687. Ursache
+waren die ersten Punkte des gleitenden Mittels, die ueber weniger als sieben Tage
+mitteln und die Gerade verbiegen. Sie bleiben jetzt aussen vor.
+
+**Wo lagen falsche Annahmen.** Die Entscheidung aus Phase 2, den Gesamtverlust
+geglaettet zu zeigen, war falsch und wurde zurueckgenommen. Geglaettet ist richtig
+fuer Rate, Plateau und Projektion, weil dort der Trend zaehlt. Fuer die
+Titelzahl zaehlt die Messung, und die erste Waegung von 99.9 kg ist eine.
+
+**Was muss naechstes Mal genauer spezifiziert werden.** Zahlen, die dem Nutzer
+gehoeren, weil er sie kennt und weitergibt, duerfen nicht ohne Rueckfrage
+ersetzt werden. Eine Verbesserung der Methodik ist kein Freibrief, die vertraute
+Zahl auszutauschen. Im Zweifel beides zeigen.
 
 ### Phase 3
 

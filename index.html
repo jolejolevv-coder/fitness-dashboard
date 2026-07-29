@@ -62,6 +62,7 @@
       <button class="tab" data-tab="wellness">Wellness</button>
       <button class="tab" data-tab="weeks">Wochen</button>
       <button class="tab" data-tab="training">Training</button>
+      <button class="tab" data-tab="analysis">Analyse</button>
     </div>
     <div class="range-btns">
       <button class="range-btn" data-range="14">14d</button>
@@ -94,9 +95,13 @@
       <div class="chart-card"><div class="chart-title">Stresslevel (1–5, niedriger = besser)</div><canvas id="stressChart" height="120"></canvas></div>
       <div class="chart-card"><div class="chart-title">Verdauung (1–10)</div><canvas id="digestionChart" height="120"></canvas></div>
     </div>
-    <div class="chart-card">
+    <div class="chart-card" style="margin-bottom:16px">
       <div class="chart-title">Training · Effekt auf Folgetag</div>
-      <div id="correlation-content"><p style="color:#475569;font-size:13px;padding:12px 0">Wird berechnet…</p></div>
+      <div id="correlation-content"></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Zusammenhänge</div>
+      <div id="correlation-pairs"></div>
     </div>
   </div>
 
@@ -105,6 +110,18 @@
     <div class="chart-card" style="margin-bottom:16px"><div class="chart-title">Wöchentliche Ø Gewichte</div><canvas id="weekBarChart" height="90"></canvas></div>
     <div class="chart-title" style="font-size:14px; color:#94a3b8; margin-bottom:10px;">Notizen aus dem Tracking</div>
     <div id="comments-container"></div>
+  </div>
+
+  <div class="section" id="analysis">
+    <div class="kpi-grid" id="a-kpis" style="margin-bottom:16px"></div>
+    <div class="chart-card" style="margin-bottom:16px">
+      <div class="chart-title">Trend</div>
+      <div id="a-trend-detail"></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Serien und Compliance</div>
+      <div id="a-streaks"></div>
+    </div>
   </div>
 
   <div class="section" id="training">

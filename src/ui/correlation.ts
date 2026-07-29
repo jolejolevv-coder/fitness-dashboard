@@ -1,75 +1,35 @@
 import type { DailyEntry } from '../types';
-import { avg, fmt } from '../analytics/smoothing';
-import { parseTrainingMarker } from '../parse/trainingday';
+import { fmt } from '../analytics/smoothing';
+import { trainingEffect } from '../analytics/correlation';
 import { byId, COLORS } from './dom';
 
-/**
- * Vergleicht das Befinden am Tag nach einem Training mit dem nach einem Ruhetag.
- *
- * PHASE 1: Verhalten unveraendert. Der Wert `Rest` in der Spalte `Trainingday`
- * wird dabei faelschlich als Training gezaehlt, weil nur auf nicht leer und
- * ungleich `-` geprueft wird. Behebung in Phase 2.
- */
-
-/** Groesster Abstand in Tagen, damit zwei Zeilen noch als Folgetage gelten. */
-const MAX_GAP_DAYS = 2;
+/** Anzeige des Vergleichs Trainingstag gegen Ruhetag. Gerechnet wird in analytics. */
 
 /** Ab dieser Differenz gilt ein Unterschied als nennenswert. */
 const NOTABLE_DIFFERENCE = 0.05;
-
-interface Bucket {
-  energy: number[];
-  sleep: number[];
-}
 
 export function renderCorrelation(daily: readonly DailyEntry[]): void {
   const element = byId('correlation-content');
   if (!element) return;
 
-  const sorted = [...daily]
-    .filter((r) => r.dateObj)
-    .sort((a, b) => a.dateObj!.getTime() - b.dateObj!.getTime());
-
-  const training: Bucket = { energy: [], sleep: [] };
-  const rest: Bucket = { energy: [], sleep: [] };
-
-  for (let i = 0; i < sorted.length - 1; i++) {
-    const today = sorted[i]!;
-    const next = sorted[i + 1]!;
-    if ((next.dateObj!.getTime() - today.dateObj!.getTime()) / 864e5 > MAX_GAP_DAYS) continue;
-
-    // PHASE 2: `Rest` und freie Notizen zaehlen nicht mehr als Training.
-    const marker = parseTrainingMarker(today.training);
-    if (marker.kind === 'unknown') continue;
-    const bucket = marker.kind === 'training' ? training : rest;
-    if (next.energy !== null) bucket.energy.push(next.energy);
-    if (next.sleep !== null) bucket.sleep.push(next.sleep);
-  }
-
-  if (!training.energy.length && !rest.energy.length) {
-    element.replaceChildren(
-      note('Nicht genug Daten (Training Spalte im Sheet pruefen).'),
-    );
+  const effect = trainingEffect(daily);
+  if (!effect.ok) {
+    element.replaceChildren(note(effect.reason));
     return;
   }
 
-  const trainingEnergy = avg(training.energy);
-  const restEnergy = avg(rest.energy);
-  const trainingSleep = avg(training.sleep);
-  const restSleep = avg(rest.sleep);
-
   element.replaceChildren(
     grid([
-      cell('Energie (1 bis 5)', trainingEnergy, restEnergy, 'Punkte Differenz'),
-      cell('Schlaf (h)', trainingSleep, restSleep, 'h Differenz'),
+      cell('Energie (1 bis 5)', effect.afterTraining.energy, effect.afterRest.energy, effect.energyDifference, 'Punkte Differenz'),
+      cell('Schlaf (h)', effect.afterTraining.sleep, effect.afterRest.sleep, effect.sleepDifference, 'h Differenz'),
     ]),
-    basis(training.energy.length, rest.energy.length),
+    basis(effect.afterTraining.n, effect.afterRest.n),
   );
 }
 
 function note(text: string): HTMLElement {
   const p = document.createElement('p');
-  p.style.cssText = 'color:#475569;font-size:13px;padding:12px 0';
+  p.className = 'analysis-note';
   p.textContent = text;
   return p;
 }
@@ -87,7 +47,13 @@ function differenceColor(value: number | null): string {
   return value > 0 ? COLORS.good : COLORS.bad;
 }
 
-function cell(label: string, afterTraining: number | null, afterRest: number | null, unit: string): HTMLElement {
+function cell(
+  label: string,
+  afterTraining: number | null,
+  afterRest: number | null,
+  difference: number | null,
+  unit: string,
+): HTMLElement {
   const div = document.createElement('div');
   div.className = 'corr-cell';
 
@@ -96,8 +62,7 @@ function cell(label: string, afterTraining: number | null, afterRest: number | n
   title.textContent = label;
   div.append(title, row(afterTraining, 'nach Training', COLORS.accent), row(afterRest, 'nach Ruhetag', COLORS.info));
 
-  if (afterTraining !== null && afterRest !== null) {
-    const difference = afterTraining - afterRest;
+  if (difference !== null) {
     const diff = document.createElement('div');
     diff.className = 'corr-diff';
     diff.style.color = differenceColor(difference);
