@@ -417,7 +417,12 @@ body {
 }
 .chart-title > span:first-child { margin-right: auto; }
 
-.chart-body { position: relative; height: 220px; }
+/*
+ * `overflow: hidden` ist eine Absicherung. Ein Diagramm, das gezeichnet wird
+ * bevor die senkrechte Bildlaufleiste erscheint, behaelt kurzzeitig die
+ * groessere Breite und wuerde sonst die ganze Seite waagerecht scrollen lassen.
+ */
+.chart-body { position: relative; height: 220px; overflow: hidden; }
 .chart-body-hero { height: 340px; }
 .chart-body-short { height: 170px; }
 .chart-body-mid { height: 200px; }

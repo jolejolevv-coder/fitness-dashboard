@@ -86,6 +86,19 @@ export function chartIds(): string[] {
 }
 
 /**
+ * Passt sichtbare Diagramme an ihren Container an.
+ *
+ * Noetig nach einem Reiterwechsel: ein Diagramm wird gezeichnet, waehrend sein
+ * Abschnitt gerade erst eingeblendet wird, und misst dabei unter Umstaenden eine
+ * Breite ohne die senkrechte Bildlaufleiste.
+ */
+export function resizeVisibleCharts(): void {
+  for (const chart of charts.values()) {
+    if (chart.canvas.offsetParent !== null) chart.resize();
+  }
+}
+
+/**
  * Durchsichtige Variante einer Farbe.
  *
  * Die Palette mischt Hexwerte und `rgba()`. Alpha als Hex anzuhaengen

@@ -27,6 +27,7 @@ import type { WeightMode } from './charts/weight';
 import { filterTrainingDay, renderProgression, renderTraining } from './ui/training';
 import { activeTab, setupRangeButtons, setupTabs } from './ui/tabs';
 import { attachChartExports, downloadCsv } from './ui/export';
+import { resizeVisibleCharts } from './charts/base';
 
 /**
  * Ladepolitik.
@@ -198,9 +199,13 @@ function rendererFor(name: string): (() => void) | undefined {
 /** Zeichnet den sichtbaren Abschnitt, falls seine Daten sich geaendert haben. */
 function renderActiveSection(): void {
   const name = activeTab();
-  if (!name || !dirty.has(name)) return;
-  rendererFor(name)?.();
-  dirty.delete(name);
+  if (!name) return;
+  if (dirty.has(name)) {
+    rendererFor(name)?.();
+    dirty.delete(name);
+  }
+  // Nach dem Einblenden nachmessen, siehe resizeVisibleCharts.
+  requestAnimationFrame(resizeVisibleCharts);
 }
 
 /**
