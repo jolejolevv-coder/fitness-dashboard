@@ -176,10 +176,10 @@ export function renderWellnessSparks(daily: readonly DailyEntry[]): void {
   };
 
   const specs: SparkSpec[] = [
-    { id: 'spark-sleep', name: 'Schlaf in Stunden', values: daily.map((e) => e.sleep), value: `${mean((e) => e.sleep)} h`, color: '#d6d2ca' },
-    { id: 'spark-sleepq', name: 'Schlafqualität', values: daily.map((e) => e.sleepQ), value: mean((e) => e.sleepQ), color: '#d0a86b' },
-    { id: 'spark-energy', name: 'Energie', values: daily.map((e) => e.energy), value: mean((e) => e.energy), color: '#7fb069' },
-    { id: 'spark-stress', name: 'Stress', values: daily.map((e) => e.stress), value: mean((e) => e.stress), color: '#cf7d6b' },
+    { id: 'spark-sleep', name: 'Schlaf in Stunden', values: daily.map((e) => e.sleep), value: `${mean((e) => e.sleep)} h`, color: 'rgba(235, 235, 245, 0.55)' },
+    { id: 'spark-sleepq', name: 'Schlafqualität', values: daily.map((e) => e.sleepQ), value: mean((e) => e.sleepQ), color: '#0a84ff' },
+    { id: 'spark-energy', name: 'Energie', values: daily.map((e) => e.energy), value: mean((e) => e.energy), color: 'rgba(235, 235, 245, 0.55)' },
+    { id: 'spark-stress', name: 'Stress', values: daily.map((e) => e.stress), value: mean((e) => e.stress), color: 'rgba(235, 235, 245, 0.55)' },
   ];
 
   container.replaceChildren(...specs.map((spec) => {

@@ -20,24 +20,27 @@ export function show(id: string, visible: boolean, display = 'block'): void {
 }
 
 /**
- * Farben fuer Diagramme, die dieselben Werte tragen wie die CSS Variablen.
+ * Farben fuer Diagramme, dieselben Werte wie die CSS Variablen.
  *
  * Chart.js zeichnet auf ein Canvas und kann keine Custom Properties lesen, die
- * Werte muessen deshalb doppelt vorliegen. Sie sind entsaettigt: neutrale Toene
- * fuer Daten, Gruen und Terrakotta nur dort, wo etwas gut oder schlecht ist.
+ * Werte muessen deshalb doppelt vorliegen. Systemfarben, dunkle Variante.
+ * Datenreihen sind neutral, Farbe bleibt der Bewertung vorbehalten.
  */
 export const COLORS = {
-  /** Neutrale Datenfarbe, Standard fuer Verlaeufe. */
-  info: '#d6d2ca',
-  data: '#d6d2ca',
-  accent: '#d0a86b',
-  good: '#7fb069',
-  warn: '#d0a86b',
-  bad: '#cf7d6b',
-  muted: '#a8a49c',
-  dim: '#8d8a83',
-  /** Weitere Verlaufsfarben, bewusst nah beieinander statt bunt. */
-  violet: '#a294a8',
-  indigo: '#8fa0b4',
-  sky: '#93a89c',
+  /** Primaerer Datenzug, zugleich Farbe der Bedienelemente. */
+  info: '#0a84ff',
+  blue: '#0a84ff',
+  data: 'rgba(235, 235, 245, 0.55)',
+  /** Sehr zurueckhaltend, fuer Tageswerte hinter einer Trendlinie. */
+  faint: 'rgba(235, 235, 245, 0.28)',
+  good: '#30d158',
+  warn: '#ff9f0a',
+  bad: '#ff453a',
+  muted: 'rgba(235, 235, 245, 0.60)',
+  dim: 'rgba(235, 235, 245, 0.30)',
+  /** Weitere Reihen, bewusst entsaettigt statt bunt. */
+  accent: '#0a84ff',
+  violet: '#bf5af2',
+  indigo: '#5e5ce6',
+  sky: '#64d2ff',
 } as const;

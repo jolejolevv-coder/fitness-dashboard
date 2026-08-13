@@ -223,6 +223,42 @@ Akzeptanz:
 * [x] Keine abgeschnittenen Texte
 * [x] Lint, Typecheck, 85 Tests und Build sauber
 
+## Oberflaeche nach Systemvorbild · ABGESCHLOSSEN
+
+Vollstaendiger Austausch der Praesentationsschicht. Datenlogik, Sheets Anbindung
+und Berechnungen unveraendert, keine Funktion entfernt.
+
+Ausgangsproblem: 23 Flaechen mit demselben Radius und derselben Fuellung. Wenn
+alles einen Container hat, hat nichts Vorrang, und das Ergebnis liest sich wie
+eine Vorlage.
+
+* **Container abgebaut.** Diagramme, Kennzahlen und Insights tragen keine eigene
+  Flaeche mehr. Getrennt wird mit Abstand, Ausrichtung und Haarlinien. Uebrig
+  bleiben zwei Flaechen: der Konfigurationsdialog und die segmentierten
+  Steuerungen
+* **Farbsystem ersetzt.** Systemfarben in der dunklen Variante auf schwarzem
+  Grund. Der goldene Akzent ist weg. Blau fuer Bedienung und neutrale Datenzuege,
+  Gruen Orange und Rot ausschliesslich fuer Bewertung
+* **Typografie als Traeger.** Systemschriftfamilie, eine Zahl auf der Seite ist
+  gross, alles andere klein. Tabellenziffern fuer jeden Messwert
+* **Hero.** Eine Zahl, eine Zeile Kontext, eine vier Pixel hohe Strecke, drei
+  Kennzahlen mit senkrechten Trennern, darunter das Zieldatum in Normalschrift
+* **Insights** als Zeilen mit Statuspunkt, Rubrik und zwei Zeilen Erklaerung
+* **Tageskennzahlen** wie eine Zusammenfassung: Bezeichnung, Wert, Zielwert,
+  Abweichung, darunter ein drei Pixel hoher Balken
+* **Navigation und Zeitraum** als segmentierte Steuerungen
+* **Diagramme** mit waagerechten Hilfslinien, ohne Rahmen, ohne Flaeche. Punkte
+  nur an auffaelligen Tagen, Zielgewicht als feine gestrichelte Linie
+
+Dabei behoben: die Kopfzeile lief bei 960 px ueber, weil die Statuszeile im
+Fehlerfall die Meldung der Schnittstelle traegt und beliebig lang wird. Sie wird
+jetzt abgeschnitten. Die Reiterleiste lief bei 768 px ueber, sie stapelt jetzt ab
+900 px und scrollt notfalls in sich.
+
+Geprueft bei 1920, 1440, 1024 und 768 px auf allen sechs Reitern: kein
+waagerechter Seitenlauf, keine abgeschnittenen Texte. Lint ohne Befund,
+Typpruefung sauber, 88 Tests, Build erfolgreich.
+
 ## Phase 6 — Umstellung und Abschluss · ABGESCHLOSSEN
 
 * [x] README mit Setup, Sheet Struktur, Deploy

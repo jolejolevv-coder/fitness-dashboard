@@ -43,7 +43,7 @@ function grid(cells: HTMLElement[]): HTMLElement {
 
 function differenceColor(value: number | null): string {
   if (value === null) return COLORS.muted;
-  if (Math.abs(value) < NOTABLE_DIFFERENCE) return '#94a3b8';
+  if (Math.abs(value) < NOTABLE_DIFFERENCE) return 'var(--text-secondary)';
   return value > 0 ? COLORS.good : COLORS.bad;
 }
 

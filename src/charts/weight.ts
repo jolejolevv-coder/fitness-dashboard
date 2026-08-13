@@ -22,11 +22,11 @@ const OUTLIER_KG = 1.0;
 const MAX_FORECAST_DAYS = 400;
 
 const COLORS = {
-  data: '#d6d2ca',
-  soft: '#8d8a83',
-  accent: '#d0a86b',
-  pos: '#7fb069',
-  neg: '#cf7d6b',
+  data: 'rgba(235, 235, 245, 0.55)',
+  soft: 'rgba(235, 235, 245, 0.30)',
+  accent: '#0a84ff',
+  pos: '#30d158',
+  neg: '#ff453a',
 } as const;
 
 function label(date: Date): string {
@@ -63,8 +63,10 @@ function pointStyle(series: Series): { radius: number[]; colors: string[] } {
     const weight = series.weights[i] ?? null;
     const smooth = series.smoothed[i] ?? null;
     const outlier = weight !== null && smooth !== null && Math.abs(weight - smooth) > OUTLIER_KG;
-    radius.push(outlier ? 3.5 : 1.6);
-    colors.push(outlier ? COLORS.accent : COLORS.soft);
+    // Nur auffaellige Tage bekommen ueberhaupt einen Punkt. Achtzig Punkte auf
+    // einer Linie sind Rauschen, und farbige Punkte konkurrieren mit dem Trend.
+    radius.push(outlier ? 2.2 : 0);
+    colors.push(COLORS.data);
   }
   return { radius, colors };
 }
@@ -73,12 +75,12 @@ function withTooltip(unit: string): Record<string, unknown> {
   return {
     mode: 'index',
     intersect: false,
-    backgroundColor: '#201f1d',
-    borderColor: '#3a3835',
+    backgroundColor: 'rgba(44, 44, 46, 0.98)',
+    borderColor: 'rgba(84, 84, 88, 0.5)',
     borderWidth: 1,
     padding: 10,
-    titleColor: '#e6e3de',
-    bodyColor: '#a8a49c',
+    titleColor: '#f5f5f7',
+    bodyColor: 'rgba(235, 235, 245, 0.6)',
     displayColors: true,
     boxWidth: 8,
     boxHeight: 8,
@@ -129,7 +131,7 @@ function renderWeight(canvasId: string, series: Series, targetWeightKg: number |
     {
       label: 'Tageswert',
       data: series.weights,
-      borderColor: '#d6d2ca55',
+      borderColor: 'rgba(235, 235, 245, 0.16)',
       borderWidth: 1,
       pointRadius: points.radius,
       pointBackgroundColor: points.colors,
@@ -155,7 +157,7 @@ function renderWeight(canvasId: string, series: Series, targetWeightKg: number |
   ];
 
   const legend: LegendEntry[] = [
-    { text: 'Tageswert, Ausreißer hervorgehoben', color: COLORS.soft },
+    { text: 'Tageswert, auffällige Tage markiert', color: COLORS.soft },
     { text: `${MOVING_AVERAGE_WINDOW} Tage Mittel`, color: COLORS.accent },
   ];
 
@@ -163,7 +165,7 @@ function renderWeight(canvasId: string, series: Series, targetWeightKg: number |
     datasets.push({
       label: 'Zielgewicht',
       data: series.labels.map(() => targetWeightKg),
-      borderColor: '#7fb06977',
+      borderColor: 'rgba(235, 235, 245, 0.28)',
       borderDash: [6, 6],
       borderWidth: 1.5,
       pointRadius: 0,
@@ -171,7 +173,7 @@ function renderWeight(canvasId: string, series: Series, targetWeightKg: number |
       fill: false,
       order: 3,
     });
-    legend.push({ text: `Ziel ${decimal(targetWeightKg, 1)} kg`, color: COLORS.pos, dashed: true });
+    legend.push({ text: `Ziel ${decimal(targetWeightKg, 1)} kg`, color: COLORS.soft, dashed: true });
   }
 
   upsert(canvasId, { type: 'line', data: { labels: series.labels, datasets }, options: options('kg') });
@@ -220,7 +222,7 @@ function renderTrend(canvasId: string, series: Series): LegendEntry[] {
         {
           label: 'Gerade',
           data: line,
-          borderColor: '#d6d2ca66',
+          borderColor: 'rgba(235, 235, 245, 0.30)',
           borderWidth: 1.5,
           borderDash: [5, 5],
           pointRadius: 0,
@@ -323,7 +325,7 @@ function renderForecast(
       borderColor: 'transparent',
       pointRadius: 0,
       fill: '+1',
-      backgroundColor: '#d0a86b1f',
+      backgroundColor: 'rgba(10, 132, 255, 0.12)',
       spanGaps: false,
     },
     {
@@ -337,7 +339,7 @@ function renderForecast(
     {
       label: 'Prognose',
       data: central,
-      borderColor: '#d0a86baa',
+      borderColor: 'rgba(10, 132, 255, 0.65)',
       borderDash: [5, 4],
       borderWidth: 1.75,
       pointRadius: 0,
@@ -350,7 +352,7 @@ function renderForecast(
     datasets.push({
       label: 'Zielgewicht',
       data: labels.map(() => targetWeightKg),
-      borderColor: '#7fb06977',
+      borderColor: 'rgba(235, 235, 245, 0.28)',
       borderDash: [6, 6],
       borderWidth: 1.5,
       pointRadius: 0,
@@ -363,8 +365,8 @@ function renderForecast(
   return [
     { text: 'Gemessenes Mittel', color: COLORS.accent },
     { text: 'Prognose bei gleichbleibender Rate', color: COLORS.accent, dashed: true },
-    { text: 'Band aus dem Standardfehler der Rate', color: '#d0a86b55' },
-    ...(targetWeightKg !== null ? [{ text: `Ziel ${decimal(targetWeightKg, 1)} kg`, color: COLORS.pos, dashed: true }] : []),
+    { text: 'Band aus dem Standardfehler der Rate', color: 'rgba(10, 132, 255, 0.35)' },
+    ...(targetWeightKg !== null ? [{ text: `Ziel ${decimal(targetWeightKg, 1)} kg`, color: COLORS.soft, dashed: true }] : []),
   ];
 }
 
@@ -384,7 +386,7 @@ function renderDelta(canvasId: string, series: Series): LegendEntry[] {
       datasets: [{
         label: 'Veränderung',
         data: deltas,
-        backgroundColor: deltas.map((d) => (d === null ? 'transparent' : d <= 0 ? '#7fb069cc' : '#cf7d6bcc')),
+        backgroundColor: deltas.map((d) => (d === null ? 'transparent' : d <= 0 ? 'rgba(48, 209, 88, 0.75)' : 'rgba(255, 69, 58, 0.75)')),
         borderWidth: 0,
         borderRadius: 1,
       }],

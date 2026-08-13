@@ -41,9 +41,9 @@ interface Statement {
 }
 
 const TONE_COLORS: Record<Tone, string> = {
-  pos: 'var(--pos)',
-  warn: 'var(--accent)',
-  neutral: 'var(--neutral)',
+  pos: 'var(--green)',
+  warn: 'var(--orange)',
+  neutral: 'var(--text-tertiary)',
 };
 
 export function buildStatements(
@@ -189,57 +189,43 @@ function weakestPillar(daily: readonly DailyEntry[], goals: Goals): Statement | 
   };
 }
 
+/**
+ * Ein Insight als Zeile.
+ *
+ * Statuspunkt, Titel, ein bis zwei Zeilen Erklaerung. Kein eigener Container je
+ * Hinweis, nur feine waagerechte Trenner. Drei gleich schwere Kaesten lasen sich
+ * wie eine Tabelle und liessen offen, was zuerst zu lesen ist.
+ */
 function statementNode(statement: Statement): HTMLElement {
-  const item = document.createElement('div');
-
-  const kind = document.createElement('div');
-  kind.className = 'coach-kind';
+  const row = document.createElement('div');
+  row.className = 'insight';
 
   const dot = document.createElement('span');
-  dot.className = 'coach-dot';
+  dot.className = 'insight-dot';
   dot.style.background = TONE_COLORS[statement.tone];
-  kind.append(dot, document.createTextNode(statement.kind));
 
-  const text = document.createElement('p');
-  text.className = 'coach-text';
-  text.textContent = statement.text;
+  const title = document.createElement('span');
+  title.className = 'insight-title';
+  title.textContent = statement.kind;
+
+  const body = document.createElement('p');
+  body.className = 'insight-body';
+  body.textContent = statement.text;
 
   if (statement.note) {
     const note = document.createElement('span');
-    note.className = 'coach-note';
-    note.textContent = statement.note;
-    text.append(note);
+    note.className = 'num';
+    note.style.color = 'var(--text-tertiary)';
+    note.textContent = ` ${statement.note}`;
+    body.append(note);
   }
 
-  item.append(kind, text);
-  return item;
+  row.append(dot, title, body);
+  return row;
 }
 
-/**
- * Ein Hinweis fuehrt, zwei folgen kleiner.
- *
- * Drei gleich grosse Zellen lasen sich wie eine Tabelle und liessen offen, was
- * zuerst zu lesen ist. Die Rangfolge steht in `weight`.
- */
 export function renderCoach(daily: readonly DailyEntry[], goals: Goals): void {
   const container = byId('coach');
   if (!container) return;
-
-  const statements = buildStatements(daily, goals);
-  if (!statements.length) {
-    container.replaceChildren();
-    return;
-  }
-
-  const [first, ...rest] = statements;
-
-  const primary = statementNode(first!);
-  primary.className = 'coach-primary';
-  primary.style.borderLeftColor = TONE_COLORS[first!.tone];
-
-  const secondary = document.createElement('div');
-  secondary.className = 'coach-secondary';
-  secondary.append(...rest.map(statementNode));
-
-  container.replaceChildren(primary, secondary);
+  container.replaceChildren(...buildStatements(daily, goals).map(statementNode));
 }

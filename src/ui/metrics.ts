@@ -20,7 +20,7 @@ import { decimal, EMPTY, integer, signed, target as formatTarget } from './forma
 /** Richtung, in der ein Wert das Ziel schlagen kann. */
 type Direction = 'atLeast' | 'atMost';
 
-const TONE_COLORS = { pos: 'var(--pos)', neg: 'var(--neg)' } as const;
+const TONE_COLORS = { pos: 'var(--green)', neg: 'var(--red)' } as const;
 
 /**
  * Abweichung vom Ziel in Prozent, positiv in die gute Richtung.
@@ -41,13 +41,13 @@ interface TargetedSpec {
   direction: Direction;
 }
 
-/** Zeile mit Ziel: Wert, Abweichung und Balken. */
+/**
+ * Zeile mit Ziel: Bezeichnung, Wert, darunter der Zielwert und die Abweichung,
+ * darunter ein sehr flacher Balken.
+ */
 function targetedRow(spec: TargetedSpec): HTMLElement {
   const wrapper = document.createElement('div');
   wrapper.className = 'metric';
-
-  const head = document.createElement('div');
-  head.className = 'metric-head';
 
   const label = document.createElement('span');
   label.className = 'metric-label';
@@ -58,24 +58,18 @@ function targetedRow(spec: TargetedSpec): HTMLElement {
   value.className = 'metric-value';
   value.textContent = spec.actual === null ? EMPTY : `${integer(spec.actual)}${suffix}`;
 
-  head.append(label, value);
-  wrapper.append(head);
+  wrapper.append(label, value);
 
-  if (spec.actual === null || spec.target === null || spec.target <= 0) {
-    const sub = document.createElement('div');
-    sub.className = 'metric-sub';
-    sub.textContent = 'kein Zielwert';
-    wrapper.append(sub);
-    return wrapper;
-  }
+  if (spec.actual === null || spec.target === null || spec.target <= 0) return wrapper;
 
   const deviation = deviationPct(spec.actual, spec.target, spec.direction);
   const tone = deviation >= 0 ? 'pos' : 'neg';
 
   const sub = document.createElement('div');
   sub.className = 'metric-sub';
-  sub.append(document.createTextNode(`Ziel ${formatTarget(spec.target)}${suffix} · `));
+  sub.append(document.createTextNode(`${formatTarget(spec.target)}${suffix} Ziel · `));
   const badge = document.createElement('span');
+  badge.className = 'metric-delta';
   badge.style.color = TONE_COLORS[tone];
   badge.textContent = `${signed(deviation, 1)} %`;
   sub.append(badge);
@@ -84,7 +78,7 @@ function targetedRow(spec: TargetedSpec): HTMLElement {
   const bar = document.createElement('div');
   bar.className = 'metric-bar';
   const inner = document.createElement('span');
-  inner.style.width = `${Math.max(4, Math.min(100, (spec.actual / spec.target) * 100))}%`;
+  inner.style.width = `${Math.max(3, Math.min(100, (spec.actual / spec.target) * 100))}%`;
   inner.style.background = TONE_COLORS[tone];
   bar.append(inner);
   wrapper.append(bar);
@@ -92,29 +86,20 @@ function targetedRow(spec: TargetedSpec): HTMLElement {
   return wrapper;
 }
 
-/** Zeile ohne Ziel: Wert auf seiner Skala, als Indikator. */
-function gaugeRow(label: string, value: number | null, max: number, unit = ''): HTMLElement {
+/** Zeile ohne Ziel: nur Bezeichnung und Wert, kein Balken. */
+function plainRow(label: string, value: number | null, unit = ''): HTMLElement {
   const wrapper = document.createElement('div');
-  wrapper.className = 'gauge';
+  wrapper.className = 'metric';
 
   const name = document.createElement('span');
-  name.className = 'gauge-label';
+  name.className = 'metric-label';
   name.textContent = label;
 
   const number = document.createElement('span');
-  number.className = 'gauge-value';
+  number.className = 'metric-value';
   number.textContent = value === null ? EMPTY : `${decimal(value, 1)}${unit ? ` ${unit}` : ''}`;
 
-  const scale = document.createElement('div');
-  scale.className = 'gauge-scale';
-  const filled = value === null ? 0 : Math.round((value / max) * 5);
-  for (let i = 0; i < 5; i++) {
-    const segment = document.createElement('i');
-    if (i < filled) segment.className = 'on';
-    scale.append(segment);
-  }
-
-  wrapper.append(name, number, scale);
+  wrapper.append(name, number);
   return wrapper;
 }
 
@@ -148,9 +133,9 @@ export function renderMetrics(daily: readonly DailyEntry[], goals: Goals): void 
   ]);
 
   const recovery = group('Regeneration', [
-    gaugeRow('Schlaf', mean((e) => e.sleep), 9, 'h'),
-    gaugeRow('Energie', mean((e) => e.energy), 5),
-    gaugeRow('Stress', mean((e) => e.stress), 5),
+    plainRow('Schlaf', mean((e) => e.sleep), 'h'),
+    plainRow('Energie', mean((e) => e.energy)),
+    plainRow('Stress', mean((e) => e.stress)),
   ]);
 
   container.replaceChildren(nutrition, activity, recovery);

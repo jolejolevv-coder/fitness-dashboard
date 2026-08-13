@@ -1,29 +1,42 @@
 import type { DailyEntry } from '../types';
 import { targetRateKgPerWeek, type Goals } from '../parse/goals';
 import { complianceOf } from '../analytics/compliance';
-import { projectToTarget, weightTrend, type Trend } from '../analytics/trend';
+import { projectToTarget, weightTrend } from '../analytics/trend';
 import { weightChange } from '../analytics/weight';
-import type { Insight } from '../analytics/result';
 import { byId } from './dom';
-import { dateFormat, decimal, EMPTY, integer, signed } from './format';
+import { decimal, EMPTY, integer, signed } from './format';
 
 /**
- * Fortschritt als ein zusammenhaengendes Modul.
+ * Der Fortschritt als eine Aussage.
  *
- * Ersetzt die vier getrennten Kacheln Start, Aktuell, Verlust und Tage. Die
- * vier Zahlen gehoeren zusammen: sie beschreiben eine Strecke, keinen Satz
- * unabhaengiger Werte. Deshalb ein Satz, eine Strecke und drei Kennzahlen.
+ * Eine grosse Zahl, eine Zeile Kontext, eine duenne Strecke, drei Kennzahlen
+ * durch senkrechte Trenner geteilt, darunter das erwartete Zieldatum. Kein
+ * Container, keine Kacheln. Die Rangfolge entsteht aus Schriftgroesse und
+ * Abstand, nicht aus Flaechen.
  *
- * Gerechnet wird ueber den gesamten Zeitraum, unabhaengig vom Zeitraumfilter.
+ * Gerechnet wird ueber den gesamten Bestand, unabhaengig vom Zeitraumfilter.
  */
 
 /** Ab dieser Abweichung von der Sollrate gilt das Tempo als auffaellig. */
 const RATE_TOLERANCE = 1.5;
 
+const MONTHS = [
+  'Jan.', 'Feb.', 'März', 'Apr.', 'Mai', 'Juni',
+  'Juli', 'Aug.', 'Sept.', 'Okt.', 'Nov.', 'Dez.',
+] as const;
+
 export interface HeroData {
   daily: readonly DailyEntry[];
   goals: Goals;
   targetWeightKg: number | null;
+}
+
+function shortDate(date: Date): string {
+  return `${date.getDate()}. ${MONTHS[date.getMonth()]}`;
+}
+
+function longDate(date: Date): string {
+  return `${date.getDate()}. ${MONTHS[date.getMonth()]} ${date.getFullYear()}`;
 }
 
 function element(tag: string, className?: string, text?: string): HTMLElement {
@@ -40,74 +53,11 @@ function progressPct(start: number, current: number, target: number): number | n
   return Math.max(0, Math.min(100, ((current - start) / span) * 100));
 }
 
-function headline(lostKg: number): HTMLElement {
-  const node = element('h2', 'hero-headline');
-  const direction = lostKg <= 0 ? 'verloren' : 'zugelegt';
-  node.append(
-    document.createTextNode('Du hast seit dem Start '),
-    element('span', 'accent', `${decimal(Math.abs(lostKg), 1)} kg`),
-    document.createTextNode(` ${direction}.`),
-  );
-  return node;
-}
-
-function subline(trend: Insight<Trend>, projection: ReturnType<typeof projectToTarget>, targetWeightKg: number | null): HTMLElement {
-  const parts: string[] = [];
-
-  if (trend.ok) {
-    const direction = trend.ratePerWeek < 0 ? 'Abnahme' : 'Zunahme';
-    parts.push(`Aktuell ${decimal(Math.abs(trend.ratePerWeek), 2)} kg ${direction} pro Woche.`);
-  } else {
-    parts.push(`Noch keine belastbare Rate, ${trend.reason.toLowerCase()}.`);
-  }
-
-  if (projection.ok && targetWeightKg !== null) {
-    parts.push(`Bei gleichbleibendem Verlauf erreichst du ${decimal(targetWeightKg, 1)} kg voraussichtlich am ${dateFormat.format(projection.date)}.`);
-  } else if (targetWeightKg === null) {
-    parts.push('Ohne Zielgewicht in den Einstellungen bleibt die Prognose aus.');
-  } else if (!projection.ok) {
-    parts.push(`Keine Prognose: ${projection.reason.toLowerCase()}.`);
-  }
-
-  return element('p', 'hero-sub', parts.join(' '));
-}
-
-function track(start: number, current: number, targetWeightKg: number | null): HTMLElement | null {
-  if (targetWeightKg === null) return null;
-  const pct = progressPct(start, current, targetWeightKg);
-  if (pct === null) return null;
-
-  const wrapper = element('div', 'track');
-
-  const bar = element('div', 'track-bar');
-  const fill = element('div', 'track-fill');
-  fill.style.width = `${pct}%`;
-  const marker = element('div', 'track-marker');
-  marker.style.left = `${pct}%`;
-  bar.append(fill, marker);
-
-  const ends = element('div', 'track-ends');
-  const left = element('span');
-  left.append(document.createTextNode('Start '), element('span', 'num', `${decimal(start, 1)} kg`));
-  const middle = element('span', undefined);
-  middle.textContent = `${integer(pct)} % der Strecke`;
-  const right = element('span');
-  right.append(document.createTextNode('Ziel '), element('span', 'num', `${decimal(targetWeightKg, 1)} kg`));
-  ends.append(left, middle, right);
-
-  wrapper.append(bar, ends);
-  return wrapper;
-}
-
 function metric(label: string, value: string, sub: string, color?: string): HTMLElement {
-  const wrapper = element('div');
+  const wrapper = element('div', 'hero-metric');
   const valueNode = element('div', 'hero-metric-value', value);
   if (color) valueNode.style.color = color;
-  wrapper.append(
-    element('div', 'hero-metric-label', label),
-    valueNode,
-    element('div', 'hero-metric-sub', sub),
-  );
+  wrapper.append(element('div', 'hero-metric-label', label), valueNode, element('div', 'hero-metric-sub', sub));
   return wrapper;
 }
 
@@ -115,50 +65,87 @@ export function renderHero({ daily, goals, targetWeightKg }: HeroData): void {
   const container = byId('hero');
   if (!container) return;
 
-  const weighed = daily.filter((d) => d.weight !== null && !isNaN(d.weight));
+  const weighed = daily.filter((d) => d.weight !== null && !isNaN(d.weight) && d.dateObj);
   const change = weightChange(weighed);
-  if (!change) {
-    container.replaceChildren(element('p', 'hero-sub', 'Noch keine Waegungen erfasst.'));
+  if (!change || !weighed.length) {
+    container.replaceChildren(element('p', 'hero-caption', 'Noch keine Wägungen erfasst.'));
     return;
   }
 
+  const lost = change.lastRaw - change.firstRaw;
+  const since = weighed[0]!.dateObj!;
+  const nodes: HTMLElement[] = [];
+
+  // Die eine Aussage der Seite.
+  const headline = element('div', 'hero-headline');
+  headline.append(
+    element('span', 'hero-value', decimal(Math.abs(lost), 1)),
+    element('span', 'hero-unit', 'kg'),
+  );
+  nodes.push(headline);
+  nodes.push(element('p', 'hero-caption', `${lost <= 0 ? 'verloren' : 'zugelegt'} seit ${shortDate(since)}`));
+
   const trend = weightTrend(daily);
   const projection = projectToTarget(trend, targetWeightKg);
-  const lost = change.lastRaw - change.firstRaw;
 
-  const nodes: HTMLElement[] = [headline(lost), subline(trend, projection, targetWeightKg)];
-  const strecke = track(change.firstRaw, change.lastRaw, targetWeightKg);
-  if (strecke) nodes.push(strecke);
+  if (targetWeightKg !== null) {
+    const pct = progressPct(change.firstRaw, change.lastRaw, targetWeightKg);
+    if (pct !== null) {
+      const track = element('div', 'track');
+      const bar = element('div', 'track-bar');
+      const fill = element('div', 'track-fill');
+      fill.style.width = `${pct}%`;
+      bar.append(fill);
 
-  // Drei primaere Kennzahlen. Alles andere ist sekundaer und steht darunter.
+      const ends = element('div', 'track-ends');
+      const left = element('span');
+      left.append(element('span', 'num', `${decimal(change.lastRaw, 1)} kg`), document.createTextNode(' aktuell'));
+      const middle = element('span', undefined, `${integer(pct)} % des Ziels erreicht`);
+      const right = element('span');
+      right.append(element('span', 'num', `${decimal(targetWeightKg, 1)} kg`), document.createTextNode(' Ziel'));
+      ends.append(left, middle, right);
+
+      track.append(bar, ends);
+      nodes.push(track);
+    }
+  }
+
+  // Drei Kennzahlen, getrennt durch senkrechte Linien statt durch Karten.
   const metrics = element('div', 'hero-metrics');
 
   metrics.append(metric(
-    'Aktuelles Gewicht',
+    'Aktuell',
     `${decimal(change.lastRaw, 1)} kg`,
-    `${signed(lost, 1)} kg seit Start · ${integer(weighed.length)} Wägungen`,
+    `${signed(lost, 1)} kg · ${integer(weighed.length)} Wägungen`,
   ));
 
   if (trend.ok) {
-    const soll = targetRateKgPerWeek(goals.rateOfLossPct, trend.currentSmoothed);
-    const offPlan = soll !== null && Math.abs(trend.ratePerWeek) > Math.abs(soll) * RATE_TOLERANCE;
+    const plan = targetRateKgPerWeek(goals.rateOfLossPct, trend.currentSmoothed);
+    const offPlan = plan !== null && Math.abs(trend.ratePerWeek) > Math.abs(plan) * RATE_TOLERANCE;
     metrics.append(metric(
-      'Rate pro Woche',
-      `${decimal(Math.abs(trend.ratePerWeek), 2)} kg`,
-      soll !== null ? `Plan ${decimal(Math.abs(soll), 2)} kg · Basis ${integer(trend.basisDays)} Tage` : `Basis ${integer(trend.basisDays)} Tage`,
-      offPlan ? 'var(--accent)' : 'var(--pos)',
+      'Ø pro Woche',
+      `${signed(trend.ratePerWeek, 2)} kg`,
+      plan !== null ? `Plan ${signed(plan, 2)} kg` : `Basis ${integer(trend.basisDays)} Tage`,
+      offPlan ? 'var(--orange)' : undefined,
     ));
   } else {
-    metrics.append(metric('Rate pro Woche', EMPTY, trend.reason));
+    metrics.append(metric('Ø pro Woche', EMPTY, trend.reason));
   }
 
   metrics.append(complianceMetric(daily, goals));
   nodes.push(metrics);
 
+  // Prognose, klein und ohne Hinweisrahmen.
+  const forecast = element('div', 'forecast');
+  forecast.append(element('span', 'forecast-label', 'Ziel voraussichtlich'));
+  forecast.append(element('span', 'forecast-value',
+    projection.ok ? longDate(projection.date) : projection.reason));
+  nodes.push(forecast);
+
   container.replaceChildren(...nodes);
 }
 
-/** Gesamtcompliance ueber Protein und Kalorien, als getroffene von erfassten Tagen. */
+/** Gesamtcompliance ueber Protein und Kalorien, als Anteil der erfassten Tage. */
 function complianceMetric(daily: readonly DailyEntry[], goals: Goals): HTMLElement {
   const protein = goals.average.proteinG;
   const calories = goals.average.caloriesKcal;
@@ -173,9 +160,9 @@ function complianceMetric(daily: readonly DailyEntry[], goals: Goals): HTMLEleme
   const pct = recorded ? Math.round((hit / recorded) * 100) : null;
 
   return metric(
-    'Compliance gesamt',
+    'Compliance',
     pct === null ? EMPTY : `${integer(pct)} %`,
     `Protein ${integer(p.hit)}/${integer(p.recorded)} · Kalorien ${integer(c.hit)}/${integer(c.recorded)}`,
-    pct === null ? undefined : pct >= 80 ? 'var(--pos)' : pct >= 60 ? 'var(--accent)' : 'var(--neg)',
+    pct === null ? undefined : pct >= 80 ? 'var(--green)' : pct >= 60 ? 'var(--orange)' : 'var(--red)',
   );
 }

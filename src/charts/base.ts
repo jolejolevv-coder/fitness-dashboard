@@ -3,8 +3,8 @@ import { Chart, registerables, type ChartOptions, type ChartType } from 'chart.j
 Chart.register(...registerables);
 
 /** Farben der Achsen und Gitter, passend zu den CSS Variablen. */
-const TICK_COLOR = '#8d8a83';
-const Y_GRID_COLOR = 'rgba(255, 255, 255, 0.055)';
+const TICK_COLOR = 'rgba(235, 235, 245, 0.35)';
+const Y_GRID_COLOR = 'rgba(84, 84, 88, 0.32)';
 
 const charts = new Map<string, Chart>();
 
@@ -26,7 +26,7 @@ export function baseOptions(): ChartOptions<'line' | 'bar'> {
       x: {
         ticks: { color: TICK_COLOR, font: { size: 11 }, maxRotation: 0, autoSkip: true, maxTicksLimit: 8 },
         grid: { display: false },
-        border: { color: 'rgba(255, 255, 255, 0.08)' },
+        border: { display: false },
       },
       y: {
         ticks: { color: TICK_COLOR, font: { size: 11 }, padding: 6 },
@@ -85,6 +85,26 @@ export function chartIds(): string[] {
   return [...charts.keys()];
 }
 
+/**
+ * Durchsichtige Variante einer Farbe.
+ *
+ * Die Palette mischt Hexwerte und `rgba()`. Alpha als Hex anzuhaengen
+ * funktioniert nur bei Hexwerten und ergibt bei `rgba()` eine unlesbare
+ * Zeichenkette, die still ignoriert wird.
+ */
+function withAlpha(color: string, alpha: number): string {
+  if (color.startsWith('#') && color.length === 7) {
+    const hex = Math.round(alpha * 255).toString(16).padStart(2, '0');
+    return `${color}${hex}`;
+  }
+  const match = /^rgba?\(([^)]+)\)$/.exec(color);
+  if (match) {
+    const [r, g, b] = match[1]!.split(',').map((v) => v.trim());
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+  }
+  return color;
+}
+
 function canvas(id: string): HTMLCanvasElement | null {
   const element = document.getElementById(id);
   return element instanceof HTMLCanvasElement ? element : null;
@@ -136,7 +156,7 @@ export function lineChart(
   const datasets: Record<string, unknown>[] = [{
     data,
     borderColor: color,
-    backgroundColor: fill ? `${color}14` : 'transparent',
+    backgroundColor: fill ? withAlpha(color, 0.08) : 'transparent',
     borderWidth: 1.75,
     // Punkte erst beim Zeigen. Achtzig Punkte auf einer Linie sind Rauschen.
     pointRadius: 0,
@@ -150,7 +170,7 @@ export function lineChart(
   if (reference !== null) {
     datasets.push({
       data: labels.map(() => reference),
-      borderColor: '#ffffff26',
+      borderColor: 'rgba(235, 235, 245, 0.22)',
       borderDash: [5, 5],
       borderWidth: 1,
       pointRadius: 0,
@@ -161,7 +181,7 @@ export function lineChart(
   if (movingAverage !== null) {
     datasets.push({
       data: movingAverage,
-      borderColor: '#d0a86b',
+      borderColor: '#0a84ff',
       borderWidth: 2,
       pointRadius: 0,
       fill: false,
@@ -184,7 +204,7 @@ export function barChart(id: string, labels: string[], data: (number | null)[], 
       labels,
       datasets: [{
         data,
-        backgroundColor: `${color}99`,
+        backgroundColor: withAlpha(color, 0.6),
         borderColor: 'transparent',
         borderWidth: 0,
         borderRadius: 2,

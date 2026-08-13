@@ -15,10 +15,10 @@ import { decimal, integer, signed } from '../ui/format';
  */
 
 const COLORS = {
-  data: '#ddd9d1',
-  soft: '#9c988f',
-  accent: '#dcb478',
-  neg: '#dd8877',
+  data: 'rgba(235, 235, 245, 0.55)',
+  soft: 'rgba(235, 235, 245, 0.30)',
+  accent: '#0a84ff',
+  neg: '#ff453a',
 } as const;
 
 const WEEKDAYS = ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'] as const;
@@ -61,16 +61,16 @@ export function renderDailyTargetChart(spec: DailyTargetChart): void {
   const labels = entries.map(shortLabel);
   const titles = entries.map(longLabel);
 
-  const pointColors = values.map((value) =>
-    value !== null && target !== null && misses(value, target, direction) ? COLORS.neg : COLORS.soft);
+  // Punkt nur an Tagen auf der falschen Seite der Vorgabe, sonst nichts.
+  const pointColors = values.map(() => COLORS.neg);
   const pointRadii = values.map((value) =>
-    value !== null && target !== null && misses(value, target, direction) ? 2.6 : 1.4);
+    value !== null && target !== null && misses(value, target, direction) ? 2.2 : 0);
 
   const datasets: Record<string, unknown>[] = [
     {
       label: 'Tageswert',
       data: values,
-      borderColor: '#ddd9d133',
+      borderColor: 'rgba(235, 235, 245, 0.14)',
       borderWidth: 1,
       pointRadius: pointRadii,
       pointBackgroundColor: pointColors,
@@ -99,7 +99,7 @@ export function renderDailyTargetChart(spec: DailyTargetChart): void {
     datasets.push({
       label: 'Ziel',
       data: labels.map(() => target),
-      borderColor: '#8cc077aa',
+      borderColor: 'rgba(235, 235, 245, 0.28)',
       borderDash: [6, 5],
       borderWidth: 1.5,
       pointRadius: 0,
@@ -116,12 +116,12 @@ export function renderDailyTargetChart(spec: DailyTargetChart): void {
     tooltip: {
       mode: 'index',
       intersect: false,
-      backgroundColor: '#232120',
-      borderColor: '#43403c',
+      backgroundColor: 'rgba(44, 44, 46, 0.98)',
+      borderColor: 'rgba(84, 84, 88, 0.5)',
       borderWidth: 1,
       padding: 10,
-      titleColor: '#efece7',
-      bodyColor: '#b8b4ac',
+      titleColor: '#f5f5f7',
+      bodyColor: 'rgba(235, 235, 245, 0.6)',
       usePointStyle: true,
       boxWidth: 8,
       boxHeight: 8,

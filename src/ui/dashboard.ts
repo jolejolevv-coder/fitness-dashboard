@@ -50,6 +50,7 @@ export function renderDashboard(input: DashboardInput): SectionRenderers | null 
   }
 
   renderGoalContext(goals, avg(rows.slice(-7).map((r) => r.weight)));
+  renderRangeCaption(daily);
 
   const labels = rows.map(dayLabel);
   const allLabels = daily.map(dayLabel);
@@ -61,7 +62,7 @@ export function renderDashboard(input: DashboardInput): SectionRenderers | null 
   return {
     overview: () => {
       renderLegend(renderWeightChart('weightChart', daily, weightMode, targetWeightKg));
-      barChart('stepsChart', labels, rows.map((r) => r.steps), COLORS.sky);
+      barChart('stepsChart', labels, rows.map((r) => r.steps), COLORS.blue);
       weeklyChart('weeklyChart', weekLabels, weekAverages);
     },
     nutrition: () => {
@@ -74,15 +75,15 @@ export function renderDashboard(input: DashboardInput): SectionRenderers | null 
         canvasId: 'caloriesChart', entries: daily, pick: (e) => e.calories,
         target: calorieTarget, direction: 'atMost', unit: 'kcal',
       });
-      barChart('fvChart', allLabels, daily.map((r) => r.fv), COLORS.sky);
+      barChart('fvChart', allLabels, daily.map((r) => r.fv), COLORS.data);
       renderMacroChart(daily, goals);
     },
     wellness: () => {
       renderWellnessSparks(daily);
       lineChart('sleepChart', allLabels, daily.map((r) => r.sleep), COLORS.data, true, WELLNESS_REFERENCES.sleepH);
-      lineChart('energyChart', allLabels, daily.map((r) => r.energy), COLORS.good, true, WELLNESS_REFERENCES.energy);
-      lineChart('stressChart', allLabels, daily.map((r) => r.stress), COLORS.bad, true, WELLNESS_REFERENCES.stress);
-      lineChart('digestionChart', allLabels, daily.map((r) => r.digestion), COLORS.violet, true, WELLNESS_REFERENCES.digestion);
+      lineChart('energyChart', allLabels, daily.map((r) => r.energy), COLORS.blue, true, WELLNESS_REFERENCES.energy);
+      lineChart('stressChart', allLabels, daily.map((r) => r.stress), COLORS.data, true, WELLNESS_REFERENCES.stress);
+      lineChart('digestionChart', allLabels, daily.map((r) => r.digestion), COLORS.data, true, WELLNESS_REFERENCES.digestion);
       renderCorrelation(daily);
     },
     weeks: () => {
@@ -113,7 +114,7 @@ function weeklyChart(id: string, labels: string[], values: (number | null)[]): v
         label: 'Wochenmittel',
         data: values,
         borderColor: COLORS.accent,
-        backgroundColor: '#d0a86b14',
+        backgroundColor: 'rgba(10, 132, 255, 0.10)',
         borderWidth: 2,
         pointRadius: 3,
         pointBackgroundColor: COLORS.accent,
@@ -125,6 +126,28 @@ function weeklyChart(id: string, labels: string[], values: (number | null)[]): v
     },
     options,
   });
+}
+
+const MONTHS = [
+  'Jan.', 'Feb.', 'März', 'Apr.', 'Mai', 'Juni',
+  'Juli', 'Aug.', 'Sept.', 'Okt.', 'Nov.', 'Dez.',
+] as const;
+
+/**
+ * Zeitraum als Unterzeile der Abschnitte.
+ *
+ * Steht neben der Ueberschrift statt in einer eigenen Zeile, damit sofort klar
+ * ist, worauf sich die Zahlen darunter beziehen.
+ */
+function renderRangeCaption(daily: readonly DailyEntry[]): void {
+  const dated = daily.filter((d) => d.dateObj);
+  const first = dated[0]?.dateObj;
+  const last = dated[dated.length - 1]?.dateObj;
+  const caption = first && last
+    ? `${first.getDate()}. ${MONTHS[first.getMonth()]} bis ${last.getDate()}. ${MONTHS[last.getMonth()]}`
+    : '';
+  setText('metrics-range', caption);
+  setText('weight-range', caption);
 }
 
 function renderLegend(entries: readonly LegendEntry[]): void {
@@ -152,12 +175,10 @@ function renderLegend(entries: readonly LegendEntry[]): void {
  * Trainer sie in Prozent vorgibt.
  */
 function renderGoalContext(goals: Goals, currentWeightKg: number | null): void {
+  // Die Sollrate steht im Hero neben der gemessenen Rate, dort gehoert sie hin.
+  // Die Kopfzeile nennt nur, worum es geht.
   const rate = targetRateKgPerWeek(goals.rateOfLossPct, currentWeightKg);
-  const parts = ['Makrocycle 1'];
-  if (rate !== null) {
-    parts.push(`Plan ${decimal(Math.abs(rate), 2)} kg pro Woche ${rate < 0 ? 'Abnahme' : 'Zunahme'}`);
-  }
-  setText('header-sub', parts.join(' · '));
+  setText('header-sub', rate !== null && rate < 0 ? 'Makrocycle 1 · Cut' : 'Makrocycle 1');
 
   const hints: string[] = [];
   if (goals.missing.length) {
@@ -190,14 +211,14 @@ function renderMacroChart(daily: readonly DailyEntry[], goals: Goals): void {
             Math.round(avg(daily.map((e) => e.carbs)) ?? 0),
             Math.round(avg(daily.map((e) => e.fat)) ?? 0),
           ],
-          backgroundColor: COLORS.accent,
+          backgroundColor: COLORS.blue,
           borderRadius: 3,
           barPercentage: 0.55,
         },
         {
           label: 'Ziel',
           data: [goals.average.proteinG ?? 0, goals.average.carbsG ?? 0, goals.average.fatG ?? 0],
-          backgroundColor: '#8d8a8355',
+          backgroundColor: 'rgba(235, 235, 245, 0.18)',
           borderRadius: 3,
           barPercentage: 0.55,
         },
@@ -230,7 +251,7 @@ function renderWeekCards(weekBlocks: readonly WeekBlock[]): void {
 
     const change = document.createElement('div');
     change.className = 'wdelta';
-    change.style.color = delta === null ? 'var(--text-dim)' : delta < 0 ? 'var(--pos)' : 'var(--neg)';
+    change.style.color = delta === null ? 'var(--text-tertiary)' : delta < 0 ? 'var(--green)' : 'var(--red)';
     change.textContent = index === 0 ? 'Start' : delta !== null ? `${signed(delta, 2)} kg` : '–';
 
     card.append(heading, value, change);
