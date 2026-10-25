@@ -20,7 +20,7 @@ Stand der Qualitaet: 88 Tests, Lint, Typpruefung und Build sauber. Geprueft bei 
 * Phase 6 Umstellung und Abschluss (README, ADR, Actions, Merge, Live Pruefung): abgeschlossen
 * Phase 7 Blockuebergreifende Trainingshistorie: nicht gestartet
 * Phase 8 Ernaehrung und Einkauf (Reiter Plan und Einkauf, Wuerzen und Soßen, Preis Pipeline): 8.0 Recherche erledigt 25.10.2026: Selektoren in `specs/features/muskelmarkt-parser.md`, ADR 0003 Dauerpreise angenommen 25.10.2026 (Normalpreis aus Muskelmarkt sammeln plus handgepflegte Startwerte). abgeschlossen und live seit 25.10.2026 (228 Tests), erster Preislauf erfolgreich, Cron aktiv. Spec `specs/features/nutrition-shopping.md`, Quelle `docs/HANDOFF.md`, ADR 0002 angenommen
-* Phase 9 Plangenerator ueber die Anthropic API: Spec `specs/features/plan-generator.md` im Entwurf, Freigabe nach Phase 8
+* Phase 9 Plangenerator ueber die Anthropic API: Spec `specs/features/plan-generator.md` freigegeben 25.10.2026 (Opus 5.5 Effort high, Key im localStorage, Prep vom Generator, SDK lazy). Naechster Schritt Phase 9.0: ADR 0004, Branch `plan-generator`
 
 ## Naechste Schritte
 
