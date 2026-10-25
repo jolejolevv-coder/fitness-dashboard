@@ -50,6 +50,13 @@ export function toCsv(entries: readonly DailyEntry[]): string {
   return BOM + lines.join('\r\n');
 }
 
+/** Speichert Text als Datei, etwa die Plandateien des Generators. */
+export function downloadText(filename: string, content: string, type: string): void {
+  const url = URL.createObjectURL(new Blob([content], { type }));
+  download(filename, url);
+  URL.revokeObjectURL(url);
+}
+
 function download(filename: string, href: string): void {
   const link = document.createElement('a');
   link.href = href;

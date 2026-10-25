@@ -102,7 +102,7 @@ Thinking: 0,15 bis 0,35 $ (Opus 5.5, $4 Eingabe, $20 Ausgabe je MTok, Stand
 * [ ] Ohne API Key oder ohne vollstaendige Ziele ist der Knopf deaktiviert, der
       Grund steht als Zahlenzeile, die Seite funktioniert sonst unveraendert
 * [ ] Das SDK wird erst beim ersten Knopfdruck geladen, der Haupt Bundle waechst
-      um weniger als 5 kB
+      um weniger als 5 kB gzip gegen `main`
 * [ ] Jeder Vorschlag besteht `validatePlan` (Gerichte, Rotation, Prep,
       Einkaufseintraege) oder wird mit Fundliste verworfen
 * [ ] Jeder Tag eines uebernehmbaren Vorschlags liegt bei Ziel kcal ±40, Fett
@@ -176,6 +176,7 @@ Live Lauf durch den Nutzer, dann Merge und Retro.
 * Spec freigegeben inklusive Branch `plan-generator`, ID Praefix `g`, Riegel
   Schalter bei Vorschlag ausgeblendet, CSP nur im Build mit
   `style-src 'unsafe-inline'`, ADR 0004 als Phase 9.0, Bundle Grenze 5 kB
+* Bundle Grenze gemessen gzip gegen `main` (Nutzerentscheidung 25.10.2026)
 
 ## Open questions
 

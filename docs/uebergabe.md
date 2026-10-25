@@ -39,89 +39,67 @@ auf Branch `plan-generator`, nicht im Projektordner. Sitzungen fuer Phase 9 dort
 oeffnen. `test/fixtures/` und `test/golden/` sind lokal hineinkopiert, weil sie
 nicht im Repo liegen.
 
-Phase 9.1 erledigt (Stand 25.10.2026, 266 Tests, `npm run check` und Build
-sauber). Neu:
-* `src/config/generator.ts`: Modell, Effort, `DAY_TOLERANCE` (kcal ±40,
-  Fett ±10 g), Praefix `g`, `PREP_DAYS`, `TOKEN_PRICES` mit `PRICES_AS_OF`
-* `src/generator/schema.ts`: `allowedFoodIds`, `buildPlanSchema` (enum der
-  foodIds, `additionalProperties: false` ueberall)
-* `src/generator/prompt.ts`: `buildPrompt(GeneratorInput)`, deterministisch.
-  `offers` baut der Aufrufer aus `cheapestOffer`
-* `src/generator/response.ts`: `parseProposal`, prueft von Hand, weist
-  doppelte Gericht IDs ab
-* `src/generator/check.ts`: `goalsReadiness`, `checkProposal`. Verglichen
-  werden auf ganze Zahlen gerundete Tageswerte, also was die Zahlenzeile zeigt
-* `src/generator/cost.ts`: `runCost` aus `usage`, unbekanntes Modell ergibt
-  `usd: null`
-* `src/generator/state.ts`: API Key, Ausschluesse, aktiver Plan im
-  localStorage. `parseActivePlan` braucht die erlaubten foodIds
-* `validatePlan` in `src/nutrition/plan.ts` prueft jetzt auch Prep
-  (Gericht, Slot, Tag, Zutat). `PREP_DEVICES` in `src/nutrition/types.ts`
+Phasen 9.1 bis 9.3 erledigt (reine Funktionen in `src/generator/`, Planquelle
+`src/ui/planSource.ts`, API Aufruf `src/generator/request.ts`). Details stehen
+in `docs/historie.md` unter "Phase 9.1 bis 9.3".
 
-Phase 9.2 erledigt (Stand 25.10.2026, 280 Tests, `npm run check` und Build
-sauber, Reiter Plan bei 375 px ohne waagerechten Seitenlauf geprueft, mit Seed
-und mit eingesetztem Vorschlag). Neu:
-* `src/generator/source.ts`: `resolvePlanSource(raw, seed, goals, tolerance)`,
-  rein. Liefert `seed` oder `active`. Gespeicherter Plan gilt nur nach
-  `parseActivePlan` und `checkProposal`, sonst Seed mit Fundzeilen
-  `Gespeicherter Plan nicht geladen: ...`. Ohne Ziele aus dem Sheet gilt der
-  Seed (`Ziele 0 von 3`), der Plan bleibt gespeichert und gilt wieder, sobald
-  die Ziele da sind
-* Entscheidung in 9.2: Ausschluesse werden beim Laden des aktiven Plans nicht
-  geprueft, sie steuern nur den naechsten Vorschlag. Sonst wuerde das Pflegen
-  der Ausschlussliste den laufenden Plan still verwerfen
-* `src/generator/state.ts`: `PLAN_STATE_KEYS`, `adoptActivePlan`,
-  `resetToSeed`, `readActivePlanRaw`. Beide leeren Overrides, Prep und Einkauf
-  Abhakstatus
-* `src/ui/planSource.ts`: `getPlanSource(goals)`, `adoptPlan` (fuer 9.4),
-  `returnToSeed`, `onPlanSourceChange`. Plan und Einkauf laden darueber ihren
-  Speicherzustand neu, `main.ts` markiert Einkauf als neu zu zeichnen
-* `src/ui/plan.ts`: Kontext je Zeichnen statt Modulkonstanten, Zeile
-  `Vorschlag <Datum>, <Modell>` oder `Seed` mit Knopf `Zurück zum Seed`, nur
-  wenn ein Plan gespeichert ist. Riegel Schalter bei aktivem Vorschlag aus
-* `src/ui/shopping.ts`: `renderShopping(goals)`, liest die Planquelle, zeigt
-  die Fundzeilen ebenfalls
-
-Bekannt, nicht behoben: ein Tausch im Reiter Plan markiert den Reiter Einkauf
-nicht als neu zu zeichnen (`dirty` in `main.ts`), die Liste ist bis zum
-naechsten Laden veraltet. Bestand aus Phase 8, nur fuer den Wechsel der
-Planquelle in 9.2 geloest.
-
-Phase 9.3 erledigt (Stand 25.10.2026, 304 Tests, `npm run check` und Build
+Phase 9.4 umgesetzt (Stand 25.10.2026, 326 Tests, `npm run check` und Build
 sauber, nicht committet). Neu:
-* `src/generator/request.ts`: `requestProposal(request, { signal, onTokens })`
-  laedt das SDK per `import()`, streamt ueber `client.beta.messages.stream`
-  mit `fallbacks: "default"`, adaptivem Thinking, Effort und Schema, holt
-  `finalMessage()` und gibt `parseProposal`, `checkProposal` und Kosten weiter.
-  Ergebnis ist immer ein `ProposalStatus`: `checked` (mit `check.passed`),
-  `invalid`, `refused` (Kategorie), `max-tokens`, `stopped`, `api-error`
-  (Code, Typ), `connection`, `timeout`, `aborted`, `sdk-load`, `unknown`.
-  `statusLine(status)` liefert die Zahlenzeile fuer 9.4. `model` und
-  `fallback` nennen, wer geantwortet hat, das gehoert in `ActivePlan.model`
-* Nach einem Fallback zaehlt nur der Text nach dem letzten `fallback` Block,
-  die Teilausgabe des abgelehnten Modells wird verworfen
-* `src/generator/cost.ts`: `totalRunCost` rechnet jeden Versuch aus
-  `usage.iterations` zum Preis seines Modells. `TOKEN_PRICES` kennt jetzt
-  auch `claude-opus-5` und `claude-opus-4-8` als Fallback Ziele
-* `src/config/generator.ts`: `GENERATOR_FALLBACK_BETA`,
-  `GENERATOR_MAX_TOKENS` 64000, `GENERATOR_TIMEOUT_MS` 10 min als Gesamtfrist
-  ueber alle Wiederholungen (Nutzerentscheidung, ebenso der Name `request.ts`)
-* `test/request.test.ts`: SDK per `vi.mock` ersetzt, echte Fehlerklassen
+* Konfigurationsdialog: Feld `input-anthropic-key`, gespeichert ueber
+  `saveApiKey` beim Speichern, leer entfernt den Key
+* Reiter Plan, vierte Ansicht `Vorschlag` (`src/ui/generator.ts`, eigener
+  Chunk, erst beim Oeffnen geladen, `request.ts` und SDK erst beim Knopf):
+  Ausschluesse als aufklappbare Liste `Ausschlüsse n von 49`, Wunschfeld, Knopf
+  `Vorschlag erzeugen`, gesperrt mit Zahlenzeilen `API Key 0 von 1`,
+  `Ziele 2 von 3`, `Lebensmittel 0 von 49`. Waehrend des Laufs `Abbrechen` und
+  `Läuft 42 s, n Eingabe, m Ausgabe Tokens` (in place, ohne Neuzeichnen).
+  Danach Statuszeile aus `statusLine`, Modell (mit `Fallback`), Kosten aus
+  `usage` mit Preisstand, Fundliste, Tageswerte je Tag mit Zeile `Aktiv ...`
+  des aktiven Plans darunter, Gerichte mit Tagen, Prep, Wunschliste.
+  `Übernehmen` und `Export` nur bei bestandener Pruefung, Uebernahme ueber
+  `adoptPlan`, danach Ansicht Woche
+* `Export` auch in der Herkunftszeile des aktiven Plans. Drei Downloads
+  `meals.json`, `rotation.json`, `prep.json` aus `src/generator/export.ts`,
+  zeichengleich formatiert wie `data/` (Test gegen den Seed)
+* `src/generator/input.ts`: `generateReadiness`, `buildGeneratorInput`,
+  `currentOffers` (guenstigstes gueltiges Angebot mit Grundpreis)
+* `src/config/csp.ts` und Plugin in `vite.config.ts`: CSP als `meta` nur im
+  Build. `connect-src 'self' https://sheets.googleapis.com
+  https://api.anthropic.com`, `script-src 'self'`, `style-src 'self'
+  'unsafe-inline'`, `img-src 'self' data: blob:`, `object-src 'none'`,
+  `base-uri 'self'`, `form-action 'none'`
+* `roundedDayValues` aus `checkProposal` herausgezogen, auch fuer die Vorschau
 
-Bundle (Probe Build mit kurz verdrahtetem Modul, danach zurueckgesetzt): SDK
-liegt in einem eigenen Chunk, 366 kB roh, 82,6 kB gzip, keine SDK Quelle im
-Haupt Bundle. Statisch importiert waechst der Haupt Bundle um 8,2 kB roh
-(3,3 kB gzip), alles eigener Code (request, prompt, schema). Fuer 9.4
-empfohlen: auch `request.ts` erst beim Knopfdruck per `import()` laden, dann
-waechst der Haupt Bundle um 1,7 kB roh, `request` ist ein eigener Chunk von
-7,7 kB.
+Geprueft im Build (`vite preview`) bei 375 px mit lokalen Fixtures und einem im
+Browser ersetzten `fetch` fuer `api.anthropic.com` (kein echter Aufruf): Lauf
+mit Tokenzeile, verworfener und bestandener Vorschlag, Uebernahme, Einkauf
+folgt, Ausschluss gespeichert, Verbindungsfehler als Status. Kein waagerechter
+Seitenlauf im Reiter Plan, keine CSP Verstoesse in der Konsole. Chunks werden
+erst beim Oeffnen der Ansicht bzw. beim Knopf geladen.
 
-Naechster Schritt 9.4 Oberflaeche (Key Eingabe, Ausschluesse, Wunsch, Knopf
-mit Tokenzaehler und Abbrechen, Vorschau, Uebernahme ueber `adoptPlan`,
-Export, CSP im Build), Live Lauf durch den Nutzer.
+Bundle: Haupt Bundle 323,5 kB roh, 107,8 kB gzip. Gegen `main` +10,9 kB roh,
++3,7 kB gzip, davon 9.4 selbst +3,4 kB roh, +1,5 kB gzip (Rest aus 9.1 und 9.2,
+Planquelle und Pruefung muessen beim Laden laufen). SDK 366 kB im eigenen
+Chunk, `generator` 8,6 kB, `request` 7,0 kB. Die 5 kB Grenze gilt gzip gegen
+`main` (Nutzerentscheidung 25.10.2026), damit eingehalten.
 
-Vor dem Live Lauf beim Nutzer: eigenen Anthropic Workspace mit Ausgabelimit
-anlegen und Key erzeugen.
+Bekannt: SDK 1.3.0 schickt den Key als `Authorization: Bearer`, nicht als
+`x-api-key`. Bei der Netzwerkpruefung nach `authorization` suchen. Ein
+Vorschlag lebt nur im Speicher, Neuladen verwirft ihn (Kosten sind dann weg).
+Die Zeile `last-updated` im Kopf laeuft bei einer langen Fehlermeldung ueber
+375 px hinaus (Bestand, nicht aus 9.4). Der Text im Konfigurationsdialog
+"nie übertragen" stimmt fuer den Anthropic Key nicht mehr wortwoertlich.
+`.claude/launch.json` (Konfiguration `preview-build`) liegt untracked.
+
+Naechster Schritt beim Nutzer (Live Lauf, danach Merge und Retro):
+1. In der Anthropic Console eigenen Workspace mit monatlichem Ausgabelimit
+   anlegen, darin einen Key erzeugen
+2. Seite bauen und lokal per `npm run preview` oder nach Merge live oeffnen,
+   Key unter Einstellungen eintragen
+3. Reiter Plan, Ansicht Vorschlag, `Vorschlag erzeugen`, Lauf abwarten
+4. Netzwerkpruefung in den DevTools: Key nur in der Anfrage an
+   `api.anthropic.com` (Kopfzeile `authorization`), an Google nur der Google Key
+5. Danach Freigabe fuer Commit, Merge auf `main` und Retro Phase 9
 
 ## Pruefung des Handoffs
 

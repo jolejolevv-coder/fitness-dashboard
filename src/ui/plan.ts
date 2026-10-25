@@ -20,18 +20,30 @@ import {
 } from '../nutrition/state';
 import type { Food, Ingredient, Macros, Meal, Slot, Weekday } from '../nutrition/types';
 import type { PlanSource } from '../generator/source';
+import { roundedDayValues } from '../generator/check';
 import { byId } from './dom';
 import { decimal, integer, signed, target } from './format';
 import { FOCUS_ATTR, checkRow, el, focusedKey, restoreFocus, segmented, span } from './build';
 import { getPlanSource, hasStoredPlan, onPlanSourceChange, returnToSeed } from './planSource';
 
-type View = 'today' | 'week' | 'prep';
+type View = 'today' | 'week' | 'prep' | 'proposal';
 
 const VIEW_CHOICES: readonly { value: View; text: string }[] = [
   { value: 'today', text: 'Heute' },
   { value: 'week', text: 'Woche' },
   { value: 'prep', text: 'Prep' },
+  { value: 'proposal', text: 'Vorschlag' },
 ];
+
+type GeneratorModule = typeof import('./generator');
+
+let generatorModule: Promise<GeneratorModule> | null = null;
+
+/** Die Ansicht Vorschlag liegt in einem eigenen Chunk, der erste Seitenaufruf waechst nicht. */
+function loadGenerator(): Promise<GeneratorModule> {
+  generatorModule ??= import('./generator');
+  return generatorModule;
+}
 
 const WEEKDAY_NAMES: Record<Weekday, string> = {
   Mo: 'Montag', Di: 'Dienstag', Mi: 'Mittwoch', Do: 'Donnerstag', Fr: 'Freitag', Sa: 'Samstag', So: 'Sonntag',
@@ -317,6 +329,7 @@ function toolbar(): HTMLElement {
     }),
   ]);
 
+  if (view === 'proposal') return bar;
   const resetsPrep = view === 'prep';
   const needed = resetsPrep ? prepDone.size > 0 : hasOverrides(overrides);
   if (needed) {
@@ -355,7 +368,36 @@ function sourceBar(): HTMLElement | null {
     returnToSeed();
     rerender();
   });
-  return el('div', { class: 'pl-toolbar' }, [span('section-sub num', label), button]);
+  const bar = el('div', { class: 'pl-toolbar' }, [span('section-sub num', label), button]);
+  if (source.kind === 'active') {
+    const active = source.active;
+    const exportButton = el('button', { class: 'btn btn-tap', text: 'Export', attrs: { type: 'button', [FOCUS_ATTR]: 'export' } });
+    exportButton.addEventListener('click', () => void loadGenerator().then((module) => module.downloadPlanFiles(active)));
+    bar.appendChild(exportButton);
+  }
+  return bar;
+}
+
+/** Platzhalter, bis der Chunk der Ansicht Vorschlag geladen ist. */
+function proposalSlot(days: readonly PlannedDay[], goals: DayGoals | null, focus: string | null): HTMLElement {
+  const slot = el('div');
+  const activeDays = days.map((day) => roundedDayValues(day, FOODS));
+  loadGenerator()
+    .then((module) => {
+      slot.replaceChildren(module.generatorView({
+        goals,
+        activeDays,
+        rerender,
+        onAdopted: () => {
+          view = 'week';
+          rerender();
+        },
+      }));
+      const root = byId('plan-content');
+      if (root) restoreFocus(root, focus);
+    })
+    .catch(() => slot.replaceChildren(el('p', { class: 'err', text: 'Ansicht Vorschlag nicht geladen' })));
+  return slot;
 }
 
 function rerender(): void {
@@ -380,7 +422,8 @@ export function renderPlan(goals: DayGoals | null): void {
   for (const issue of issues) content.appendChild(el('p', { class: 'err', text: issue }));
   if (view === 'today') content.appendChild(todayView(plan.days, goals));
   else if (view === 'week') content.appendChild(weekView(plan.days, goals));
-  else content.appendChild(prepView(plan));
+  else if (view === 'prep') content.appendChild(prepView(plan));
+  else content.appendChild(proposalSlot(plan.days, goals, focus));
 
   root.replaceChildren(content);
   restoreFocus(root, focus);

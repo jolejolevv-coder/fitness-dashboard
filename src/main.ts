@@ -17,6 +17,7 @@ import {
   type Credentials,
 } from './config/credentials';
 import { getTargets, saveTargets } from './config/targets';
+import { loadApiKey, saveApiKey } from './generator/state';
 import { byId, show } from './ui/dom';
 import { renderDashboard, type SectionRenderers } from './ui/dashboard';
 import { renderAnalysis } from './ui/analysis';
@@ -89,6 +90,7 @@ function showConfig(): void {
   set('input-api-key', credentials.apiKey ?? '');
   set('input-sheet-name', credentials.sheetName ?? DEFAULT_DAILY_SHEET);
   set('input-training-sheet-name', credentials.trainingSheetName ?? DEFAULT_TRAINING_SHEET);
+  set('input-anthropic-key', loadApiKey() ?? '');
   const target = getTargets().targetWeightKg;
   set('input-target-weight', target === null ? '' : String(target));
   show('config-banner', true);
@@ -117,6 +119,8 @@ function handleSaveConfig(): void {
 
   saveCredentials(credentials);
   saveTargets({ targetWeightKg: parsedTarget });
+  // Eigener Schluessel, getrennt von den Google Zugangsdaten. Leer entfernt ihn.
+  saveApiKey(input('input-anthropic-key')?.value ?? null);
   show('config-banner', false);
   if (goals) renderShared();
   void loadData(true);

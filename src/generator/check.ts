@@ -2,8 +2,9 @@ import type { DayTolerance } from '../config/generator';
 import type { PlanData } from '../nutrition/plan';
 import { validatePlan } from '../nutrition/plan';
 import { NO_OVERRIDES, effectivePlan } from '../nutrition/rotation';
+import type { PlannedDay } from '../nutrition/rotation';
 import { dayMacros } from '../nutrition/totals';
-import type { Weekday } from '../nutrition/types';
+import type { Food, Weekday } from '../nutrition/types';
 import type { DayGoals } from '../parse/goals';
 import type { Proposal } from './response';
 
@@ -67,6 +68,19 @@ function checkDay(day: DayCheck, goals: RequiredGoals, tolerance: DayTolerance):
   return issues;
 }
 
+/** Tageswerte auf ganze Zahlen gerundet, so wie die Zahlenzeile sie zeigt. */
+export function roundedDayValues(planned: PlannedDay, foods: readonly Food[]): DayCheck {
+  const macros = dayMacros(planned, foods);
+  return {
+    day: planned.day,
+    kcal: Math.round(macros.kcal),
+    protein: Math.round(macros.protein),
+    carbs: Math.round(macros.carbs),
+    fat: Math.round(macros.fat),
+    fiber: Math.round(macros.fiber),
+  };
+}
+
 function failed(issues: string[], days: DayCheck[] = []): ProposalCheck {
   return { passed: false, issues, days };
 }
@@ -93,17 +107,7 @@ export function checkProposal(
   // Ohne stimmige Verweise lassen sich die Tage nicht sicher rechnen.
   if (structural.length > 0 || effective.issues.length > 0) return failed([...structural, ...effective.issues]);
 
-  const days: DayCheck[] = effective.days.map((planned) => {
-    const macros = dayMacros(planned, plan.foods);
-    return {
-      day: planned.day,
-      kcal: Math.round(macros.kcal),
-      protein: Math.round(macros.protein),
-      carbs: Math.round(macros.carbs),
-      fat: Math.round(macros.fat),
-      fiber: Math.round(macros.fiber),
-    };
-  });
+  const days = effective.days.map((planned) => roundedDayValues(planned, plan.foods));
   const issues = days.flatMap((day) => checkDay(day, required, tolerance));
   return { passed: issues.length === 0, issues, days };
 }

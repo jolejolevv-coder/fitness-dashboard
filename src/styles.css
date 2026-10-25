@@ -651,6 +651,7 @@ body.no-sheet .tab:not([data-tab='plan']):not([data-tab='shopping']) { display: 
   margin-bottom: 20px;
 }
 .btn-tap { min-height: 44px; padding: 10px 14px; }
+.btn:disabled { opacity: 0.4; cursor: default; }
 
 .pl-head {
   display: flex;
@@ -707,6 +708,35 @@ body.no-sheet .tab:not([data-tab='plan']):not([data-tab='shopping']) { display: 
 .pl-step-head { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; margin-bottom: 4px; }
 .pl-step-title { font-size: 15px; font-weight: 500; }
 .pl-device { font-size: 12px; color: var(--text-secondary); }
+
+.gen-form { display: grid; gap: 16px; max-width: 640px; }
+.gen-form .pl-toolbar { justify-content: flex-start; margin-bottom: 0; }
+.gen-summary { cursor: pointer; font-size: 14px; min-height: 44px; display: flex; align-items: center; }
+.gen-wish {
+  background: var(--surface-secondary);
+  border: none;
+  border-radius: var(--radius-small);
+  color: var(--text-primary);
+  padding: 10px 12px;
+  font-size: 16px;
+  font-family: inherit;
+  width: 100%;
+  resize: vertical;
+}
+.gen-wish::placeholder { color: var(--text-tertiary); }
+.gen-status { font-size: 14px; margin-bottom: 6px; }
+.gen-days { margin-top: 16px; }
+.gen-day {
+  display: grid;
+  grid-template-columns: 32px minmax(0, 1fr);
+  gap: 8px;
+  padding: 8px 0;
+  border-top: 1px solid var(--separator);
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+.gen-day-name { font-weight: 600; }
+.gen-subtitle { font-size: 14px; font-weight: 600; margin: 14px 0 6px; }
 
 .pl-pricehead { font-size: 13px; color: var(--text-secondary); margin-bottom: 20px; }
 .sh-group { margin-bottom: 28px; }
