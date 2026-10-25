@@ -1,4 +1,3 @@
-import { FOODS, MEALS, ROTATION, SHOPPING_ITEMS } from '../nutrition/plan';
 import { effectivePlan } from '../nutrition/rotation';
 import { buildShoppingList, weeklyDemand } from '../nutrition/shopping';
 import type { ShoppingLine } from '../nutrition/shopping';
@@ -10,12 +9,20 @@ import { byId } from './dom';
 import { decimal, integer } from './format';
 import { FOCUS_ATTR, checkRow, el, focusedKey, restoreFocus, span } from './build';
 import { getOverrides } from './plan';
+import { getPlanSource, onPlanSourceChange } from './planSource';
+import type { DayGoals } from '../parse/goals';
 import { loadPriceData } from './priceData';
 import type { PriceData } from './priceData';
 
 let done: Set<string> = loadChecked(SHOPPING_DONE_KEY);
 let priceData: PriceData | null = null;
 let priceRequested = false;
+let lastGoals: DayGoals | null = null;
+
+// Uebernahme und Rueckkehr zum Seed haben den Speicher geleert.
+onPlanSourceChange(() => {
+  done = loadChecked(SHOPPING_DONE_KEY);
+});
 
 const euro = (value: number): string => `${decimal(value, 2)} €`;
 const grams = (value: number): string => `${integer(value)} g`;
@@ -69,25 +76,31 @@ function lineDetail(line: ShoppingLine, choice: PriceChoice): HTMLElement | null
 function setDone(key: string): void {
   done = toggled(done, key);
   saveChecked(SHOPPING_DONE_KEY, done);
-  renderShopping();
+  rerender();
+}
+
+function rerender(): void {
+  renderShopping(lastGoals);
 }
 
 /** Zeichnet den Reiter Einkauf. Preise kommen nach, sobald die Dateien da sind. */
-export function renderShopping(): void {
+export function renderShopping(goals: DayGoals | null): void {
   const root = byId('shopping-content');
   if (!root) return;
+  lastGoals = goals;
 
   if (!priceRequested) {
     priceRequested = true;
     void loadPriceData().then((data) => {
       priceData = data;
-      renderShopping();
+      rerender();
     });
   }
 
   const focus = focusedKey();
-  const plan = effectivePlan(ROTATION, getOverrides(), MEALS);
-  const list = buildShoppingList(weeklyDemand(plan), SHOPPING_ITEMS, FOODS);
+  const source = getPlanSource(goals);
+  const plan = effectivePlan(source.plan.rotation, getOverrides(), source.plan.meals);
+  const list = buildShoppingList(weeklyDemand(plan), source.plan.shoppingItems, source.plan.foods);
   const today = berlinDay(new Date());
 
   const priced = list.groups.map((group) => ({
@@ -112,12 +125,13 @@ export function renderShopping(): void {
     reset.addEventListener('click', () => {
       done = new Set();
       saveChecked(SHOPPING_DONE_KEY, done);
-      renderShopping();
+      rerender();
     });
     head.appendChild(reset);
   }
   content.appendChild(head);
 
+  for (const issue of source.issues) content.appendChild(el('p', { class: 'err', text: issue }));
   for (const id of list.missingItems) content.appendChild(el('p', { class: 'err', text: `Einkauf: kein Eintrag für ${id}` }));
 
   const prices = priceData?.prices ?? null;

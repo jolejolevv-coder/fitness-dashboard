@@ -1,4 +1,4 @@
-import { readStorage, writeStorage } from '../nutrition/state';
+import { OVERRIDES_KEY, PREP_DONE_KEY, SHOPPING_DONE_KEY, readStorage, writeStorage } from '../nutrition/state';
 import { parseProposal } from './response';
 import type { Proposal } from './response';
 
@@ -79,4 +79,27 @@ export function loadActivePlan(foodIds: ReadonlySet<string>): ActivePlan | null 
 
 export function saveActivePlan(plan: ActivePlan | null): void {
   writeStorage(ACTIVE_PLAN_KEY, plan === null ? null : serializeActivePlan(plan));
+}
+
+/** Overrides und Abhakstatus zeigen auf Gericht IDs. Sie gelten nur fuer den Plan, unter dem sie entstanden. */
+export const PLAN_STATE_KEYS: readonly string[] = [OVERRIDES_KEY, PREP_DONE_KEY, SHOPPING_DONE_KEY];
+
+function clearPlanState(): void {
+  for (const key of PLAN_STATE_KEYS) writeStorage(key, null);
+}
+
+export function readActivePlanRaw(): string | null {
+  return readStorage(ACTIVE_PLAN_KEY);
+}
+
+/** Uebernahme eines Vorschlags. Overrides und Abhakstatus werden geleert. */
+export function adoptActivePlan(plan: ActivePlan): void {
+  saveActivePlan(plan);
+  clearPlanState();
+}
+
+/** Zurueck zum Seed. Overrides und Abhakstatus werden geleert. */
+export function resetToSeed(): void {
+  saveActivePlan(null);
+  clearPlanState();
 }

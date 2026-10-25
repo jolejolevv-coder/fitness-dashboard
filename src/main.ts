@@ -28,6 +28,7 @@ import { filterTrainingDay, renderProgression, renderTraining } from './ui/train
 import { activeTab, selectTab, setupRangeButtons, setupTabs } from './ui/tabs';
 import { renderPlan } from './ui/plan';
 import { renderShopping } from './ui/shopping';
+import { onPlanSourceChange } from './ui/planSource';
 import { sheetDayGoals } from './nutrition/goals';
 import { attachChartExports, downloadCsv } from './ui/export';
 import { resizeVisibleCharts } from './charts/base';
@@ -225,7 +226,7 @@ function rendererFor(name: string): (() => void) | undefined {
   if (name === 'training') return () => renderTraining(training);
   if (name === 'analysis') return renderAnalysisTab;
   if (name === 'plan') return () => renderPlan(sheetDayGoals(goals));
-  if (name === 'shopping') return renderShopping;
+  if (name === 'shopping') return () => renderShopping(sheetDayGoals(goals));
   return sections?.[name];
 }
 
@@ -397,6 +398,8 @@ function wire(): void {
     renderActiveSection();
   });
   setupRangeButtons(applyDateRange);
+  // Ein Wechsel der Planquelle passiert im Reiter Plan, der Einkauf zeichnet beim naechsten Oeffnen neu.
+  onPlanSourceChange(() => dirty.add('shopping'));
   attachChartExports();
 
   document.addEventListener('visibilitychange', () => {

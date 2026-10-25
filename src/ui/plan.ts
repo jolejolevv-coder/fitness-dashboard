@@ -1,5 +1,6 @@
 import type { DayGoals } from '../parse/goals';
-import { FOODS, MEALS, PLAN, PREP_SESSIONS, ROTATION, indexById, validatePlan } from '../nutrition/plan';
+import { FOODS, indexById, validatePlan } from '../nutrition/plan';
+import type { PlanData } from '../nutrition/plan';
 import { addMacros, sumIngredients, ZERO_MACROS } from '../nutrition/macros';
 import { effectivePlan, findBarMeal } from '../nutrition/rotation';
 import type { Overrides, PlannedDay, PlannedSlot } from '../nutrition/rotation';
@@ -17,10 +18,12 @@ import {
   withBar,
   withSwap,
 } from '../nutrition/state';
-import type { Food, Ingredient, Macros, Slot, Weekday } from '../nutrition/types';
+import type { Food, Ingredient, Macros, Meal, Slot, Weekday } from '../nutrition/types';
+import type { PlanSource } from '../generator/source';
 import { byId } from './dom';
 import { decimal, integer, signed, target } from './format';
 import { FOCUS_ATTR, checkRow, el, focusedKey, restoreFocus, segmented, span } from './build';
+import { getPlanSource, hasStoredPlan, onPlanSourceChange, returnToSeed } from './planSource';
 
 type View = 'today' | 'week' | 'prep';
 
@@ -35,14 +38,37 @@ const WEEKDAY_NAMES: Record<Weekday, string> = {
 };
 
 const FOODS_BY_ID = indexById(FOODS);
-const MEALS_BY_ID = indexById(MEALS);
-const BAR_MEAL = findBarMeal(MEALS);
-const PLAN_ISSUES = validatePlan(PLAN);
+
+/** Was ein Durchlauf aus der Planquelle braucht. Neu je Zeichnen, die Quelle kann wechseln. */
+interface PlanContext {
+  source: PlanSource;
+  plan: PlanData;
+  mealsById: Map<string, Meal>;
+  /** Bei aktivem Vorschlag `null`: generierte Plaene kennen keine Riegel Option. */
+  barMeal: Meal | null;
+}
+
+function planContext(source: PlanSource): PlanContext {
+  const plan = source.plan;
+  return {
+    source,
+    plan,
+    mealsById: indexById(plan.meals),
+    barMeal: source.kind === 'active' ? null : findBarMeal(plan.meals),
+  };
+}
 
 let view: View = 'today';
 let overrides: Overrides = loadOverrides();
 let prepDone: Set<string> = loadChecked(PREP_DONE_KEY);
 let lastGoals: DayGoals | null = null;
+let context: PlanContext = planContext(getPlanSource(null));
+
+// Uebernahme und Rueckkehr zum Seed haben den Speicher geleert.
+onPlanSourceChange(() => {
+  overrides = loadOverrides();
+  prepDone = loadChecked(PREP_DONE_KEY);
+});
 
 /** Der aktuelle Stand der Aenderungen am Plan, auch fuer den Reiter Einkauf. */
 export function getOverrides(): Overrides {
@@ -58,7 +84,7 @@ function applyOverrides(next: Overrides): void {
 }
 
 function setSwap(day: Weekday, slot: Slot, mealId: string): void {
-  const standard = ROTATION[day][slot];
+  const standard = context.plan.rotation[day][slot];
   let next = withSwap(overrides, day, slot, mealId === standard ? null : mealId);
   // Ein Tausch auf M3 ersetzt die Riegel Option, sonst gewaenne der Schalter still.
   if (slot === 'M3') next = withBar(next, day, false);
@@ -120,7 +146,7 @@ function mealSelect(day: Weekday, planned: PlannedSlot): HTMLSelectElement {
     class: 'pl-select',
     attrs: { 'aria-label': `Gericht ${planned.slot} ${WEEKDAY_NAMES[day]}`, [FOCUS_ATTR]: `swap-${day}-${planned.slot}` },
   });
-  for (const meal of MEALS.filter((m) => m.slot === planned.slot)) {
+  for (const meal of context.plan.meals.filter((m) => m.slot === planned.slot)) {
     const option = el('option', { text: meal.name, attrs: { value: meal.id } });
     option.selected = meal.id === planned.mealId;
     select.appendChild(option);
@@ -130,15 +156,16 @@ function mealSelect(day: Weekday, planned: PlannedSlot): HTMLSelectElement {
 }
 
 function barToggle(day: PlannedDay, planned: PlannedSlot): HTMLElement | null {
-  if (!BAR_MEAL || planned.slot !== BAR_MEAL.slot) return null;
-  const detail = BAR_MEAL.addToSlot
-    ? span('check-sub', `plus ${grams(BAR_MEAL.addToSlot.grams)} ${FOODS_BY_ID.get(BAR_MEAL.addToSlot.foodId)?.name ?? ''} auf ${BAR_MEAL.addToSlot.slot}`)
+  const barMeal = context.barMeal;
+  if (!barMeal || planned.slot !== barMeal.slot) return null;
+  const detail = barMeal.addToSlot
+    ? span('check-sub', `plus ${grams(barMeal.addToSlot.grams)} ${FOODS_BY_ID.get(barMeal.addToSlot.foodId)?.name ?? ''} auf ${barMeal.addToSlot.slot}`)
     : null;
   return checkRow({
     key: `bar-${day.day}`,
     label: 'Riegel Option',
     detail,
-    checked: planned.mealId === BAR_MEAL.id,
+    checked: planned.mealId === barMeal.id,
     onChange: (checked) => setBar(day.day, checked),
   });
 }
@@ -251,7 +278,7 @@ function weekView(days: readonly PlannedDay[], goals: DayGoals | null): HTMLElem
 
 function prepView(plan: ReturnType<typeof effectivePlan>): HTMLElement {
   const root = el('div');
-  for (const session of buildPrep(PREP_SESSIONS, plan, FOODS)) {
+  for (const session of buildPrep(context.plan.prep, plan, FOODS)) {
     const panel = el('section', { class: 'panel' }, [el('h3', { class: 'panel-title', text: session.title })]);
     session.steps.forEach((step, stepIndex) => {
       const stepBlock = el('div', { class: 'pl-step' }, [
@@ -261,7 +288,7 @@ function prepView(plan: ReturnType<typeof effectivePlan>): HTMLElement {
       for (const line of step.lines) {
         const key = `${session.id}|${stepIndex}|${line.foodId}`;
         const uses = line.uses
-          .map((u) => `${MEALS_BY_ID.get(u.mealId)?.name ?? u.mealId}: ${[...new Set(u.days)].join(' ')}`)
+          .map((u) => `${context.mealsById.get(u.mealId)?.name ?? u.mealId}: ${[...new Set(u.days)].join(' ')}`)
           .join(', ');
         const quantity = line.grams === null ? '' : grams(line.grams);
         stepBlock.appendChild(checkRow({
@@ -312,6 +339,25 @@ function toolbar(): HTMLElement {
   return bar;
 }
 
+/** Herkunft des Plans. Steht nur da, wenn ein Plan gespeichert ist, gueltig oder nicht. */
+function sourceBar(): HTMLElement | null {
+  if (!hasStoredPlan()) return null;
+  const source = context.source;
+  const label = source.kind === 'active'
+    ? `Vorschlag ${longDate(source.active.createdAt.slice(0, 10))}, ${source.active.model}`
+    : 'Seed';
+  const button = el('button', {
+    class: 'btn btn-tap',
+    text: 'Zurück zum Seed',
+    attrs: { type: 'button', [FOCUS_ATTR]: 'seed' },
+  });
+  button.addEventListener('click', () => {
+    returnToSeed();
+    rerender();
+  });
+  return el('div', { class: 'pl-toolbar' }, [span('section-sub num', label), button]);
+}
+
 function rerender(): void {
   renderPlan(lastGoals);
 }
@@ -323,10 +369,13 @@ export function renderPlan(goals: DayGoals | null): void {
   lastGoals = goals;
   const focus = focusedKey();
 
-  const plan = effectivePlan(ROTATION, overrides, MEALS);
-  const issues = [...PLAN_ISSUES, ...plan.issues];
+  context = planContext(getPlanSource(goals));
+  const plan = effectivePlan(context.plan.rotation, overrides, context.plan.meals);
+  const issues = [...context.source.issues, ...validatePlan(context.plan), ...plan.issues];
 
   const content = el('div');
+  const source = sourceBar();
+  if (source) content.appendChild(source);
   content.appendChild(toolbar());
   for (const issue of issues) content.appendChild(el('p', { class: 'err', text: issue }));
   if (view === 'today') content.appendChild(todayView(plan.days, goals));

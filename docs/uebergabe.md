@@ -58,13 +58,39 @@ sauber). Neu:
 * `validatePlan` in `src/nutrition/plan.ts` prueft jetzt auch Prep
   (Gericht, Slot, Tag, Zutat). `PREP_DEVICES` in `src/nutrition/types.ts`
 
-Naechster Schritt 9.2 Planquelle: Reiter Plan und Einkauf lesen den aktiven
-Plan (`loadActivePlan`, gegen `validatePlan` und `checkProposal` geprueft,
-sonst Seed mit Fund) statt der Konstante `PLAN`. Uebernahme leert
-`OVERRIDES_KEY`, `PREP_DONE_KEY`, `SHOPPING_DONE_KEY`. Knopf zurueck zum Seed.
-Riegel Schalter bei aktivem Vorschlag ausblenden. Danach 9.3 API Aufruf
-(SDK dynamisch importieren, Streaming, `fallbacks: "default"`), 9.4
-Oberflaeche, CSP im Build, Live Lauf durch den Nutzer.
+Phase 9.2 erledigt (Stand 25.10.2026, 280 Tests, `npm run check` und Build
+sauber, Reiter Plan bei 375 px ohne waagerechten Seitenlauf geprueft, mit Seed
+und mit eingesetztem Vorschlag). Neu:
+* `src/generator/source.ts`: `resolvePlanSource(raw, seed, goals, tolerance)`,
+  rein. Liefert `seed` oder `active`. Gespeicherter Plan gilt nur nach
+  `parseActivePlan` und `checkProposal`, sonst Seed mit Fundzeilen
+  `Gespeicherter Plan nicht geladen: ...`. Ohne Ziele aus dem Sheet gilt der
+  Seed (`Ziele 0 von 3`), der Plan bleibt gespeichert und gilt wieder, sobald
+  die Ziele da sind
+* Entscheidung in 9.2: Ausschluesse werden beim Laden des aktiven Plans nicht
+  geprueft, sie steuern nur den naechsten Vorschlag. Sonst wuerde das Pflegen
+  der Ausschlussliste den laufenden Plan still verwerfen
+* `src/generator/state.ts`: `PLAN_STATE_KEYS`, `adoptActivePlan`,
+  `resetToSeed`, `readActivePlanRaw`. Beide leeren Overrides, Prep und Einkauf
+  Abhakstatus
+* `src/ui/planSource.ts`: `getPlanSource(goals)`, `adoptPlan` (fuer 9.4),
+  `returnToSeed`, `onPlanSourceChange`. Plan und Einkauf laden darueber ihren
+  Speicherzustand neu, `main.ts` markiert Einkauf als neu zu zeichnen
+* `src/ui/plan.ts`: Kontext je Zeichnen statt Modulkonstanten, Zeile
+  `Vorschlag <Datum>, <Modell>` oder `Seed` mit Knopf `Zurück zum Seed`, nur
+  wenn ein Plan gespeichert ist. Riegel Schalter bei aktivem Vorschlag aus
+* `src/ui/shopping.ts`: `renderShopping(goals)`, liest die Planquelle, zeigt
+  die Fundzeilen ebenfalls
+
+Bekannt, nicht behoben: ein Tausch im Reiter Plan markiert den Reiter Einkauf
+nicht als neu zu zeichnen (`dirty` in `main.ts`), die Liste ist bis zum
+naechsten Laden veraltet. Bestand aus Phase 8, nur fuer den Wechsel der
+Planquelle in 9.2 geloest.
+
+Naechster Schritt 9.3 API Aufruf (SDK dynamisch importieren, Streaming,
+`fallbacks: "default"`, Fehler als Status, SDK in Tests gemockt), danach 9.4
+Oberflaeche (Key Eingabe, Ausschluesse, Wunsch, Vorschau, Uebernahme ueber
+`adoptPlan`, Export, CSP im Build), Live Lauf durch den Nutzer.
 
 Vor dem Live Lauf beim Nutzer: eigenen Anthropic Workspace mit Ausgabelimit
 anlegen und Key erzeugen.
