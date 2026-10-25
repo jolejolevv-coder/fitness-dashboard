@@ -87,10 +87,38 @@ nicht als neu zu zeichnen (`dirty` in `main.ts`), die Liste ist bis zum
 naechsten Laden veraltet. Bestand aus Phase 8, nur fuer den Wechsel der
 Planquelle in 9.2 geloest.
 
-Naechster Schritt 9.3 API Aufruf (SDK dynamisch importieren, Streaming,
-`fallbacks: "default"`, Fehler als Status, SDK in Tests gemockt), danach 9.4
-Oberflaeche (Key Eingabe, Ausschluesse, Wunsch, Vorschau, Uebernahme ueber
-`adoptPlan`, Export, CSP im Build), Live Lauf durch den Nutzer.
+Phase 9.3 erledigt (Stand 25.10.2026, 304 Tests, `npm run check` und Build
+sauber, nicht committet). Neu:
+* `src/generator/request.ts`: `requestProposal(request, { signal, onTokens })`
+  laedt das SDK per `import()`, streamt ueber `client.beta.messages.stream`
+  mit `fallbacks: "default"`, adaptivem Thinking, Effort und Schema, holt
+  `finalMessage()` und gibt `parseProposal`, `checkProposal` und Kosten weiter.
+  Ergebnis ist immer ein `ProposalStatus`: `checked` (mit `check.passed`),
+  `invalid`, `refused` (Kategorie), `max-tokens`, `stopped`, `api-error`
+  (Code, Typ), `connection`, `timeout`, `aborted`, `sdk-load`, `unknown`.
+  `statusLine(status)` liefert die Zahlenzeile fuer 9.4. `model` und
+  `fallback` nennen, wer geantwortet hat, das gehoert in `ActivePlan.model`
+* Nach einem Fallback zaehlt nur der Text nach dem letzten `fallback` Block,
+  die Teilausgabe des abgelehnten Modells wird verworfen
+* `src/generator/cost.ts`: `totalRunCost` rechnet jeden Versuch aus
+  `usage.iterations` zum Preis seines Modells. `TOKEN_PRICES` kennt jetzt
+  auch `claude-opus-5` und `claude-opus-4-8` als Fallback Ziele
+* `src/config/generator.ts`: `GENERATOR_FALLBACK_BETA`,
+  `GENERATOR_MAX_TOKENS` 64000, `GENERATOR_TIMEOUT_MS` 10 min als Gesamtfrist
+  ueber alle Wiederholungen (Nutzerentscheidung, ebenso der Name `request.ts`)
+* `test/request.test.ts`: SDK per `vi.mock` ersetzt, echte Fehlerklassen
+
+Bundle (Probe Build mit kurz verdrahtetem Modul, danach zurueckgesetzt): SDK
+liegt in einem eigenen Chunk, 366 kB roh, 82,6 kB gzip, keine SDK Quelle im
+Haupt Bundle. Statisch importiert waechst der Haupt Bundle um 8,2 kB roh
+(3,3 kB gzip), alles eigener Code (request, prompt, schema). Fuer 9.4
+empfohlen: auch `request.ts` erst beim Knopfdruck per `import()` laden, dann
+waechst der Haupt Bundle um 1,7 kB roh, `request` ist ein eigener Chunk von
+7,7 kB.
+
+Naechster Schritt 9.4 Oberflaeche (Key Eingabe, Ausschluesse, Wunsch, Knopf
+mit Tokenzaehler und Abbrechen, Vorschau, Uebernahme ueber `adoptPlan`,
+Export, CSP im Build), Live Lauf durch den Nutzer.
 
 Vor dem Live Lauf beim Nutzer: eigenen Anthropic Workspace mit Ausgabelimit
 anlegen und Key erzeugen.
