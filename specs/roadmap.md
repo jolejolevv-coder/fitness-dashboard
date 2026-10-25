@@ -19,8 +19,9 @@ Stand der Qualitaet: 88 Tests, Lint, Typpruefung und Build sauber. Geprueft bei 
 * Redesign, Polish, Oberflaeche nach Systemvorbild: abgeschlossen
 * Phase 6 Umstellung und Abschluss (README, ADR, Actions, Merge, Live Pruefung): abgeschlossen
 * Phase 7 Blockuebergreifende Trainingshistorie: nicht gestartet
-* Phase 8 Ernaehrung und Einkauf (Reiter Plan und Einkauf, Wuerzen und Soßen, Preis Pipeline): 8.0 Recherche erledigt 25.10.2026: Selektoren in `specs/features/muskelmarkt-parser.md`, ADR 0003 Dauerpreise angenommen 25.10.2026 (Normalpreis aus Muskelmarkt sammeln plus handgepflegte Startwerte). abgeschlossen und live seit 25.10.2026 (228 Tests), erster Preislauf erfolgreich, Cron aktiv. Spec `specs/features/nutrition-shopping.md`, Quelle `docs/HANDOFF.md`, ADR 0002 angenommen
+* Phase 8 Ernaehrung und Einkauf: abgeschlossen und live seit 25.10.2026 (228 Tests), Cron aktiv. Spec `specs/features/nutrition-shopping.md`, ADR 0002 und 0003 angenommen, Selektoren in `specs/features/muskelmarkt-parser.md`
 * Phase 9 Plangenerator ueber die Anthropic API: Spec `specs/features/plan-generator.md` freigegeben 25.10.2026. 9.0 bis 9.3 erledigt 25.10.2026 (ADR 0004, reine Funktionen, Planquelle, API Aufruf). 9.4 Oberflaeche, Export und CSP umgesetzt, gemergt und live 25.10.2026, 326 Tests. Offen beim Nutzer: erster Live Lauf mit eigenem Key, Netzwerkpruefung, dann Retro. Bundle Grenze 5 kB gilt gzip gegen `main` (eingehalten, +3,7 kB)
+* Phase 10 Daily Import (Health, Shortcut, Apps Script fuellt leere Zellen in `Daily Tracking`): Spec `specs/features/daily-import.md` und ADR 0005 freigegeben 25.10.2026. 10.0 erledigt, 10.1 Kernlogik auf Branch `claude/daily-import-36c9f1`, nicht gemergt. Naechster Schritt 10.2 `doPost`
 * Phase 11 Kochansicht: Spec `specs/features/recipes.md` freigegeben 26.10.2026. Abgeschlossen und live seit 26.10.2026 (353 Tests, Chunk `cook` 4,1 kB gzip, Haupt Bundle +0,25 kB). Handytest in echter Prep Session bestanden: Ton, Vibration, Wake Lock, `data/recipes.json` ohne Korrektur (OptiGrill 210 °C, 800 W, Chili mit einem Halt). Nicht umgesetzt: Stueckangaben neben Gramm
 
 ## Naechste Schritte

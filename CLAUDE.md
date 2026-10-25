@@ -6,6 +6,8 @@ sie abweichen.
 ## Was das ist
 
 Auswertungsschicht ueber einem Google Sheet, lesend, kein Backend, eine Person.
+Daneben, als eigener Baustein, der Daily Import (iOS Shortcut plus Apps Script
+unter `apps-script/`), siehe `specs/features/daily-import.md` und ADR 0005.
 Zweck und Nichtziele stehen in `specs/mission.md`. Vor jeder Arbeit lesen:
 `specs/roadmap.md` und `specs/sheet-structure.md`.
 docs/historie.md ist das Archiv der alten Roadmap und wird nur bei Bedarf gelesen.
@@ -19,7 +21,11 @@ erlaubt.
 
 ## Harte Regeln
 
-* Kein Schreibzugriff auf das Google Sheet, unter keinen Umstaenden
+* Kein Schreibzugriff des Dashboards auf das Google Sheet, unter keinen
+  Umstaenden. Einziger Schreibweg ist der Daily Import nach ADR 0005: er fuellt
+  nur leere Zellen vorhandener Datumszeilen, haengt nichts an, ueberschreibt nichts
+* Token und Endpunkt URL des Daily Import stehen in keiner Datei im Repo, nur in
+  den Script Properties und im Shortcut
 * Keine Zielwerte, Schwellen oder Konstanten als Literal im Berechnungscode.
   Zielwerte kommen aus dem Sheet, siehe `specs/features/goals.md`
 * Spalten werden ueber Kopfzeilen zugeordnet, nie ueber feste Indizes. Eine

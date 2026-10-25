@@ -61,6 +61,18 @@ Umgesetzt, gemergt und live seit 25.10.2026. Details, Bundle Zahlen und die
 Schritte fuer den Live Lauf stehen in `docs/uebergabe-archiv-2026-10-26.md`.
 Offen beim Nutzer: Netzwerkpruefung des Live Laufs, danach Retro Phase 9.
 
+## Phase 10 Daily Import
+
+Spec `specs/features/daily-import.md` und ADR 0005 freigegeben 25.10.2026.
+10.0 erledigt: Mission und `CLAUDE.md` nennen den Daily Import als eigenen
+Schreibweg, die Leseregel gilt dem Dashboard. Script wird unter `apps-script/`
+versioniert. Naechster Schritt 10.1: reine Kernfunktionen `findDateRow`,
+`mapHeaders`, `planWrites`, `validateRequest` in
+`apps-script/daily-import-core.js`, Tests per Vitest und `node:vm`, synthetische
+Tabellen unter `test/fixtures/daily-import/`. Vorher Open question 7 (Format von
+`Time` und `Sleep`) am Rohexport in `testdata/` klaeren, keine Werte daraus
+committen. Offen beim Nutzer: Open questions 3 bis 6, 8 und 9 der Spec.
+
 ## Pruefung des Handoffs
 
 Rechnung aus `foods.json` bestaetigt die Gerichte bis auf Rundung und alle sieben
