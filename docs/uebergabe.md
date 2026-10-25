@@ -30,13 +30,10 @@ Offen beim Nutzer:
 
 ## Phase 9 Plangenerator
 
-Spec `specs/features/plan-generator.md` am 25.10.2026 nachgeschaerft und
-freigegeben. Kein Produktcode bisher. Naechster Schritt in neuer Sitzung:
-Phase 9.0, ADR 0004 "Anthropic API direkt aus dem Browser" schreiben, Branch
-`plan-generator` von `main`, `@anthropic-ai/sdk` als Abhaengigkeit. Danach 9.1
-reine Funktionen (Schema mit `enum` der foodIds, Prompt, Tagespruefung,
-Kosten), 9.2 Planquelle statt Konstante `PLAN`, 9.3 API Aufruf, 9.4
-Oberflaeche, CSP, Live Lauf durch den Nutzer.
+Phase 9 laeuft im Worktree `/Users/jole/Downloads/fitness-dashboard-plan-generator`
+auf Branch `plan-generator` weiter (9.0 erledigt 25.10.2026). Sitzungen fuer
+Phase 9 dort oeffnen, der aktuelle Stand steht in der Uebergabe des Branches.
+Dieser Ordner bleibt auf `main`.
 
 Vor dem Live Lauf beim Nutzer: eigenen Anthropic Workspace mit Ausgabelimit
 anlegen und Key erzeugen.
