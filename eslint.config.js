@@ -14,7 +14,7 @@ export default tseslint.config(
   js.configs.recommended,
   ...tseslint.configs.recommended,
   {
-    files: ['src/**/*.ts', 'test/**/*.ts', 'vite.config.ts'],
+    files: ['src/**/*.ts', 'test/**/*.ts', 'scripts/**/*.ts', 'vite.config.ts'],
     languageOptions: {
       ecmaVersion: 2022,
       sourceType: 'module',
@@ -29,5 +29,10 @@ export default tseslint.config(
       '@typescript-eslint/no-non-null-assertion': 'off',
       '@typescript-eslint/no-explicit-any': 'warn',
     },
+  },
+  {
+    // Die Preis Skripte laufen in der Konsole, dort ist console.log die Ausgabe.
+    files: ['scripts/**/*.ts'],
+    rules: { 'no-console': 'off' },
   },
 );

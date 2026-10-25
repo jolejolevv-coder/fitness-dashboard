@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="de">
+<head><meta charset="utf-8"><title>Probe</title></head>
+<body>
+<!-- Von Hand gebaute Probe fuer test/prices.test.ts, erfundene Produkte. -->
+<section class="store-section" id="lidl">
+  <h2 class="store-title">Lidl</h2>
+  <div class="date-group">
+    <div class="date-group-header">Mo - Sa (26.10. - 31.10.)</div>
+    <div class="offer-grid">
+      <article class="offer-card" data-id="1001" data-store="Lidl" data-name="Hähnchenbrustfilet 600g" data-price="5.99" data-normal-price="7.49" data-offer-start="2026-10-26T00:00:00" data-offer-end="2026-10-31T23:59:59">
+        <div class="offer-store"><span>Lidl</span></div>
+        <div class="title-text">Hähnchenbrustfilet 600g</div>
+        <div class="price-container"><span class="original-price">7,49 €</span><span class="current-price">5,99</span></div>
+        <div class="unit-price">9,98 €/kg</div>
+      </article>
+      <article class="offer-card" data-id="1002" data-store="Lidl" data-name="Skyr Natur 12x 150g" data-price="9.60" data-normal-price="" data-offer-start="2026-10-26T00:00:00" data-offer-end="2026-10-31T23:59:59">
+        <div class="price-container"><span class="current-price">9,60</span></div>
+      </article>
+      <article class="offer-card" data-id="1003" data-store="Lidl" data-name="Rinderhack 5% Fett 450/500g" data-price="4.99" data-normal-price="" data-offer-start="2026-10-26T00:00:00" data-offer-end="2026-10-31T23:59:59">
+        <div class="price-container"><span class="current-price">4,99</span></div>
+        <div class="membership-info"><span class="membership-icon-span lidl-plus">Lidl Plus</span></div>
+      </article>
+      <article class="offer-card" data-id="1004" data-store="Lidl" data-name="Rinderhack frisch 500g" data-price="4.49" data-normal-price="" data-offer-start="2026-10-26T00:00:00" data-offer-end="2026-10-31T23:59:59">
+        <div class="price-container"><span class="current-price">4,49</span></div>
+      </article>
+      <article class="offer-card" data-action-id="campaign-1" data-store="Lidl">
+        <div class="title-text">10% Rabatt auf alle Probeartikel</div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="store-section" id="aldi-s-d">
+  <h2 class="store-title">Aldi Süd</h2>
+  <div class="date-group">
+    <div class="date-group-header">Do - Sa (29.10. - 31.10.)</div>
+    <div class="offer-grid">
+      <article class="offer-card" data-id="2001" data-store="Aldi Süd" data-name="Bio Eier aus Freilandhaltung 10 Eier" data-price="3.19" data-normal-price="" data-offer-start="2026-10-29T00:00:00" data-offer-end="2026-10-31T23:59:59">
+        <div class="price-container"><span class="current-price">3,19</span></div>
+      </article>
+      <article class="offer-card" data-id="2002" data-store="Aldi Süd" data-name="Haferflocken zart 1 kg" data-price="1.29" data-normal-price="1.49" data-offer-start="2026-10-29T00:00:00" data-offer-end="2026-10-31T23:59:59">
+        <div class="price-container"><span class="original-price">1,49 €</span><span class="current-price">1,29</span></div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="store-section" id="edeka">
+  <h2 class="store-title">Edeka</h2>
+  <div class="date-group">
+    <div class="date-group-header">Mo - Sa (26.10. - 31.10.)</div>
+    <div class="offer-grid">
+      <article class="offer-card" data-id="3001" data-store="Edeka" data-name="Erdnussbutter &quot;Crunchy&quot; 350g" data-price="2.49" data-normal-price="3.29" data-offer-start="2026-10-26T00:00:00" data-offer-end="2026-10-31T23:59:59">
+        <div class="price-container"><span class="original-price">3,29 €</span><span class="current-price">2,49</span></div>
+        <div class="membership-info"><span class="membership-icon-span">Mit der App</span></div>
+      </article>
+      <article class="offer-card" data-id="3002" data-store="Edeka" data-name="Frische Avocado &quot;Probe&quot;" data-price="0.99" data-normal-price="" data-offer-start="2026-10-26T00:00:00" data-offer-end="2026-10-31T23:59:59">
+        <div class="price-container"><span class="current-price">0,99</span></div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="store-section" id="penny">
+  <h2 class="store-title">Penny</h2>
+  <div class="date-group">
+    <div class="date-group-header">Mo - Sa (26.10. - 31.10.)</div>
+    <div class="offer-grid">
+      <article class="offer-card" data-id="4001" data-store="Penny" data-name="Hähnchenbrustfilet 500g" data-price="4.99" data-normal-price="" data-offer-start="2026-10-26T00:00:00" data-offer-end="2026-10-31T23:59:59">
+        <div class="price-container"><span class="current-price">4,99</span></div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<script>
+  const template = `<article class="offer-card" data-id="x" data-store="${storeName}" data-name="${name}" data-price="${price}"></article>`;
+  modal.innerHTML = '<article class="offer-card" data-store="Lidl" data-name="Kopie 1kg" data-price="1.00"></article>';
+</script>
+</body>
+</html>

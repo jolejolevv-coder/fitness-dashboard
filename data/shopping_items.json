@@ -1,0 +1,844 @@
+[
+  {
+    "foodId": "chicken_breast",
+    "category": "meat_fish",
+    "unit": "g",
+    "packSizesG": [
+      600
+    ],
+    "pantry": false,
+    "stock": false,
+    "match": {
+      "include": [
+        "Hähnchenbrust",
+        "Hähnchen-Brustfilet",
+        "Hühnerbrust",
+        "Ministeaks"
+      ],
+      "exclude": [
+        "mariniert",
+        "Unterkeule",
+        "Schenkel",
+        "Keule",
+        "Flügel",
+        "Gyros",
+        "paniert"
+      ]
+    }
+  },
+  {
+    "foodId": "turkey_breast",
+    "category": "meat_fish",
+    "unit": "g",
+    "packSizesG": [
+      600
+    ],
+    "pantry": false,
+    "stock": false,
+    "match": {
+      "include": [
+        "Putenbrust",
+        "Putenbrustfilet",
+        "Putenschnitzel"
+      ],
+      "exclude": [
+        "Aufschnitt",
+        "Wurst",
+        "Schinken",
+        "Salami",
+        "mariniert",
+        "geräuchert",
+        "gegart"
+      ]
+    }
+  },
+  {
+    "foodId": "beef_mince_5",
+    "category": "meat_fish",
+    "unit": "g",
+    "packSizesG": [
+      400
+    ],
+    "pantry": false,
+    "stock": false,
+    "match": {
+      "include": [
+        "Tatar",
+        "Beefsteakhack",
+        "Rinderhack 5 %",
+        "Rinderhack 5%",
+        "Rinderhack 5%",
+        "Hackfleisch 5 %"
+      ],
+      "exclude": [
+        "15 %",
+        "15%",
+        "20 %",
+        "20%",
+        "gemischt",
+        "Schwein",
+        "Halb"
+      ]
+    }
+  },
+  {
+    "foodId": "salmon_frozen",
+    "category": "meat_fish",
+    "unit": "g",
+    "packSizesG": [
+      150
+    ],
+    "pantry": false,
+    "stock": false,
+    "match": {
+      "include": [
+        "Lachsfilet",
+        "Lachs Filet"
+      ],
+      "exclude": [
+        "geräuchert",
+        "Räucherlachs",
+        "Graved",
+        "Sushi",
+        "mariniert"
+      ]
+    }
+  },
+  {
+    "foodId": "tuna_natural",
+    "category": "meat_fish",
+    "unit": "g",
+    "packSizesG": [
+      110
+    ],
+    "pantry": false,
+    "stock": false,
+    "match": {
+      "include": [
+        "Thunfisch naturell",
+        "Thunfisch im eigenen Saft",
+        "Thunfisch Filets naturell"
+      ],
+      "exclude": [
+        "Öl",
+        "Salat",
+        "Sauce",
+        "Soße"
+      ]
+    }
+  },
+  {
+    "foodId": "turkey_coldcut",
+    "category": "chilled",
+    "unit": "g",
+    "packSizesG": [
+      120
+    ],
+    "pantry": false,
+    "stock": false,
+    "match": {
+      "include": [
+        "Putenbrust Aufschnitt",
+        "Putenbrust-Aufschnitt",
+        "Putenbrustaufschnitt",
+        "Putenbrust in Scheiben"
+      ],
+      "exclude": [
+        "Salami",
+        "Leberkäse",
+        "Wurst"
+      ]
+    }
+  },
+  {
+    "foodId": "skyr",
+    "category": "chilled",
+    "unit": "g",
+    "packSizesG": [
+      500
+    ],
+    "pantry": false,
+    "stock": false,
+    "match": {
+      "include": [
+        "Skyr"
+      ],
+      "exclude": [
+        "Frucht",
+        "Vanille",
+        "Drink",
+        "Erdbeere",
+        "Heidelbeere",
+        "Mango",
+        "Kirsche"
+      ]
+    }
+  },
+  {
+    "foodId": "cottage_cheese",
+    "category": "chilled",
+    "unit": "g",
+    "packSizesG": [
+      400
+    ],
+    "pantry": false,
+    "stock": false,
+    "match": {
+      "include": [
+        "Körniger Frischkäse",
+        "Cottage Cheese"
+      ],
+      "exclude": [
+        "Kräuter",
+        "Ananas"
+      ]
+    }
+  },
+  {
+    "foodId": "eatlean_cheese",
+    "category": "chilled",
+    "unit": "g",
+    "packSizesG": [
+      120
+    ],
+    "pantry": false,
+    "stock": false,
+    "match": {
+      "include": [
+        "Eat Lean",
+        "Protein Cheese"
+      ],
+      "exclude": []
+    }
+  },
+  {
+    "foodId": "egg_m",
+    "category": "chilled",
+    "unit": "piece",
+    "gramsPerPiece": 50,
+    "packSizesG": [],
+    "pantry": false,
+    "stock": false,
+    "match": {
+      "include": [
+        "Eier",
+        "Freilandeier",
+        "Bodenhaltung"
+      ],
+      "exclude": [
+        "Oster",
+        "Wachtel",
+        "Eierlikör",
+        "Eiernudeln",
+        "Eiersalat",
+        "Schoko"
+      ]
+    }
+  },
+  {
+    "foodId": "milk_15",
+    "category": "chilled",
+    "unit": "g",
+    "packSizesG": [
+      1000
+    ],
+    "pantry": false,
+    "stock": false,
+    "match": {
+      "include": [
+        "Milch 1,5",
+        "H-Milch 1,5",
+        "Frische Milch 1,5"
+      ],
+      "exclude": [
+        "Laktosefrei",
+        "Hafer",
+        "Soja",
+        "Mandel"
+      ]
+    }
+  },
+  {
+    "foodId": "wholegrain_bread",
+    "category": "dry",
+    "unit": "g",
+    "packSizesG": [
+      500
+    ],
+    "pantry": false,
+    "stock": false,
+    "match": {
+      "include": [
+        "Vollkornbrot"
+      ],
+      "exclude": [
+        "Toast",
+        "Sandwich",
+        "Knäcke"
+      ]
+    }
+  },
+  {
+    "foodId": "wholegrain_wrap",
+    "category": "dry",
+    "unit": "piece",
+    "gramsPerPiece": 62,
+    "packSizesG": [],
+    "pantry": false,
+    "stock": false,
+    "match": {
+      "include": [
+        "Vollkorn Wrap",
+        "Vollkorn-Wrap",
+        "Vollkorn Tortilla",
+        "Wraps Vollkorn"
+      ],
+      "exclude": []
+    }
+  },
+  {
+    "foodId": "bell_pepper",
+    "category": "produce",
+    "unit": "piece",
+    "gramsPerPiece": 190,
+    "packSizesG": [],
+    "pantry": false,
+    "stock": false,
+    "match": {
+      "include": [
+        "Paprika"
+      ],
+      "exclude": [
+        "Paprikapulver",
+        "Chips",
+        "Aufstrich",
+        "gefüllt",
+        "Gewürz"
+      ]
+    }
+  },
+  {
+    "foodId": "zucchini",
+    "category": "produce",
+    "unit": "piece",
+    "gramsPerPiece": 260,
+    "packSizesG": [],
+    "pantry": false,
+    "stock": false,
+    "match": {
+      "include": [
+        "Zucchini"
+      ],
+      "exclude": [
+        "Aufstrich",
+        "Nudeln",
+        "Pfanne"
+      ]
+    }
+  },
+  {
+    "foodId": "avocado",
+    "category": "produce",
+    "unit": "piece",
+    "gramsPerPiece": 100,
+    "packSizesG": [],
+    "pantry": false,
+    "stock": false,
+    "match": {
+      "include": [
+        "Avocado"
+      ],
+      "exclude": [
+        "Creme",
+        "Aufstrich",
+        "Dip",
+        "Öl"
+      ]
+    }
+  },
+  {
+    "foodId": "apple",
+    "category": "produce",
+    "unit": "piece",
+    "gramsPerPiece": 120,
+    "packSizesG": [],
+    "pantry": false,
+    "stock": false,
+    "match": {
+      "include": [
+        "Äpfel",
+        "Apfel"
+      ],
+      "exclude": [
+        "Apfelmus",
+        "Apfelsaft",
+        "Apfelschorle",
+        "Chips"
+      ]
+    }
+  },
+  {
+    "foodId": "broccoli",
+    "category": "produce",
+    "unit": "g",
+    "packSizesG": [
+      450
+    ],
+    "pantry": false,
+    "stock": false,
+    "match": {
+      "include": [
+        "Brokkoli",
+        "Broccoli"
+      ],
+      "exclude": [
+        "Röschen TK",
+        "Suppe"
+      ]
+    }
+  },
+  {
+    "foodId": "potato",
+    "category": "produce",
+    "unit": "g",
+    "packSizesG": [
+      2000
+    ],
+    "pantry": false,
+    "stock": false,
+    "match": {
+      "include": [
+        "Kartoffeln"
+      ],
+      "exclude": [
+        "Süßkartoffel",
+        "Chips",
+        "Pommes",
+        "Kroketten",
+        "Püree",
+        "Salat",
+        "Klöße"
+      ]
+    }
+  },
+  {
+    "foodId": "berries_frozen",
+    "category": "frozen",
+    "unit": "g",
+    "packSizesG": [
+      750
+    ],
+    "pantry": false,
+    "stock": false,
+    "match": {
+      "include": [
+        "Beerenmix",
+        "Waldfrüchte",
+        "Beeren Mix"
+      ],
+      "exclude": [
+        "Eis",
+        "Joghurt"
+      ]
+    }
+  },
+  {
+    "foodId": "spinach_frozen",
+    "category": "frozen",
+    "unit": "g",
+    "packSizesG": [
+      450
+    ],
+    "pantry": true,
+    "stock": false,
+    "match": {
+      "include": [
+        "Blattspinat"
+      ],
+      "exclude": [
+        "Rahm",
+        "Creme"
+      ]
+    }
+  },
+  {
+    "foodId": "oats",
+    "category": "dry",
+    "unit": "g",
+    "packSizesG": [
+      1000
+    ],
+    "pantry": true,
+    "stock": false,
+    "match": {
+      "include": [
+        "Haferflocken"
+      ],
+      "exclude": [
+        "Müsli",
+        "Riegel",
+        "Drink"
+      ]
+    }
+  },
+  {
+    "foodId": "basmati",
+    "category": "dry",
+    "unit": "g",
+    "packSizesG": [
+      1000
+    ],
+    "pantry": true,
+    "stock": false,
+    "match": {
+      "include": [
+        "Basmati"
+      ],
+      "exclude": [
+        "Kochbeutel",
+        "Fertig"
+      ]
+    }
+  },
+  {
+    "foodId": "olive_oil",
+    "category": "dry",
+    "unit": "g",
+    "packSizesG": [
+      500
+    ],
+    "pantry": true,
+    "stock": false,
+    "match": {
+      "include": [
+        "Olivenöl"
+      ],
+      "exclude": [
+        "Spray",
+        "Oliven in"
+      ]
+    }
+  },
+  {
+    "foodId": "kidney_beans",
+    "category": "dry",
+    "unit": "g",
+    "packSizesG": [
+      213
+    ],
+    "pantry": false,
+    "stock": false,
+    "match": {
+      "include": [
+        "Kidneybohnen",
+        "Kidney Bohnen"
+      ],
+      "exclude": [
+        "Chili",
+        "Mix"
+      ]
+    }
+  },
+  {
+    "foodId": "passata",
+    "category": "dry",
+    "unit": "g",
+    "packSizesG": [
+      700
+    ],
+    "pantry": false,
+    "stock": false,
+    "match": {
+      "include": [
+        "Passata",
+        "Passierte Tomaten",
+        "Tomaten passiert"
+      ],
+      "exclude": [
+        "Kräuter"
+      ]
+    }
+  },
+  {
+    "foodId": "whey_vanilla",
+    "category": "dry",
+    "unit": "g",
+    "packSizesG": [],
+    "pantry": false,
+    "stock": true,
+    "match": {
+      "include": [],
+      "exclude": []
+    }
+  },
+  {
+    "foodId": "peanut_butter",
+    "category": "dry",
+    "unit": "g",
+    "packSizesG": [],
+    "pantry": false,
+    "stock": true,
+    "match": {
+      "include": [],
+      "exclude": []
+    }
+  },
+  {
+    "foodId": "protein_bar",
+    "category": "dry",
+    "unit": "g",
+    "packSizesG": [],
+    "pantry": false,
+    "stock": true,
+    "match": {
+      "include": [],
+      "exclude": []
+    }
+  },
+  {
+    "foodId": "mustard",
+    "category": "spices_sauces",
+    "unit": "g",
+    "packSizesG": [
+      200
+    ],
+    "pantry": true,
+    "stock": false,
+    "match": {
+      "include": [],
+      "exclude": []
+    }
+  },
+  {
+    "foodId": "soy_sauce",
+    "category": "spices_sauces",
+    "unit": "g",
+    "packSizesG": [
+      150
+    ],
+    "pantry": true,
+    "stock": false,
+    "match": {
+      "include": [],
+      "exclude": []
+    }
+  },
+  {
+    "foodId": "sriracha",
+    "category": "spices_sauces",
+    "unit": "g",
+    "packSizesG": [
+      435
+    ],
+    "pantry": true,
+    "stock": false,
+    "match": {
+      "include": [],
+      "exclude": []
+    }
+  },
+  {
+    "foodId": "cinnamon",
+    "category": "spices_sauces",
+    "unit": "g",
+    "packSizesG": [],
+    "pantry": true,
+    "stock": false,
+    "match": {
+      "include": [],
+      "exclude": []
+    }
+  },
+  {
+    "foodId": "stevia",
+    "category": "spices_sauces",
+    "unit": "g",
+    "packSizesG": [],
+    "pantry": true,
+    "stock": false,
+    "match": {
+      "include": [],
+      "exclude": []
+    }
+  },
+  {
+    "foodId": "salt",
+    "category": "spices_sauces",
+    "unit": "g",
+    "packSizesG": [],
+    "pantry": true,
+    "stock": false,
+    "match": {
+      "include": [],
+      "exclude": []
+    }
+  },
+  {
+    "foodId": "pepper",
+    "category": "spices_sauces",
+    "unit": "g",
+    "packSizesG": [],
+    "pantry": true,
+    "stock": false,
+    "match": {
+      "include": [],
+      "exclude": []
+    }
+  },
+  {
+    "foodId": "paprika_sweet",
+    "category": "spices_sauces",
+    "unit": "g",
+    "packSizesG": [],
+    "pantry": true,
+    "stock": false,
+    "match": {
+      "include": [],
+      "exclude": []
+    }
+  },
+  {
+    "foodId": "paprika_smoked",
+    "category": "spices_sauces",
+    "unit": "g",
+    "packSizesG": [],
+    "pantry": true,
+    "stock": false,
+    "match": {
+      "include": [],
+      "exclude": []
+    }
+  },
+  {
+    "foodId": "chives_frozen",
+    "category": "spices_sauces",
+    "unit": "g",
+    "packSizesG": [],
+    "pantry": true,
+    "stock": false,
+    "match": {
+      "include": [],
+      "exclude": []
+    }
+  },
+  {
+    "foodId": "chili_flakes",
+    "category": "spices_sauces",
+    "unit": "g",
+    "packSizesG": [],
+    "pantry": true,
+    "stock": false,
+    "match": {
+      "include": [],
+      "exclude": []
+    }
+  },
+  {
+    "foodId": "curry",
+    "category": "spices_sauces",
+    "unit": "g",
+    "packSizesG": [],
+    "pantry": true,
+    "stock": false,
+    "match": {
+      "include": [],
+      "exclude": []
+    }
+  },
+  {
+    "foodId": "turmeric",
+    "category": "spices_sauces",
+    "unit": "g",
+    "packSizesG": [],
+    "pantry": true,
+    "stock": false,
+    "match": {
+      "include": [],
+      "exclude": []
+    }
+  },
+  {
+    "foodId": "garlic_granulated",
+    "category": "spices_sauces",
+    "unit": "g",
+    "packSizesG": [],
+    "pantry": true,
+    "stock": false,
+    "match": {
+      "include": [],
+      "exclude": []
+    }
+  },
+  {
+    "foodId": "cumin",
+    "category": "spices_sauces",
+    "unit": "g",
+    "packSizesG": [],
+    "pantry": true,
+    "stock": false,
+    "match": {
+      "include": [],
+      "exclude": []
+    }
+  },
+  {
+    "foodId": "chili",
+    "category": "spices_sauces",
+    "unit": "g",
+    "packSizesG": [],
+    "pantry": true,
+    "stock": false,
+    "match": {
+      "include": [],
+      "exclude": []
+    }
+  },
+  {
+    "foodId": "herbs_frozen",
+    "category": "spices_sauces",
+    "unit": "g",
+    "packSizesG": [],
+    "pantry": true,
+    "stock": false,
+    "match": {
+      "include": [],
+      "exclude": []
+    }
+  },
+  {
+    "foodId": "lemon_juice",
+    "category": "spices_sauces",
+    "unit": "g",
+    "packSizesG": [],
+    "pantry": true,
+    "stock": false,
+    "match": {
+      "include": [],
+      "exclude": []
+    }
+  },
+  {
+    "foodId": "dill_frozen",
+    "category": "spices_sauces",
+    "unit": "g",
+    "packSizesG": [],
+    "pantry": true,
+    "stock": false,
+    "match": {
+      "include": [],
+      "exclude": []
+    }
+  },
+  {
+    "foodId": "rosemary",
+    "category": "spices_sauces",
+    "unit": "g",
+    "packSizesG": [],
+    "pantry": true,
+    "stock": false,
+    "match": {
+      "include": [],
+      "exclude": []
+    }
+  }
+]

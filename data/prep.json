@@ -1,0 +1,277 @@
+[
+  {
+    "id": "sunday",
+    "title": "Sonntag",
+    "steps": [
+      {
+        "title": "Reis kochen",
+        "device": "Mikrowelle",
+        "covers": [
+          {
+            "slot": "M2",
+            "days": [
+              "Mo",
+              "Di",
+              "Mi"
+            ],
+            "meals": [
+              "m2a"
+            ],
+            "foods": [
+              "basmati"
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Egg-Muffins backen",
+        "device": "Airfryer",
+        "covers": [
+          {
+            "slot": "M1",
+            "days": [
+              "Mo",
+              "Di",
+              "Mi",
+              "Do",
+              "Fr",
+              "Sa",
+              "So"
+            ],
+            "meals": [
+              "m1b"
+            ],
+            "foods": [
+              "egg_m",
+              "cottage_cheese",
+              "turkey_coldcut",
+              "spinach_frozen",
+              "bell_pepper",
+              "salt",
+              "pepper",
+              "paprika_sweet",
+              "chives_frozen"
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Hähnchen grillen",
+        "device": "OptiGrill",
+        "covers": [
+          {
+            "slot": "M2",
+            "days": [
+              "Mo",
+              "Di",
+              "Mi"
+            ],
+            "meals": [
+              "m2a"
+            ],
+            "foods": [
+              "chicken_breast",
+              "soy_sauce",
+              "curry",
+              "turmeric",
+              "garlic_granulated",
+              "salt"
+            ]
+          },
+          {
+            "slot": "M3",
+            "days": [
+              "Mo",
+              "Di",
+              "Mi"
+            ],
+            "meals": [
+              "m3a"
+            ],
+            "foods": [
+              "chicken_breast",
+              "garlic_granulated",
+              "herbs_frozen"
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Pute grillen",
+        "device": "OptiGrill",
+        "covers": [
+          {
+            "slot": "M4",
+            "days": [
+              "Mo",
+              "Di",
+              "Mi"
+            ],
+            "meals": [
+              "m4b"
+            ],
+            "foods": [
+              "turkey_breast",
+              "paprika_smoked",
+              "garlic_granulated",
+              "salt"
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Wedges backen",
+        "device": "Airfryer",
+        "covers": [
+          {
+            "slot": "M4",
+            "days": [
+              "Mo",
+              "Di",
+              "Mi"
+            ],
+            "meals": [
+              "m4b"
+            ],
+            "foods": [
+              "potato",
+              "olive_oil",
+              "zucchini",
+              "bell_pepper",
+              "rosemary"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "wednesday",
+    "title": "Mittwoch",
+    "steps": [
+      {
+        "title": "Chili kochen",
+        "device": "Mikrowelle",
+        "covers": [
+          {
+            "slot": "M2",
+            "days": [
+              "Do",
+              "Fr",
+              "Sa",
+              "So"
+            ],
+            "meals": [
+              "m2b"
+            ],
+            "foods": [
+              "beef_mince_5",
+              "passata",
+              "kidney_beans",
+              "bell_pepper",
+              "olive_oil",
+              "cumin",
+              "paprika_sweet",
+              "chili",
+              "garlic_granulated",
+              "salt"
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Reis kochen",
+        "device": "Mikrowelle",
+        "covers": [
+          {
+            "slot": "M2",
+            "days": [
+              "Do",
+              "Fr",
+              "Sa",
+              "So"
+            ],
+            "meals": [
+              "m2b"
+            ],
+            "foods": [
+              "basmati"
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Hähnchen grillen",
+        "device": "OptiGrill",
+        "covers": [
+          {
+            "slot": "M3",
+            "days": [
+              "Do",
+              "Fr",
+              "Sa",
+              "So"
+            ],
+            "meals": [
+              "m3a"
+            ],
+            "foods": [
+              "chicken_breast",
+              "garlic_granulated",
+              "herbs_frozen"
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Pute grillen",
+        "device": "OptiGrill",
+        "covers": [
+          {
+            "slot": "M4",
+            "days": [
+              "Do",
+              "Fr",
+              "Sa",
+              "So"
+            ],
+            "meals": [
+              "m4b"
+            ],
+            "foods": [
+              "turkey_breast",
+              "paprika_smoked",
+              "garlic_granulated",
+              "salt"
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Wedges backen",
+        "device": "Airfryer",
+        "covers": [
+          {
+            "slot": "M4",
+            "days": [
+              "Do",
+              "Fr",
+              "Sa",
+              "So"
+            ],
+            "meals": [
+              "m4b"
+            ],
+            "foods": [
+              "potato",
+              "olive_oil",
+              "zucchini",
+              "bell_pepper",
+              "rosemary"
+            ]
+          }
+        ]
+      }
+    ]
+  }
+]

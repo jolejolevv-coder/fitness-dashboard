@@ -1,0 +1,89 @@
+name: Prices
+
+# Holt die Wochenangebote von Lidl, Aldi Sued und Edeka (ADR 0002), sammelt
+# die Normalpreise als Dauerpreise (ADR 0003) und committet public/data/*.json
+# nur bei Aenderung. Genau ein Seitenabruf pro Lauf, davor die robots.txt Pruefung.
+# Faellt der Abruf oder das Parsen aus, scheitert der Job und die alten Dateien
+# bleiben unveraendert.
+#
+# Der Cron ist ab dem Merge auf main aktiv, geplante Laeufe nutzen immer den
+# Standardbranch.
+
+on:
+  schedule:
+    # Gewollt ist Sonntag 18:00 Europe/Berlin. Actions Cron kennt nur UTC, und
+    # 18:00 Berlin sind im Sommer 16:00 UTC und im Winter 17:00 UTC. Beide
+    # Zeitpunkte sind eingetragen, der Schritt "Uhrzeit pruefen" laesst nur den
+    # durchlaufen, bei dem es in Berlin tatsaechlich 18 Uhr ist.
+    - cron: '0 16 * * 0'
+    - cron: '0 17 * * 0'
+  workflow_dispatch:
+
+permissions:
+  # contents: Commit der Datendateien. actions: Anstoss des Deploys, siehe unten.
+  contents: write
+  actions: write
+
+# Ein Lauf gleichzeitig. Ein spaeter Lauf wartet, statt einen laufenden
+# Commit abzubrechen.
+concurrency:
+  group: prices
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Uhrzeit pruefen
+        id: gate
+        run: |
+          # Manuell gestartete Laeufe laufen immer. Geplante nur um 18 Uhr Berlin.
+          hour="$(TZ=Europe/Berlin date +%H)"
+          if [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ] || [ "$hour" = "18" ]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=false" >> "$GITHUB_OUTPUT"
+            echo "Berlin Stunde $hour, uebersprungen"
+          fi
+
+      - uses: actions/checkout@v4
+        if: steps.gate.outputs.run == 'true'
+
+      - uses: actions/setup-node@v4
+        if: steps.gate.outputs.run == 'true'
+        with:
+          # Node 24 fuehrt TypeScript ohne Build Schritt aus (Type Stripping).
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+        if: steps.gate.outputs.run == 'true'
+
+      - name: Preise holen
+        if: steps.gate.outputs.run == 'true'
+        run: node scripts/prices/run.ts
+
+      - name: Commit bei Aenderung
+        id: commit
+        if: steps.gate.outputs.run == 'true'
+        run: |
+          if [ -z "$(git status --porcelain -- public/data)" ]; then
+            echo "Keine Aenderung, kein Commit"
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add public/data
+          git commit -m "Preise aktualisiert $(TZ=Europe/Berlin date +%d.%m.%Y)"
+          git push
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+
+      # Commits mit dem GITHUB_TOKEN loesen keinen push Workflow aus, der Deploy
+      # liefe sonst nicht. Ausnahme der GitHub Regel ist workflow_dispatch, daher
+      # wird deploy.yml ausdruecklich gestartet. Dafuer braucht der Job actions: write.
+      - name: Deploy anstossen
+        if: steps.commit.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run deploy.yml --ref "$GITHUB_REF_NAME"

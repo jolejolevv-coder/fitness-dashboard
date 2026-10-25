@@ -1,0 +1,417 @@
+[
+  {
+    "id": "m1a",
+    "slot": "M1",
+    "name": "Protein-Porridge",
+    "ingredients": [
+      {
+        "foodId": "oats",
+        "grams": 80
+      },
+      {
+        "foodId": "whey_vanilla",
+        "grams": 35
+      },
+      {
+        "foodId": "berries_frozen",
+        "grams": 100
+      },
+      {
+        "foodId": "peanut_butter",
+        "grams": 15
+      },
+      {
+        "foodId": "cinnamon",
+        "grams": 0
+      },
+      {
+        "foodId": "stevia",
+        "grams": 0
+      }
+    ]
+  },
+  {
+    "id": "m1b",
+    "slot": "M1",
+    "name": "Egg-Muffins mit Brot",
+    "ingredients": [
+      {
+        "foodId": "egg_m",
+        "grams": 150
+      },
+      {
+        "foodId": "cottage_cheese",
+        "grams": 100
+      },
+      {
+        "foodId": "turkey_coldcut",
+        "grams": 50
+      },
+      {
+        "foodId": "spinach_frozen",
+        "grams": 80
+      },
+      {
+        "foodId": "bell_pepper",
+        "grams": 60
+      },
+      {
+        "foodId": "wholegrain_bread",
+        "grams": 80
+      },
+      {
+        "foodId": "salt",
+        "grams": 0
+      },
+      {
+        "foodId": "pepper",
+        "grams": 0
+      },
+      {
+        "foodId": "paprika_sweet",
+        "grams": 0
+      },
+      {
+        "foodId": "chives_frozen",
+        "grams": 0
+      }
+    ]
+  },
+  {
+    "id": "m1c",
+    "slot": "M1",
+    "name": "OptiGrill-Wrap",
+    "ingredients": [
+      {
+        "foodId": "wholegrain_wrap",
+        "grams": 62
+      },
+      {
+        "foodId": "egg_m",
+        "grams": 100
+      },
+      {
+        "foodId": "cottage_cheese",
+        "grams": 80
+      },
+      {
+        "foodId": "turkey_coldcut",
+        "grams": 80
+      },
+      {
+        "foodId": "bell_pepper",
+        "grams": 60
+      },
+      {
+        "foodId": "apple",
+        "grams": 120
+      },
+      {
+        "foodId": "mustard",
+        "grams": 5
+      },
+      {
+        "foodId": "salt",
+        "grams": 0
+      },
+      {
+        "foodId": "pepper",
+        "grams": 0
+      },
+      {
+        "foodId": "chili_flakes",
+        "grams": 0
+      }
+    ]
+  },
+  {
+    "id": "m2a",
+    "slot": "M2",
+    "name": "Hähnchen-Reis-Bowl",
+    "ingredients": [
+      {
+        "foodId": "chicken_breast",
+        "grams": 185
+      },
+      {
+        "foodId": "basmati",
+        "grams": 75
+      },
+      {
+        "foodId": "broccoli",
+        "grams": 300
+      },
+      {
+        "foodId": "olive_oil",
+        "grams": 13
+      },
+      {
+        "foodId": "skyr",
+        "grams": 50
+      },
+      {
+        "foodId": "soy_sauce",
+        "grams": 15
+      },
+      {
+        "foodId": "curry",
+        "grams": 0
+      },
+      {
+        "foodId": "turmeric",
+        "grams": 0
+      },
+      {
+        "foodId": "garlic_granulated",
+        "grams": 0
+      },
+      {
+        "foodId": "salt",
+        "grams": 0
+      }
+    ]
+  },
+  {
+    "id": "m2b",
+    "slot": "M2",
+    "name": "Chili con Carne",
+    "ingredients": [
+      {
+        "foodId": "beef_mince_5",
+        "grams": 210
+      },
+      {
+        "foodId": "kidney_beans",
+        "grams": 160
+      },
+      {
+        "foodId": "passata",
+        "grams": 300
+      },
+      {
+        "foodId": "bell_pepper",
+        "grams": 60
+      },
+      {
+        "foodId": "basmati",
+        "grams": 35
+      },
+      {
+        "foodId": "olive_oil",
+        "grams": 5
+      },
+      {
+        "foodId": "cumin",
+        "grams": 0
+      },
+      {
+        "foodId": "paprika_sweet",
+        "grams": 0
+      },
+      {
+        "foodId": "chili",
+        "grams": 0
+      },
+      {
+        "foodId": "garlic_granulated",
+        "grams": 0
+      },
+      {
+        "foodId": "salt",
+        "grams": 0
+      }
+    ]
+  },
+  {
+    "id": "m3a",
+    "slot": "M3",
+    "name": "Hähnchen-Wrap",
+    "ingredients": [
+      {
+        "foodId": "wholegrain_wrap",
+        "grams": 62
+      },
+      {
+        "foodId": "chicken_breast",
+        "grams": 120
+      },
+      {
+        "foodId": "eatlean_cheese",
+        "grams": 30
+      },
+      {
+        "foodId": "bell_pepper",
+        "grams": 80
+      },
+      {
+        "foodId": "skyr",
+        "grams": 30
+      },
+      {
+        "foodId": "olive_oil",
+        "grams": 5
+      },
+      {
+        "foodId": "sriracha",
+        "grams": 5
+      },
+      {
+        "foodId": "garlic_granulated",
+        "grams": 0
+      },
+      {
+        "foodId": "herbs_frozen",
+        "grams": 0
+      }
+    ]
+  },
+  {
+    "id": "m3b",
+    "slot": "M3",
+    "name": "Thunfisch-Brot",
+    "ingredients": [
+      {
+        "foodId": "wholegrain_bread",
+        "grams": 75
+      },
+      {
+        "foodId": "tuna_natural",
+        "grams": 110
+      },
+      {
+        "foodId": "skyr",
+        "grams": 45
+      },
+      {
+        "foodId": "bell_pepper",
+        "grams": 90
+      },
+      {
+        "foodId": "avocado",
+        "grams": 65
+      },
+      {
+        "foodId": "mustard",
+        "grams": 10
+      },
+      {
+        "foodId": "lemon_juice",
+        "grams": 0
+      },
+      {
+        "foodId": "pepper",
+        "grams": 0
+      },
+      {
+        "foodId": "chives_frozen",
+        "grams": 0
+      }
+    ]
+  },
+  {
+    "id": "m3r",
+    "slot": "M3",
+    "name": "Riegel-Option",
+    "ingredients": [
+      {
+        "foodId": "protein_bar",
+        "grams": 80
+      },
+      {
+        "foodId": "apple",
+        "grams": 120
+      }
+    ],
+    "addToSlot": {
+      "slot": "M2",
+      "foodId": "chicken_breast",
+      "grams": 50
+    }
+  },
+  {
+    "id": "m4a",
+    "slot": "M4",
+    "name": "Lachs mit Kartoffeln",
+    "ingredients": [
+      {
+        "foodId": "salmon_frozen",
+        "grams": 150
+      },
+      {
+        "foodId": "potato",
+        "grams": 280
+      },
+      {
+        "foodId": "zucchini",
+        "grams": 120
+      },
+      {
+        "foodId": "skyr",
+        "grams": 115
+      },
+      {
+        "foodId": "dill_frozen",
+        "grams": 0
+      },
+      {
+        "foodId": "lemon_juice",
+        "grams": 0
+      },
+      {
+        "foodId": "salt",
+        "grams": 0
+      },
+      {
+        "foodId": "pepper",
+        "grams": 0
+      }
+    ]
+  },
+  {
+    "id": "m4b",
+    "slot": "M4",
+    "name": "Pute mit Wedges",
+    "ingredients": [
+      {
+        "foodId": "turkey_breast",
+        "grams": 140
+      },
+      {
+        "foodId": "potato",
+        "grams": 255
+      },
+      {
+        "foodId": "zucchini",
+        "grams": 240
+      },
+      {
+        "foodId": "bell_pepper",
+        "grams": 160
+      },
+      {
+        "foodId": "olive_oil",
+        "grams": 15
+      },
+      {
+        "foodId": "skyr",
+        "grams": 60
+      },
+      {
+        "foodId": "paprika_smoked",
+        "grams": 0
+      },
+      {
+        "foodId": "rosemary",
+        "grams": 0
+      },
+      {
+        "foodId": "garlic_granulated",
+        "grams": 0
+      },
+      {
+        "foodId": "salt",
+        "grams": 0
+      }
+    ]
+  }
+]
