@@ -11,6 +11,8 @@ import { countTabOpened } from '../config/usage';
 
 export type TabHandler = (name: string) => void;
 
+let showHandler: TabHandler = () => undefined;
+
 function tabButtons(): HTMLButtonElement[] {
   return [...document.querySelectorAll<HTMLButtonElement>('.tab')];
 }
@@ -29,6 +31,9 @@ function activate(button: HTMLButtonElement, onShow: TabHandler, focus: boolean)
     section.classList.toggle('active', section.id === name);
   }
 
+  // Stylesheets blenden damit Bloecke aus, die nur zu den Sheet Reitern gehoeren.
+  document.body.dataset['tab'] = name;
+
   if (focus) button.focus();
   countTabOpened(name);
   onShow(name);
@@ -39,24 +44,35 @@ export function activeTab(): string {
   return active?.dataset['tab'] ?? '';
 }
 
+/** Wechselt den Reiter im Code, mit denselben Folgen wie ein Klick. */
+export function selectTab(name: string): void {
+  const button = tabButtons().find((b) => b.dataset['tab'] === name);
+  if (button) activate(button, showHandler, false);
+}
+
 export function setupTabs(onShow: TabHandler): void {
   const buttons = tabButtons();
+  showHandler = onShow;
+  document.body.dataset['tab'] = activeTab();
 
-  buttons.forEach((button, index) => {
+  buttons.forEach((button) => {
     button.tabIndex = button.getAttribute('aria-selected') === 'true' ? 0 : -1;
     button.addEventListener('click', () => activate(button, onShow, false));
 
     button.addEventListener('keydown', (event) => {
+      // Ohne Sheet sind die Sheet Reiter ausgeblendet und nicht anspringbar.
+      const visible = buttons.filter((b) => b.offsetParent !== null);
+      const index = visible.indexOf(button);
       const keys: Record<string, number> = {
         ArrowRight: index + 1,
         ArrowLeft: index - 1,
         Home: 0,
-        End: buttons.length - 1,
+        End: visible.length - 1,
       };
       const target = keys[event.key];
-      if (target === undefined) return;
+      if (target === undefined || index < 0) return;
       event.preventDefault();
-      const next = buttons[(target + buttons.length) % buttons.length];
+      const next = visible[(target + visible.length) % visible.length];
       if (next) activate(next, onShow, true);
     });
   });

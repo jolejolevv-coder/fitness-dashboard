@@ -25,7 +25,10 @@ import { renderCoach } from './ui/coach';
 import { renderMetrics } from './ui/metrics';
 import type { WeightMode } from './charts/weight';
 import { filterTrainingDay, renderProgression, renderTraining } from './ui/training';
-import { activeTab, setupRangeButtons, setupTabs } from './ui/tabs';
+import { activeTab, selectTab, setupRangeButtons, setupTabs } from './ui/tabs';
+import { renderPlan } from './ui/plan';
+import { renderShopping } from './ui/shopping';
+import { sheetDayGoals } from './nutrition/goals';
 import { attachChartExports, downloadCsv } from './ui/export';
 import { resizeVisibleCharts } from './charts/base';
 
@@ -44,7 +47,12 @@ const AGE_TICK_MS = 60 * 1000;
 
 const MS_PER_DAY = 864e5;
 
-const SECTION_NAMES = ['overview', 'nutrition', 'wellness', 'weeks', 'training', 'analysis'] as const;
+const SECTION_NAMES = ['overview', 'nutrition', 'wellness', 'weeks', 'training', 'analysis', 'plan', 'shopping'] as const;
+
+/** Reiter, die ohne Sheet Verbindung funktionieren, weil ihre Daten im Bundle liegen. */
+const STANDALONE_TABS: readonly string[] = ['plan', 'shopping'];
+const OFFLINE_START_TAB = 'plan';
+const ONLINE_START_TAB = 'overview';
 
 let allDaily: DailyEntry[] = [];
 let allWeekBlocks: WeekBlock[] = [];
@@ -59,7 +67,10 @@ let dataTimestamp: number | null = null;
 let dataFromCache = false;
 let statusSuffix = '';
 
-const dirty = new Set<string>();
+const dirty = new Set<string>(['plan', 'shopping']);
+
+/** True, solange Plan wegen fehlendem Sheet automatisch gewaehlt wurde und nicht vom Nutzer. */
+let planChosenByFallback = false;
 
 function input(id: string): HTMLInputElement | null {
   return byId<HTMLInputElement>(id);
@@ -112,6 +123,26 @@ function handleSaveConfig(): void {
 
 // ── Status ───────────────────────────────────────────────────────────────────
 
+/**
+ * Ohne Sheet Daten (keine Zugangsdaten, Abruf gescheitert, kein Cache) bleiben
+ * Plan und Einkauf nutzbar, die anderen Reiter und ihre Kopfbloecke sind
+ * ausgeblendet. Sobald Daten da sind, kehrt alles zum bisherigen Verhalten zurueck.
+ */
+function enterStandaloneMode(): void {
+  document.body.classList.add('no-sheet');
+  show('dashboard', true);
+  if (!STANDALONE_TABS.includes(activeTab())) {
+    selectTab(OFFLINE_START_TAB);
+    planChosenByFallback = true;
+  }
+}
+
+function leaveStandaloneMode(): void {
+  document.body.classList.remove('no-sheet');
+  if (planChosenByFallback && activeTab() === OFFLINE_START_TAB) selectTab(ONLINE_START_TAB);
+  planChosenByFallback = false;
+}
+
 function showError(message: string): void {
   const status = byId('status');
   if (status) {
@@ -128,7 +159,7 @@ function showError(message: string): void {
     status.replaceChildren(paragraph, button);
     status.style.display = 'block';
   }
-  show('dashboard', false);
+  enterStandaloneMode();
 }
 
 function showSpinner(text: string): void {
@@ -193,6 +224,8 @@ function markAllDirty(): void {
 function rendererFor(name: string): (() => void) | undefined {
   if (name === 'training') return () => renderTraining(training);
   if (name === 'analysis') return renderAnalysisTab;
+  if (name === 'plan') return () => renderPlan(sheetDayGoals(goals));
+  if (name === 'shopping') return renderShopping;
   return sections?.[name];
 }
 
@@ -280,6 +313,7 @@ function applyParsed(raw: SheetValues, rawTraining: SheetValues, timestamp: numb
 
   show('status', false);
   show('dashboard', true);
+  leaveStandaloneMode();
   renderShared();
   updateDataAge();
 }
@@ -298,6 +332,7 @@ export async function loadData(force = false): Promise<void> {
   if (!hasCredentials(credentials)) {
     show('config-banner', true);
     show('status', false);
+    enterStandaloneMode();
     return;
   }
 
@@ -356,7 +391,11 @@ function wire(): void {
     button.addEventListener('click', () => setWeightMode((button.dataset['mode'] ?? 'weight') as WeightMode));
   }
 
-  setupTabs(() => renderActiveSection());
+  setupTabs(() => {
+    // Jeder Wechsel per Hand beendet die automatische Wahl.
+    planChosenByFallback = false;
+    renderActiveSection();
+  });
   setupRangeButtons(applyDateRange);
   attachChartExports();
 

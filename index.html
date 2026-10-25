@@ -7,7 +7,7 @@
 <meta name="description" content="Privates Auswertungs Dashboard.">
 <title>Body Recomp</title>
 </head>
-<body>
+<body class="no-sheet" data-tab="overview">
 <div class="wrap">
 
 <div id="config-banner">
@@ -54,15 +54,15 @@
   </header>
 
   <!-- Fortschritt als eine Aussage, nicht als vier Kacheln. -->
-  <section class="hero" id="hero" aria-label="Fortschritt"></section>
+  <section class="hero sheet-only" id="hero" aria-label="Fortschritt"></section>
 
-  <section class="section-block" aria-labelledby="insights-title">
+  <section class="section-block sheet-only" aria-labelledby="insights-title">
     <div class="section-head"><h2 class="section-title" id="insights-title">Insights</h2></div>
     <!-- Beobachtungen zum aktuellen Stand. Bewusst keine Anweisungen. -->
     <div class="coach" id="coach"></div>
   </section>
 
-  <section class="section-block" aria-labelledby="metrics-title">
+  <section class="section-block sheet-only" aria-labelledby="metrics-title">
     <div class="section-head">
       <h2 class="section-title" id="metrics-title">Tagesdurchschnitt</h2>
       <span class="section-sub" id="metrics-range"></span>
@@ -78,6 +78,8 @@
       <button class="tab" role="tab" aria-selected="false" tabindex="-1" aria-controls="weeks" id="tab-weeks" data-tab="weeks">Wochen</button>
       <button class="tab" role="tab" aria-selected="false" tabindex="-1" aria-controls="training" id="tab-training" data-tab="training">Training</button>
       <button class="tab" role="tab" aria-selected="false" tabindex="-1" aria-controls="analysis" id="tab-analysis" data-tab="analysis">Analyse</button>
+      <button class="tab" role="tab" aria-selected="false" tabindex="-1" aria-controls="plan" id="tab-plan" data-tab="plan">Plan</button>
+      <button class="tab" role="tab" aria-selected="false" tabindex="-1" aria-controls="shopping" id="tab-shopping" data-tab="shopping">Einkauf</button>
     </div>
     <div class="range-btns" role="group" aria-label="Zeitraum">
       <button class="range-btn" aria-pressed="false" data-range="14">14 Tage</button>
@@ -240,6 +242,14 @@
         </div>
       </div>
     </div>
+  </div>
+
+  <div class="section" role="tabpanel" aria-labelledby="tab-plan" id="plan">
+    <div id="plan-content"></div>
+  </div>
+
+  <div class="section" role="tabpanel" aria-labelledby="tab-shopping" id="shopping">
+    <div id="shopping-content"></div>
   </div>
 
 </div>

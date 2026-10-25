@@ -626,6 +626,141 @@ body {
 }
 #config-banner button.secondary { background: var(--surface-secondary); color: var(--text-primary); }
 
+/* ── Plan und Einkauf ──────────────────────────────────────────────────────── */
+
+/*
+ * Ohne Sheet Verbindung bleiben nur Plan und Einkauf. Die Kopfbloecke aus dem
+ * Sheet entfallen dort auch mit Verbindung, weil sie zu diesen Reitern nichts
+ * sagen und auf dem Telefon den Platz fressen.
+ */
+body.no-sheet .sheet-only,
+body[data-tab='plan'] .sheet-only,
+body[data-tab='shopping'] .sheet-only,
+body.no-sheet .range-btns,
+body[data-tab='plan'] .range-btns,
+body[data-tab='shopping'] .range-btns,
+body.no-sheet #btn-export-csv,
+body.no-sheet .tab:not([data-tab='plan']):not([data-tab='shopping']) { display: none; }
+
+.pl-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px 16px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+.btn-tap { min-height: 44px; padding: 10px 14px; }
+
+.pl-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 4px 16px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+.pl-head .panel-title { margin-bottom: 0; }
+.pl-total-title { margin-top: 32px; }
+.pl-day { margin-bottom: 36px; }
+.pl-day.is-today .panel-title { color: var(--blue); }
+
+.pl-meal { padding: 14px 0 10px; border-top: 1px solid var(--separator); min-width: 0; }
+.pl-meal-head {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+}
+.pl-slot { font-size: 12px; font-weight: 600; color: var(--text-tertiary); }
+.pl-kcal { font-size: 14px; font-weight: 500; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.pl-select {
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  background: var(--surface-primary);
+  border: none;
+  border-radius: var(--radius-small);
+  color: var(--text-primary);
+  padding: 8px 12px;
+  font-size: 15px;
+  font-family: inherit;
+  cursor: pointer;
+}
+.pl-macros { font-size: 12px; color: var(--text-secondary); margin: 8px 0 4px 38px; }
+.pl-ing { list-style: none; margin: 4px 0 0 38px; }
+.pl-ing li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  padding: 7px 0;
+  font-size: 14px;
+  border-bottom: 1px solid var(--separator);
+}
+.pl-ing-qty { color: var(--text-secondary); white-space: nowrap; }
+.pl-season { font-size: 12px; color: var(--text-secondary); margin: 8px 0 2px 38px; line-height: 1.5; }
+.pl-meal > .check { margin-left: 38px; }
+
+.pl-totals { max-width: 640px; }
+
+.pl-step { margin-bottom: 20px; }
+.pl-step-head { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; margin-bottom: 4px; }
+.pl-step-title { font-size: 15px; font-weight: 500; }
+.pl-device { font-size: 12px; color: var(--text-secondary); }
+
+.pl-pricehead { font-size: 13px; color: var(--text-secondary); margin-bottom: 20px; }
+.sh-group { margin-bottom: 28px; }
+
+/* Abhaken: die ganze Zeile ist die Tippflaeche, mindestens 48 px hoch. */
+.check {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  min-height: 48px;
+  padding: 11px 0;
+  border-bottom: 1px solid var(--separator);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.check input {
+  appearance: none;
+  -webkit-appearance: none;
+  flex: none;
+  width: 26px;
+  height: 26px;
+  margin-top: 0;
+  border: 2px solid var(--text-tertiary);
+  border-radius: 8px;
+  background: transparent;
+  cursor: pointer;
+  transition: background var(--duration) var(--ease), border-color var(--duration) var(--ease);
+}
+.check input:checked {
+  background: var(--blue) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5'/%3E%3C/svg%3E") center / 18px no-repeat;
+  border-color: var(--blue);
+}
+.check-body { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.check-name { font-size: 15px; letter-spacing: -0.006em; }
+.check-details { display: flex; flex-direction: column; gap: 2px; }
+.check-sub { display: block; font-size: 12px; color: var(--text-secondary); line-height: 1.45; }
+.check-qty { flex: none; max-width: 42%; text-align: right; font-size: 14px; font-weight: 500; padding-top: 2px; }
+.check.is-done .check-name,
+.check.is-done .check-qty { color: var(--text-tertiary); text-decoration: line-through; }
+.check.is-done .check-sub { color: var(--text-tertiary); }
+
+.tag {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 1px 7px;
+  border-radius: 6px;
+  background: var(--surface-secondary);
+  color: var(--text-secondary);
+  font-size: 11px;
+  white-space: nowrap;
+}
+.tag-warn { color: var(--orange); }
+#plan .err, #shopping .err { color: var(--red); font-size: 13px; margin-bottom: 10px; }
+
 /* ── Ladezustand ───────────────────────────────────────────────────────────── */
 
 #status { padding: 40px 0; }
@@ -707,4 +842,11 @@ body {
   .hero-metric + .hero-metric { padding-left: 0; border-left: none; }
   .hero-metric:nth-child(even) { padding-left: 20px; border-left: 1px solid var(--separator); }
   .chart-title { flex-wrap: wrap; }
+}
+
+@media (max-width: 700px) {
+  .pl-macros, .pl-ing, .pl-season, .pl-meal > .check { margin-left: 0; }
+  .pl-meal-head { grid-template-columns: minmax(0, 1fr) auto; }
+  .pl-slot { grid-column: 1 / -1; }
+  .check-qty { max-width: 46%; }
 }

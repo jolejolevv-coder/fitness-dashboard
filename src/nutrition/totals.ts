@@ -23,6 +23,7 @@ export interface GoalComparison {
 export interface DayGoalComparison {
   caloriesKcal: GoalComparison | null;
   proteinG: GoalComparison | null;
+  carbsG: GoalComparison | null;
   fatG: GoalComparison | null;
   fiberG: GoalComparison | null;
 }
@@ -37,6 +38,7 @@ export function compareToGoals(totals: Macros, goals: DayGoals): DayGoalComparis
   return {
     caloriesKcal: compare(totals.kcal, goals.caloriesKcal),
     proteinG: compare(totals.protein, goals.proteinG),
+    carbsG: compare(totals.carbs, goals.carbsG),
     fatG: compare(totals.fat, goals.fatG),
     fiberG: compare(totals.fiber, goals.fiberG),
   };

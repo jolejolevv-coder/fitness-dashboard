@@ -209,7 +209,9 @@ describe('Einkaufsliste der Standardwoche', () => {
     expect(line('chicken_breast')).toMatchObject({ packs: 2, packSizeG: 600, buyG: 1200 });
     expect(line('broccoli')).toMatchObject({ packs: 2 });
     expect(line('kidney_beans')).toMatchObject({ packs: 3 });
-    expect(line('beef_mince_5')).toMatchObject({ packs: 3 });
+    expect(line('beef_mince_5')).toMatchObject({ packs: 2 });
+    expect(line('turkey_coldcut')).toMatchObject({ packs: 2 });
+    expect(line('zucchini')).toMatchObject({ pieces: 5 });
   });
 
   it('rundet Stueckware auf ganze Stueck', () => {
@@ -241,7 +243,7 @@ describe('Einkaufsliste der Standardwoche', () => {
   });
 
   it('roundToPacks waehlt den geringsten Ueberkauf', () => {
-    expect(roundToPacks(850, [200, 450])).toEqual({ packSizeG: 450, packs: 2 });
+    expect(roundToPacks(950, [200, 450])).toEqual({ packSizeG: 450, packs: 2 });
     expect(roundToPacks(100, [])).toBeNull();
   });
 });

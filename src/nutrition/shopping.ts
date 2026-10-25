@@ -25,8 +25,11 @@ export const CATEGORY_LABELS: Record<ShoppingCategory, string> = {
  * Wie viel Unterdeckung bei Packungen noch als gedeckt gilt, als Anteil des
  * Bedarfs. 640 g Kidneybohnen sind mit drei Dosen zu je 213 g gedeckt, obwohl
  * 639 g rechnerisch ein Gramm fehlen. Ohne Toleranz stuende dort eine vierte Dose.
+ * 8 Prozent entsprechen der Einkaufsliste im Plan Dokument: Hack 840 g mit zwei
+ * Packungen zu 400 g, Aufschnitt 260 g mit zwei zu 120 g, Zucchini 1320 g mit
+ * fuenf Stueck. Der Rest wird beim Portionieren ausgeglichen.
  */
-export const PACK_SHORTFALL_TOLERANCE = 0.01;
+export const PACK_SHORTFALL_TOLERANCE = 0.08;
 
 /** Rundungsrauschen bei Gleitkommasummen, etwa 10 Eier zu 50 g. */
 const EPSILON = 1e-9;
@@ -105,7 +108,7 @@ function buildLine(item: ShoppingItem, food: Food, neededG: number): ShoppingLin
   }
   if (item.unit === 'piece') {
     const perPiece = item.gramsPerPiece ?? 0;
-    const pieces = Math.ceil(neededG / perPiece - EPSILON);
+    const pieces = Math.max(1, Math.ceil((neededG * (1 - PACK_SHORTFALL_TOLERANCE)) / perPiece - EPSILON));
     return { ...base, pieces, packSizeG: null, packs: null, buyG: pieces * perPiece };
   }
   const choice = roundToPacks(neededG, item.packSizesG);
