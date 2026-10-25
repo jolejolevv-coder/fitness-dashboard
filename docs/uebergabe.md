@@ -92,6 +92,12 @@ Die Zeile `last-updated` im Kopf laeuft bei einer langen Fehlermeldung ueber
 "nie übertragen" stimmt fuer den Anthropic Key nicht mehr wortwoertlich.
 `.claude/launch.json` (Konfiguration `preview-build`) liegt untracked.
 
+Erster Live Lauf 25.10.2026: `Vorschlag geprueft`, 0,21 $, 6.267 Eingabe und
+9.289 Ausgabe Tokens. Der Wunsch "vegetarisch" wurde ignoriert, weil der Prompt
+Wuensche nur als Anregung fuehrte. Seitdem sind Wuensche im Prompt verbindlich
+(`Wishes (binding)`, Regel gegen ausgeschlossene Lebensmittel). Garantiert
+bleibt nur die Ausschlussliste, Freitext prueft niemand.
+
 Naechster Schritt beim Nutzer (Live Lauf, danach Retro):
 1. In der Anthropic Console eigenen Workspace mit monatlichem Ausgabelimit
    anlegen, darin einen Key erzeugen

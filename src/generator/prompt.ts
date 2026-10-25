@@ -80,13 +80,15 @@ function userPrompt(input: GeneratorInput): string {
     `- Prep sessions take place on ${input.prepDays.join(' and ')}. They cover the cooked components of the meals, with the days they serve.`,
     `- Prep devices: ${input.devices.join(', ')}. Each step names exactly one of them.`,
     '- Each prep cover lists a slot, days, the meal ids of that slot, and optionally the food ids that are prepared. Foods must be ingredients of the listed meals.',
-    '- Prefer foods with a current offer and pack sizes that fit the weekly demand, without breaking the goals.',
+    '- The wishes at the end are binding requirements, not suggestions. They apply to every meal and every day.',
+    '- If a wish rules out foods (for example vegetarian, no fish, no pork), never use those foods anywhere, also not in small amounts.',
+    '- Prefer foods with a current offer and pack sizes that fit the weekly demand, without breaking the goals or the wishes.',
     '- Ingredients the person might want but that are not in the list go to the wishlist as plain names. Do not put them into meals.',
     '',
     'Allowed foods (id | name | kind | nutrition | packs | offer):',
     ...foods,
     '',
-    wish === '' ? 'Wishes: none' : `Wishes: ${wish}`,
+    wish === '' ? 'Wishes: none' : `Wishes (binding): ${wish}`,
   ].join('\n');
 }
 

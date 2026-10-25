@@ -353,6 +353,13 @@ describe('buildPrompt', () => {
     expect(system.length).toBeGreaterThan(0);
   });
 
+  it('macht Wuensche verbindlich und laesst ausgeschlossene Lebensmittel ganz weg', () => {
+    const { user } = buildPrompt({ ...promptInput(), wish: 'vegetarisch' });
+    expect(user).toContain('Wishes (binding): vegetarisch');
+    expect(user).toContain('binding requirements, not suggestions');
+    expect(user).toContain('never use those foods anywhere');
+  });
+
   it('nennt nur uebergebene Lebensmittel', () => {
     const { user } = buildPrompt(promptInput());
     expect(user).not.toContain('x | Excluded');
