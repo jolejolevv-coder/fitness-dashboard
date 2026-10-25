@@ -8,6 +8,7 @@ sie abweichen.
 Auswertungsschicht ueber einem Google Sheet, lesend, kein Backend, eine Person.
 Zweck und Nichtziele stehen in `specs/mission.md`. Vor jeder Arbeit lesen:
 `specs/roadmap.md` und `specs/sheet-structure.md`.
+docs/historie.md ist das Archiv der alten Roadmap und wird nur bei Bedarf gelesen.
 
 ## Sprache
 
@@ -40,3 +41,11 @@ erlaubt.
 * Jede Abweichung von den Golden Values wird im Commit begruendet
 * Analytik ist reine Funktion ohne DOM Zugriff und wird gegen synthetische
   Verlaeufe mit bekanntem Ergebnis getestet
+
+## pstack
+
+Aktiv seit 25.10.2026 (`.claude/settings.json`, Projektscope), Modelle in
+`.claude/rules/pstack-models.md`: Code auf Sonnet, Urteil und Review auf Opus.
+Der Freigabeprozess geht vor: Spec, Akzeptanzkriterien und Planfreigabe vor
+jeder Implementierung, ADR, Architektur und Benennung entscheidet der Nutzer.
+Kein Aufraeumen oder Loeschen von Altcode ohne Auftrag.

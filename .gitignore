@@ -15,3 +15,6 @@ public/preview/
 # Entwicklungsbehelf, kein Bestandteil des Produkts.
 test/fixtures/
 test/golden/
+
+# Handoff aus dem Chat: enthaelt Klarname, Sheet ID und Filialadressen, bleibt lokal
+docs/HANDOFF.md

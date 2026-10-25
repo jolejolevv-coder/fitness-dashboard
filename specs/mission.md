@@ -36,7 +36,14 @@ Mindestdatenlage und verweigert die Aussage darunter, statt zu raten.
   Erhaltungsbedarf, Plateau Status, Compliance
 * Bietet darunter die bestehende Diagnoseebene aus Verlaufskurven, Wochenmitteln
   und Trainingsprogression
-* Laeuft als statische Seite ohne Backend auf GitHub Pages
+* Zeigt den eigenen Ernaehrungsplan innerhalb der Rahmenvorgabe des Trainers,
+  die Einkaufsliste dazu und woechentliche Angebotspreise (seit Phase 8). Die
+  Mahlzeiten stellt der Nutzer zusammen. Ab Phase 9 kann er auf Knopfdruck
+  einen Vorschlag ueber die Anthropic API anfordern, aktiv wird nur, was er
+  uebernimmt
+* Laeuft als statische Seite ohne Backend auf GitHub Pages. Einzige zweite
+  Datenquelle ist `data/prices.json`, einmal pro Woche von GitHub Actions
+  geschrieben (ADR 0002)
 
 ## Was es ausdruecklich nicht tut
 
@@ -49,8 +56,9 @@ Mindestdatenlage und verweigert die Aussage darunter, statt zu raten.
 
 ## Wer es nutzt
 
-Eine Person, am Desktop. Mobil wurde die Seite nach eigener Aussage nie benutzt,
-mobiles Layout ist deshalb kein Ziel.
+Eine Person. Auswertung am Desktop, Plan und Einkauf vor allem am Handy. Seit
+Phase 8 ist mobiles Layout ein Ziel, fuer die Reiter `Plan` und `Einkauf` bei
+375 px verbindlich.
 
 ## Betrieb
 
