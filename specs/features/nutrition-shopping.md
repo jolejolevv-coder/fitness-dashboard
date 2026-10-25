@@ -8,7 +8,7 @@ Quelle: `docs/HANDOFF.md` (Stand 25.10.2026). Dort stehen Seed Daten, Rotation,
 Preis Pipeline und Phasen im Detail. Diese Spec haelt nur fest, was davon gilt,
 was abweicht und was vor dem ersten Code entschieden sein muss.
 
-Status: freigegeben am 25.10.2026, umgesetzt auf Branch `nutrition`. Offen bis nach dem Merge: manueller Lauf von `prices.yml`.
+Status: freigegeben am 25.10.2026, umgesetzt und live seit 25.10.2026.
 
 ## Scope
 
@@ -70,7 +70,7 @@ Status: freigegeben am 25.10.2026, umgesetzt auf Branch `nutrition`. Offen bis n
       Proteinziel, beide aus dem Sheet (Vorpruefung: 2309 bis 2333 kcal, 202 bis
       210 g Protein)
 * [x] Einkaufsliste der Standardwoche entspricht den Mengen im Plan Dokument
-* [ ] Ein manueller Lauf von `prices.yml` erzeugt `data/prices.json`, der Reiter
+* [x] Ein manueller Lauf von `prices.yml` erzeugt `data/prices.json`, der Reiter
       zeigt die Preise. Ohne Datei zeigt er die Liste ohne Preise
 * [x] Parser Fehler oder null Treffer lassen den Workflow fehlschlagen, die alte
       `prices.json` bleibt stehen

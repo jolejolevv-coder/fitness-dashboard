@@ -16,16 +16,17 @@ Ernaehrung und Einkauf als Phase 8, uebernommen aus einem Claude Chat.
 
 ## Naechster Schritt
 
-Branch `nutrition`, Stand 25.10.2026: Phase 8.0 bis 8.5 umgesetzt und
-committet, 227 Tests gruen, Build sauber, Reiter Plan und Einkauf bei 375 px
-ohne waagerechten Seitenlauf geprueft. Entscheidungen stehen in der Spec unter
-"Entscheidungen zur Umsetzung", Retro in der Roadmap.
+Phase 8 ist abgeschlossen und live seit 25.10.2026 (Merge `nutrition` nach
+`main`). Erster manueller Lauf von `prices.yml` erfolgreich: 12 Angebote,
+9 Dauerpreise gesammelt, Reiter Einkauf live bei 375 px geprueft. Ein
+Fehltreffer (Aufschnitt als Haehnchenbrustfilet) ist behoben. Cron laeuft ab
+jetzt Sonntag 18:00 Berlin.
 
-Offen:
-1. Freigabe des Nutzers fuer Merge `nutrition` nach `main` und Push (loest Deploy aus, Cron ab dann aktiv)
-2. Danach `prices.yml` einmal manuell starten, `public/data/prices.json` und Reiter Einkauf live pruefen
-3. Beim Nutzer: Anfrage an info@muskelmarkt.de, Dauerpreis Startwerte in
-   `public/data/regular_prices.json` mit `source: "manual"` eintragen
+Offen beim Nutzer:
+1. Anfrage an info@muskelmarkt.de
+2. Dauerpreis Startwerte in `public/data/regular_prices.json` mit
+   `source: "manual"` eintragen
+3. Phase 9 Plangenerator: Spec `specs/features/plan-generator.md` pruefen und freigeben
 4. Nachzuholen aus Phase 6: Lighthouse Messung
 
 ## Pruefung des Handoffs
