@@ -16,22 +16,19 @@ Ernaehrung und Einkauf als Phase 8, uebernommen aus einem Claude Chat.
 
 ## Naechster Schritt
 
-Phase 8.0 erledigt am 25.10.2026, nichts committet:
-* `specs/features/muskelmarkt-parser.md`: Selektoren belegt an einem Abruf.
-  `robots.txt` liefert 404. Angebot und Normalpreis sind per Klasse
-  (`current-price`, `original-price`) und Attribut (`data-price`,
-  `data-normal-price`) getrennt, in 176 von 176 Karten konsistent
-* `docs/adr/0003-dauerpreise.md`, angenommen am 25.10.2026. Empfehlung: Normalpreis aus
-  Muskelmarkt sammeln plus handgepflegte Startwerte. Open Prices hat am
-  Wohnort keine Daten, Aldi Sued nur ueber interne API je Filiale, Lidl und
-  Edeka haben online keine Dauerpreise
+Branch `nutrition`, Stand 25.10.2026. Erledigt und committet: 8.0 Recherche,
+8.1 Rechenkern (`data/`, `src/nutrition/`), 8.4 Preis Pipeline
+(`scripts/prices/`, `.github/workflows/prices.yml`). 192 Tests gruen.
+Entscheidungen stehen in der Spec unter "Entscheidungen zur Umsetzung"
+(Soßen m1c und m3a auf 5 g, Cron ab Merge aktiv, App Preise mit Vermerk,
+HANDOFF.md bleibt lokal, Parser mit node-html-parser).
 
-Naechster Schritt: Phase 8.1 Datenmodell und Rechenkern in einer neuen
-Sitzung. Dabei Ort und Format der handgepflegten Startwerte festlegen
-(Vorschlag aus ADR 0003: Feld mit Datum je Artikel und Markt in
-`shopping_items.json`). Offen fuer 8.5: App Preise (Lidl Plus, Edeka App) einrechnen
-oder nur zeigen. Phase 9 Plangenerator ist als Entwurf in
-`specs/features/plan-generator.md`.
+Offen: 8.2 Reiter Plan und Prep, 8.3 Einkaufsliste, 8.5 Preise im Einkauf,
+dann Merge auf `main` nach Freigabe des Nutzers. Laufzeitdaten liegen unter
+`public/data/` (`prices.json`, `regular_prices.json` im Format
+`{ entries: [{ food_id, store, regular_price_eur, size_g, price_per_kg,
+seen_at, source }] }`, Startwerte von Hand mit `source: "manual"`).
+Beim Nutzer: Anfrage an info@muskelmarkt.de vor dem Merge.
 
 ## Pruefung des Handoffs
 
