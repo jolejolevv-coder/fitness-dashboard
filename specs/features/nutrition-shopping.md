@@ -8,7 +8,7 @@ Quelle: `docs/HANDOFF.md` (Stand 25.10.2026). Dort stehen Seed Daten, Rotation,
 Preis Pipeline und Phasen im Detail. Diese Spec haelt nur fest, was davon gilt,
 was abweicht und was vor dem ersten Code entschieden sein muss.
 
-Status: freigegeben am 25.10.2026.
+Status: freigegeben am 25.10.2026, umgesetzt auf Branch `nutrition`. Offen bis nach dem Merge: manueller Lauf von `prices.yml`.
 
 ## Scope
 
@@ -60,24 +60,24 @@ Status: freigegeben am 25.10.2026.
 
 ## Acceptance criteria
 
-* [ ] Makros aller 10 Gerichte werden aus `foods.json` berechnet und stimmen mit
+* [x] Makros aller 10 Gerichte werden aus `foods.json` berechnet und stimmen mit
       Handoff Abschnitt 4 ueberein. Toleranz ±2 kcal, ±1 g bei Makros (die
       Tabelle im Handoff ist auf ganze Gramm gerundet, m4a Fett 20,5 gegen 21
       und m4b KH 53,4 gegen 54 reissen ±0,5 g)
-* [ ] `m3r` wird als Gericht plus Zuschlag 50 g Haehnchen auf M2 modelliert,
+* [x] `m3r` wird als Gericht plus Zuschlag 50 g Haehnchen auf M2 modelliert,
       gerechnet ergibt das 419 kcal und 38,6 g Protein
-* [ ] Jeder Tag der Standardrotation liegt bei Ziel kcal ±40 und mindestens beim
+* [x] Jeder Tag der Standardrotation liegt bei Ziel kcal ±40 und mindestens beim
       Proteinziel, beide aus dem Sheet (Vorpruefung: 2309 bis 2333 kcal, 202 bis
       210 g Protein)
-* [ ] Einkaufsliste der Standardwoche entspricht den Mengen im Plan Dokument
+* [x] Einkaufsliste der Standardwoche entspricht den Mengen im Plan Dokument
 * [ ] Ein manueller Lauf von `prices.yml` erzeugt `data/prices.json`, der Reiter
       zeigt die Preise. Ohne Datei zeigt er die Liste ohne Preise
-* [ ] Parser Fehler oder null Treffer lassen den Workflow fehlschlagen, die alte
+* [x] Parser Fehler oder null Treffer lassen den Workflow fehlschlagen, die alte
       `prices.json` bleibt stehen
-* [ ] `robots.txt` wird vor dem Abruf geprueft und respektiert
-* [ ] Rinderhack ohne Fettangabe wird nicht als `beef_mince_5` erkannt
-* [ ] Beide Reiter funktionieren bei 375 px ohne waagerechten Seitenlauf
-* [ ] `npm run check` und Build sauber, bestehende 88 Tests bleiben gruen
+* [x] `robots.txt` wird vor dem Abruf geprueft und respektiert
+* [x] Rinderhack ohne Fettangabe wird nicht als `beef_mince_5` erkannt
+* [x] Beide Reiter funktionieren bei 375 px ohne waagerechten Seitenlauf
+* [x] `npm run check` und Build sauber, bestehende 88 Tests bleiben gruen
 
 ## Implementation plan
 

@@ -16,19 +16,17 @@ Ernaehrung und Einkauf als Phase 8, uebernommen aus einem Claude Chat.
 
 ## Naechster Schritt
 
-Branch `nutrition`, Stand 25.10.2026. Erledigt und committet: 8.0 Recherche,
-8.1 Rechenkern (`data/`, `src/nutrition/`), 8.4 Preis Pipeline
-(`scripts/prices/`, `.github/workflows/prices.yml`). 192 Tests gruen.
-Entscheidungen stehen in der Spec unter "Entscheidungen zur Umsetzung"
-(Soßen m1c und m3a auf 5 g, Cron ab Merge aktiv, App Preise mit Vermerk,
-HANDOFF.md bleibt lokal, Parser mit node-html-parser).
+Branch `nutrition`, Stand 25.10.2026: Phase 8.0 bis 8.5 umgesetzt und
+committet, 227 Tests gruen, Build sauber, Reiter Plan und Einkauf bei 375 px
+ohne waagerechten Seitenlauf geprueft. Entscheidungen stehen in der Spec unter
+"Entscheidungen zur Umsetzung", Retro in der Roadmap.
 
-Offen: 8.2 Reiter Plan und Prep, 8.3 Einkaufsliste, 8.5 Preise im Einkauf,
-dann Merge auf `main` nach Freigabe des Nutzers. Laufzeitdaten liegen unter
-`public/data/` (`prices.json`, `regular_prices.json` im Format
-`{ entries: [{ food_id, store, regular_price_eur, size_g, price_per_kg,
-seen_at, source }] }`, Startwerte von Hand mit `source: "manual"`).
-Beim Nutzer: Anfrage an info@muskelmarkt.de vor dem Merge.
+Offen:
+1. Freigabe des Nutzers fuer Merge `nutrition` nach `main` und Push (loest Deploy aus, Cron ab dann aktiv)
+2. Danach `prices.yml` einmal manuell starten, `public/data/prices.json` und Reiter Einkauf live pruefen
+3. Beim Nutzer: Anfrage an info@muskelmarkt.de, Dauerpreis Startwerte in
+   `public/data/regular_prices.json` mit `source: "manual"` eintragen
+4. Nachzuholen aus Phase 6: Lighthouse Messung
 
 ## Pruefung des Handoffs
 
