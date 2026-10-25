@@ -76,7 +76,8 @@ export interface ShoppingItem {
   match: MatchTerms;
 }
 
-export type PrepDevice = 'Mikrowelle' | 'Airfryer' | 'OptiGrill';
+export const PREP_DEVICES = ['Mikrowelle', 'Airfryer', 'OptiGrill'] as const;
+export type PrepDevice = (typeof PREP_DEVICES)[number];
 
 /**
  * Welche Gerichte ein Schritt abdeckt. `foods` schraenkt auf einzelne Zutaten

@@ -39,11 +39,32 @@ auf Branch `plan-generator`, nicht im Projektordner. Sitzungen fuer Phase 9 dort
 oeffnen. `test/fixtures/` und `test/golden/` sind lokal hineinkopiert, weil sie
 nicht im Repo liegen.
 
-Naechster Schritt 9.1: reine Funktionen mit Tests (Schema mit `enum` der
-foodIds ohne Ausschluesse, Prompt, Parsen in `PlanData`, Tagespruefung mit
-Toleranzen aus `src/config/`, Kosten aus `usage`, Parsen von Ausschluessen und
-aktivem Plan). Danach 9.2 Planquelle statt Konstante `PLAN`, 9.3 API Aufruf,
-9.4 Oberflaeche, CSP, Live Lauf durch den Nutzer.
+Phase 9.1 erledigt (Stand 25.10.2026, 266 Tests, `npm run check` und Build
+sauber). Neu:
+* `src/config/generator.ts`: Modell, Effort, `DAY_TOLERANCE` (kcal ±40,
+  Fett ±10 g), Praefix `g`, `PREP_DAYS`, `TOKEN_PRICES` mit `PRICES_AS_OF`
+* `src/generator/schema.ts`: `allowedFoodIds`, `buildPlanSchema` (enum der
+  foodIds, `additionalProperties: false` ueberall)
+* `src/generator/prompt.ts`: `buildPrompt(GeneratorInput)`, deterministisch.
+  `offers` baut der Aufrufer aus `cheapestOffer`
+* `src/generator/response.ts`: `parseProposal`, prueft von Hand, weist
+  doppelte Gericht IDs ab
+* `src/generator/check.ts`: `goalsReadiness`, `checkProposal`. Verglichen
+  werden auf ganze Zahlen gerundete Tageswerte, also was die Zahlenzeile zeigt
+* `src/generator/cost.ts`: `runCost` aus `usage`, unbekanntes Modell ergibt
+  `usd: null`
+* `src/generator/state.ts`: API Key, Ausschluesse, aktiver Plan im
+  localStorage. `parseActivePlan` braucht die erlaubten foodIds
+* `validatePlan` in `src/nutrition/plan.ts` prueft jetzt auch Prep
+  (Gericht, Slot, Tag, Zutat). `PREP_DEVICES` in `src/nutrition/types.ts`
+
+Naechster Schritt 9.2 Planquelle: Reiter Plan und Einkauf lesen den aktiven
+Plan (`loadActivePlan`, gegen `validatePlan` und `checkProposal` geprueft,
+sonst Seed mit Fund) statt der Konstante `PLAN`. Uebernahme leert
+`OVERRIDES_KEY`, `PREP_DONE_KEY`, `SHOPPING_DONE_KEY`. Knopf zurueck zum Seed.
+Riegel Schalter bei aktivem Vorschlag ausblenden. Danach 9.3 API Aufruf
+(SDK dynamisch importieren, Streaming, `fallbacks: "default"`), 9.4
+Oberflaeche, CSP im Build, Live Lauf durch den Nutzer.
 
 Vor dem Live Lauf beim Nutzer: eigenen Anthropic Workspace mit Ausgabelimit
 anlegen und Key erzeugen.

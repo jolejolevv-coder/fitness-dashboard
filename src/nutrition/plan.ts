@@ -77,5 +77,47 @@ export function validatePlan(plan: PlanData): string[] {
     if (!itemIds.has(id)) issues.push(`Einkauf: kein Eintrag fuer ${id}`);
   }
 
+  issues.push(...validatePrep(plan));
+  return issues;
+}
+
+/** Alle Zutaten eines Gerichts, Zuschlag eingeschlossen. */
+function mealFoodIds(meal: Meal): Set<string> {
+  const ids = new Set(meal.ingredients.map((i) => i.foodId));
+  if (meal.addToSlot) ids.add(meal.addToSlot.foodId);
+  return ids;
+}
+
+/** Prep Querverweise: Gerichte, Slot, Wochentage und Zutaten der Abdeckung. */
+function validatePrep(plan: PlanData): string[] {
+  const issues: string[] = [];
+  const mealsById = indexById(plan.meals);
+  const weekdays: readonly string[] = WEEKDAYS;
+
+  for (const session of plan.prep) {
+    for (const step of session.steps) {
+      const where = `Prep ${session.id} ${step.title}`;
+      for (const cover of step.covers) {
+        const listed: Meal[] = [];
+        for (const mealId of cover.meals) {
+          const meal = mealsById.get(mealId);
+          if (!meal) {
+            issues.push(`${where}: unbekanntes Gericht ${mealId}`);
+            continue;
+          }
+          listed.push(meal);
+          if (meal.slot !== cover.slot) issues.push(`${where}: Gericht ${mealId} ist ${meal.slot}, nicht ${cover.slot}`);
+        }
+        for (const day of cover.days) {
+          if (!weekdays.includes(day)) issues.push(`${where}: unbekannter Tag ${day}`);
+        }
+        for (const foodId of cover.foods ?? []) {
+          if (!listed.some((meal) => mealFoodIds(meal).has(foodId))) {
+            issues.push(`${where}: Zutat ${foodId} steckt in keinem der Gerichte`);
+          }
+        }
+      }
+    }
+  }
   return issues;
 }
