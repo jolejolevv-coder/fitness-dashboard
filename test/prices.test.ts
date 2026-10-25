@@ -161,6 +161,13 @@ describe('Matching', () => {
     expect(find('chicken_breast')).toHaveLength(1);
   });
 
+  it('ordnet Aufschnitt nicht als Haehnchenbrustfilet zu', () => {
+    const items = JSON.parse(readFileSync('data/shopping_items.json', 'utf8')) as ShoppingItem[];
+    const hits = (name: string) => items.filter((it) => itemMatches(it, name)).map((it) => it.foodId);
+    expect(hits('120g Delikatess Puten-/Hähnchenbrust XXL')).toEqual(['turkey_coldcut']);
+    expect(hits('600g Hähnchen-Brustfilet')).toEqual(['chicken_breast']);
+  });
+
   it('erkennt Tatar und Beefsteakhack auch ohne Fettangabe als beef_mince_5', () => {
     const lean = { foodId: 'beef_mince_5', unit: 'g' as const, match: { include: ['Tatar', 'Beefsteakhack'], exclude: [] } };
     expect(itemMatches(lean, '400g Rinder Tatar')).toBe(true);

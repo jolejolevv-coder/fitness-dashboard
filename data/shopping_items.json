@@ -22,7 +22,12 @@
         "Keule",
         "Flügel",
         "Gyros",
-        "paniert"
+        "paniert",
+        "Delikatess",
+        "Aufschnitt",
+        "Puten-/",
+        "in Scheiben",
+        "Schinken"
       ]
     }
   },
@@ -48,7 +53,10 @@
         "Salami",
         "mariniert",
         "geräuchert",
-        "gegart"
+        "gegart",
+        "Delikatess",
+        "Puten-/",
+        "in Scheiben"
       ]
     }
   },
@@ -141,7 +149,9 @@
         "Putenbrust Aufschnitt",
         "Putenbrust-Aufschnitt",
         "Putenbrustaufschnitt",
-        "Putenbrust in Scheiben"
+        "Putenbrust in Scheiben",
+        "Delikatess Puten",
+        "Puten-/Hähnchenbrust"
       ],
       "exclude": [
         "Salami",
