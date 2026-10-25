@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-10-25T15:45:39+01:00",
+  "fetched_at": "2026-10-25T15:48:15+01:00",
   "valid_from": "2026-10-26T00:00:00+01:00",
   "valid_to": "2026-10-31T23:59:59+01:00",
   "offers": [
@@ -63,19 +63,6 @@
       "price_eur": 4.99,
       "regular_price_eur": 6.79,
       "price_per_kg": 8.32,
-      "valid_days": "Mo bis Sa",
-      "valid_from": "2026-10-26T00:00:00+01:00",
-      "valid_to": "2026-10-31T23:59:59+01:00",
-      "condition": null
-    },
-    {
-      "food_id": "chicken_breast",
-      "store": "Lidl",
-      "product": "120g Delikatess Puten-/Hähnchenbrust XXL",
-      "size_g": 120,
-      "price_eur": 1.59,
-      "regular_price_eur": null,
-      "price_per_kg": 13.25,
       "valid_days": "Mo bis Sa",
       "valid_from": "2026-10-26T00:00:00+01:00",
       "valid_to": "2026-10-31T23:59:59+01:00",
@@ -156,6 +143,19 @@
       "price_per_kg": 16.65,
       "valid_days": "Do bis Sa",
       "valid_from": "2026-10-29T00:00:00+01:00",
+      "valid_to": "2026-10-31T23:59:59+01:00",
+      "condition": null
+    },
+    {
+      "food_id": "turkey_coldcut",
+      "store": "Lidl",
+      "product": "120g Delikatess Puten-/Hähnchenbrust XXL",
+      "size_g": 120,
+      "price_eur": 1.59,
+      "regular_price_eur": null,
+      "price_per_kg": 13.25,
+      "valid_days": "Mo bis Sa",
+      "valid_from": "2026-10-26T00:00:00+01:00",
       "valid_to": "2026-10-31T23:59:59+01:00",
       "condition": null
     }
