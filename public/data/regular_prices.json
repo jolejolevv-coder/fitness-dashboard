@@ -1,1 +1,85 @@
-{ "entries": [] }
+{
+  "entries": [
+    {
+      "food_id": "basmati",
+      "store": "Lidl",
+      "regular_price_eur": 11.21,
+      "size_g": 4500,
+      "price_per_kg": 2.49,
+      "seen_at": "2026-10-25",
+      "source": "muskelmarkt"
+    },
+    {
+      "food_id": "broccoli",
+      "store": "Edeka",
+      "regular_price_eur": 1.59,
+      "size_g": 500,
+      "price_per_kg": 3.18,
+      "seen_at": "2026-10-25",
+      "source": "muskelmarkt"
+    },
+    {
+      "food_id": "chicken_breast",
+      "store": "Aldi Süd",
+      "regular_price_eur": 8.69,
+      "size_g": 800,
+      "price_per_kg": 10.86,
+      "seen_at": "2026-10-25",
+      "source": "muskelmarkt"
+    },
+    {
+      "food_id": "chicken_breast",
+      "store": "Edeka",
+      "regular_price_eur": 6.79,
+      "size_g": 600,
+      "price_per_kg": 11.32,
+      "seen_at": "2026-10-25",
+      "source": "muskelmarkt"
+    },
+    {
+      "food_id": "kidney_beans",
+      "store": "Aldi Süd",
+      "regular_price_eur": 8.28,
+      "size_g": 3060,
+      "price_per_kg": 2.71,
+      "seen_at": "2026-10-25",
+      "source": "muskelmarkt"
+    },
+    {
+      "food_id": "oats",
+      "store": "Lidl",
+      "regular_price_eur": 1.38,
+      "size_g": 1000,
+      "price_per_kg": 1.38,
+      "seen_at": "2026-10-25",
+      "source": "muskelmarkt"
+    },
+    {
+      "food_id": "salmon_frozen",
+      "store": "Aldi Süd",
+      "regular_price_eur": 16.65,
+      "size_g": 1000,
+      "price_per_kg": 16.65,
+      "seen_at": "2026-10-25",
+      "source": "muskelmarkt"
+    },
+    {
+      "food_id": "salmon_frozen",
+      "store": "Edeka",
+      "regular_price_eur": 2.69,
+      "size_g": 100,
+      "price_per_kg": 26.9,
+      "seen_at": "2026-10-25",
+      "source": "muskelmarkt"
+    },
+    {
+      "food_id": "salmon_frozen",
+      "store": "Lidl",
+      "regular_price_eur": 11.89,
+      "size_g": 600,
+      "price_per_kg": 19.82,
+      "seen_at": "2026-10-25",
+      "source": "muskelmarkt"
+    }
+  ]
+}
