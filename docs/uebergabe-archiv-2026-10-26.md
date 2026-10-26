@@ -222,3 +222,103 @@ Offen:
 * Laufende Timer melden sich nur bei offener Kochansicht, nach Neuladen
   erst `Kochen` tippen
 
+
+
+## Phase 12, Notizen 12.0 bis 12.4 Kueche und Startprompt Rest 12.4 (archiviert 27.10.2026)
+
+12.0 erledigt: Mission und Tech Stack angepasst. Gemessen: Chart.js 71,06 kB,
+`src/charts/` 4,79 kB, Rest des Haupt Chunks 33,72 kB gzip. Ziele in der
+Budget Tabelle: Haupt Chunk hoechstens 40 kB, Chunk `charts` hoechstens 78 kB.
+Gepinnt `vite-plugin-pwa` 1.3.0 (Workbox 7.4.1) und
+`@vite-pwa/assets-generator` 1.0.4, nur installiert, noch nicht eingebunden.
+Bewusst nicht 2.0.0: erst drei Wochen alt, 1.3.0 deckt Vite 6 ab.
+
+12.1 freigegeben. Entwurf nur lokal unter
+`public/preview/mobile-mockup.html` (gitignored, echte Werte aus den Fixtures),
+anzusehen mit `npx vite` unter `/fitness-dashboard/preview/mobile-mockup.html`.
+Richtung Trainerboard (impeccable Seed `29b8874f`): Magnetkarten auf Emaille,
+Markerfarben mit fester Bedeutung, blauer Magnet fuer das Aktive, Systemziffern
+`ui-rounded`, kein Webfont. Vorschlag hell als Grundform, dunkel ueber
+`prefers-color-scheme`. Icons A (Wortmarke BR) und B (Verlauf mit Magnet).
+`PRODUCT.md` aus den freigegebenen Specs abgeleitet, ohne eigene
+Interviewrunde. Segmentmagnet im Entwurf schon auf `transform` umgestellt,
+im Bau ebenso halten.
+
+`DESIGN.md` plus Sidecar `.impeccable/design.json` committet (`acc0baa`),
+ohne Werte aus den Fixtures. Befunde des Documenters fuer 12.4: `ink-3` als
+Text unter 4,5:1 (Datenbasis, inaktive Navigation), rote und gruene Kapsel
+knapp unter 4,5:1, Navigationsmagnet im Entwurf ueber `left` statt
+`transform`. Linke Leiste und Blatt stehen dort nur vorlaeufig aus der Spec.
+
+12.2 Shell erledigt 26.10.2026. `src/ui/router.ts` reine Funktion (Hash zu
+Ziel und Segment, `resolveRoute` weicht ohne Sheet auf Kueche aus und laesst
+den Hash stehen, mit den Daten kehrt das Ziel zurueck), `src/ui/shell.ts`
+(Navigation als Links auf Hashes, oben Titel, Datenalter, Aktualisieren und
+Einstellungen, Segmentleiste, Blatt als `dialog` mit `showModal`).
+`tabs.ts` entfernt. Planansicht kommt aus der Route (`setPlanView`), die
+interne Segmentwahl im Plan ist weg. Fehlen Zugangsdaten, oeffnet das Blatt
+beim Start wie frueher der Banner. Nutzungszaehler zaehlt jetzt Routen wie
+`verlauf/wellness` statt Reiternamen. Tests: Router, Navigation ohne Sheet,
+kein `innerHTML` in `src/`. 345 Tests. Bundle gzip: Haupt Chunk 108,84 kB
+(+0,79), CSS 5,62 kB (+0,39), `index.html` 3,38 kB (+0,30). Geprueft bei
+375 px auf allen zwoelf Routen ohne waagerechten Lauf und bei 1280 px mit
+linker Leiste.
+
+12.3 Charts nachladen erledigt 26.10.2026. `src/charts/index.ts` ist der
+einzige Einstieg in den Chunk, `src/ui/charts.ts` laedt ihn (`loadCharts`,
+`loadedCharts`) nach dem Muster von `plan.ts`. Abschnitte mit Diagrammen
+(`overview`, `nutrition`, `wellness`, `weeks`, `training`) bekommen das Modul
+als Argument, `main.ts` wartet in `renderChartSection` darauf und zeichnet nur,
+wenn die Route waehrenddessen nicht gewechselt hat. Ein gescheiterter Abruf
+steht in der Datenalterzeile, der Abschnitt bleibt markiert und der naechste
+Aufruf versucht es neu. Name ueber `chunkFileNames` in `vite.config.ts`, nicht
+ueber `manualChunks`: das zog `ui/format` und `analytics` in den Chunk und
+`index.html` lud ihn per `modulepreload` sofort. Test `test/charts-chunk.test.ts`
+verbietet statische Importe aus `src/charts/` ausserhalb des Ordners. 347 Tests.
+Bundle gzip: Haupt Chunk 35,58 kB (Ziel 40), `charts` 74,32 kB (Ziel 78), alle
+JS Chunks zusammen 204,47 kB (Grenze 207,61), CSS 5,62 kB unveraendert.
+Geprueft im Dev Server bei 375 px und im gebauten Stand (`vite preview`,
+Eintrag `build-preview` in der lokalen `.claude/launch.json`) bei 1024 px:
+Heute und Kueche laden nur `index`, `charts` erst mit Verlauf, alle 19
+Diagramme auf allen Verlauf Segmenten und in Training gezeichnet,
+Gewichtsmodus und Uebungsauswahl zeichnen nach, Direktaufruf
+`#verlauf/gewicht` geht. Naechster Schritt 12.4 Oberflaeche, Reihenfolge
+Kueche, Heute, Training, Verlauf.
+
+12.4 Kueche erledigt 26.10.2026 (`0cb300f`). Tokens aus `DESIGN.md` auf
+`:root`, dunkel ueber `prefers-color-scheme`. Alte Variablennamen
+(`--text-primary`, `--surface-primary` usw.) stehen als Aliase im Block
+"Uebergang" und fliegen raus, wenn Verlauf umgestellt ist. Ebenso der
+Uebergangsblock `.range-btns, .segmented` (Zeitraum und Gewichtsmodus im
+Verlauf werden Filterkapseln `.chip` in `.chips`). Befunde des Documenters
+behoben: `ink-3` hell `#636a6e`, dunkel `#959da1`, inaktive Navigation in
+`ink-2`, Spuren `red-wash #fbefed` und `green-wash #ecf6f0`, Magnet
+(`.nav-magnet`, im `index.html`) und Puck (`.segment-puck`) gleiten per
+`transform`, gesetzt in `src/ui/shell.ts`. `DESIGN.md` nennt noch die alten
+Werte und die Navigation in `ink-3`; beim Abschluss von 12.4 nachziehen.
+Neue Bausteine im CSS: `.card`, `.card-label`, `.card-value` (`.is-hero`,
+`.is-word`), `.card-basis`, `.refusal`, `.mark` mit `.is-off`/`.is-ok`,
+`.bar`, `.grid2`, `.stack` (ab 900 px zweispaltig), `.list`, `.group-title`,
+`.group-label`, `.btn`, `.btn-primary`, `.toolbar`, `.chips`/`.chip`.
+`checkRow` in `src/ui/build.ts` kennt `aside`, `icon()` baut SVG Symbole.
+Bundle gzip nach Kueche: Haupt Chunk 36,61 kB, CSS 6,98 kB (Grenze 8, beim
+Umbau der anderen Ziele alte Regeln loeschen, nicht nur ergaenzen),
+`charts` 74,32 kB. Geprueft bei 375 px hell und dunkel, 1280 px.
+Pruefung im Dev Server: Eintrag `dev` in `.claude/launch.json`, ohne
+Zugangsdaten oeffnet das Blatt beim Start (mit `#btn-close-settings`
+schliessen). Fuer Heute, Training, Verlauf die Fixtures aus
+`public/preview/*.json` nur in localStorage `fitness_cache_v1` legen.
+
+Startprompt Rest 12.4 (neue Sitzung, Ordner dieses Worktrees, Branch
+`claude/mobile-app-b71746`): Lies CLAUDE.md, specs/roadmap.md,
+docs/uebergabe.md (Abschnitt Phase 12), `DESIGN.md`. Stelle die Ziele
+Heute, Training, Verlauf in dieser Reihenfolge auf die Bausteine aus dem
+Commit `0cb300f` um, je Ziel ein Commit mit Pruefung bei 375 px und
+1280 px und Bundle Zahlen. Keine Tabelle, keine Zeilen Bezeichnung gegen
+Wert, Verweigerungen als `.refusal` an der Stelle der Zahl. Diagrammfarben
+in `COLORS` (`src/ui/dom.ts`) sind noch die alten dunklen, sie muessen hell
+und dunkel aus den Custom Properties lesen. Chunk `charts` nicht statisch
+importieren. Danach Aliase und Uebergangsregeln loeschen, `DESIGN.md`
+nachziehen, Budget pruefen (Haupt Chunk 40 kB, CSS 8 kB), Uebergabe und
+Roadmap, dann Phasenverkettung mit 12.5. Nicht pushen.
+
