@@ -6,8 +6,9 @@
 | --- | --- | --- |
 | Sprache | TypeScript, strict | Die Parser arbeiten mit teilweise fehlenden Sheet Zellen. Ein Typsystem mit `number \| null` faengt genau die Klasse Fehler, die heute im Code steckt |
 | Build | Vite | Schnellster Weg zu Bundling, Typpruefung im Dev Server und einem einzigen deploybaren Ordner. Kein Framework noetig |
-| UI | Vanilla DOM, keine Komponentenbibliothek | Fuenf Tabs und kein Zustand, der React rechtfertigen wuerde |
-| Charts | Chart.js 4, lokal gebuendelt | Bleibt bei dem, was heute laeuft. Lokal statt CDN eliminiert Supply Chain Risiko und den fehlenden SRI Hash |
+| UI | Vanilla DOM, keine Komponentenbibliothek | Vier Ziele mit Hash Routing und kein Zustand, der React rechtfertigen wuerde |
+| Charts | Chart.js 4, lokal gebuendelt, ab Phase 12 als nachgeladener Chunk | Bleibt bei dem, was heute laeuft. Lokal statt CDN eliminiert Supply Chain Risiko und den fehlenden SRI Hash. Nachgeladen, weil Chart.js 71 kB gzip vom Haupt Chunk ausmacht und `Heute` ohne Diagramme auskommt |
+| PWA | `vite-plugin-pwa` 1.3.0 mit Workbox 7.4, Icons ueber `@vite-pwa/assets-generator` 1.0.4, beide exakt gepinnt (ADR 0006) | Updateweg und Aufraeumen alter Caches kommen erprobt aus der Bibliothek statt aus eigenem Code. Beides laeuft nur zur Build Zeit, die Seite bekommt nur die Registrierung |
 | Tests | Vitest | Laeuft ohne Zusatzkonfiguration mit Vite. Getestet werden Parser und Analytik, nicht das DOM |
 | Datenquelle | Google Sheets API v4, lesend, API Key | Unveraendert. Kein OAuth, weil kein Backend existiert, das ein Token halten koennte |
 | Spaltenzuordnung | ueber Spaltennamen, nicht ueber Spaltennummern | Der Trainer hat Schreibrechte am Sheet. Eine eingefuegte Spalte darf keine stille Fehlinterpretation erzeugen |
@@ -35,6 +36,13 @@ Einzelmassnahme im Projekt.
 laufen ueber npm statt ueber eine URL. Nutzen: die Seite laedt kein fremdes
 Skript mehr aus und ist nicht von cdnjs Verfuegbarkeit abhaengig.
 
+**Service Worker ueber `vite-plugin-pwa`.** Kosten: eine Build
+Abhaengigkeit mit Workbox darunter, `sw.js` rund 5 bis 8 kB gzip, ein Updateweg,
+der haengen kann, und zwei neue CSP Direktiven (`worker-src`, `manifest-src`).
+Gepinnt ist die Linie 1.3.0 statt der drei Wochen alten 2.0.0, beide passen zu
+Vite 6. Rueckfallweg bei einem kaputten Service Worker ist ein Deploy mit
+`selfDestroying`. Nutzen: Start vom Home Bildschirm im Vollbild und ohne Netz.
+
 **API Key im Browser.** Der Key ist unvermeidbar clientseitig, solange kein
 Backend existiert. Absicherung ueber die HTTP Referrer Beschraenkung des Keys in
 der Google Cloud Console auf `me.nahobinoco.com/*` und die Beschraenkung auf die
@@ -48,9 +56,16 @@ Rueckfallweg. Nutzen: ohne Build Schritt kein Vite.
 
 ## Zielbrowser
 
-Aktuelle Versionen von Safari, Chrome und Firefox auf dem Desktop. Mobiles Layout
-ist kein Ziel, die Seite muss dort nur lesbar bleiben. Kein PWA, kein Service
-Worker, kein Offlinebetrieb.
+Safari auf dem iPhone ist das Zielgeraet, als installierte Web App vom Home
+Bildschirm und im Browser. Dazu aktuelle Versionen von Safari, Chrome und
+Firefox auf dem Desktop. Mobile first: gebaut wird fuer 375 px, ab 900 px
+dieselbe Oberflaeche breiter.
+
+Offlinebetrieb ueber einen Service Worker, der nur die App Huelle der eigenen
+Herkunft cached (`index.html`, gehashte Assets, Icons, `data/*.json`). Anfragen
+an `sheets.googleapis.com` und `api.anthropic.com` gehen an ihm vorbei, weil die
+Sheets URL den API Key im Query traegt. Die Sheet Werte kommen offline aus dem
+localStorage wie bisher.
 
 ## Projektstruktur
 
@@ -81,7 +96,7 @@ Worker, kein Offlinebetrieb.
     /charts            Chart Fabriken, ein Modul pro Charttyp
     /ui
       answer-block.ts  der Antwortblock oben
-      tabs.ts
+      tabs.ts          wird in Phase 12 durch Router und Navigation ersetzt
       kpi.ts
       tables.ts
     styles.css

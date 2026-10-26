@@ -116,14 +116,18 @@ Die CSP bekommt `worker-src 'self'` und `manifest-src 'self'`, sonst nichts.
 
 Gemessen gzip gegen `origin/main` zum Start der Phase.
 
+Messung 12.0 am 26.10.2026 (Chart.js und `src/charts/` per `manualChunks`
+probeweise abgetrennt, sonst unveraendert): Chart.js 71,06 kB, eigene
+Diagrammfabriken `src/charts/` 4,79 kB, der Rest des Haupt Chunks 33,72 kB.
+
 | Teil | Heute | Ziel |
 | --- | --- | --- |
-| Haupt Chunk, noetig fuer `Heute` | 108,05 kB | hoechstens 50 kB, weil Chart.js herausfaellt |
-| Chunk `charts` mit Chart.js, nachgeladen bei `Verlauf` oder `Training` | im Haupt Chunk | Groesse von Chart.js plus hoechstens 2 kB |
+| Haupt Chunk, noetig fuer `Heute` | 108,05 kB | hoechstens 40 kB (gemessen 33,72 kB ohne Chart.js, plus Shell bis 4 kB, plus Puffer) |
+| Chunk `charts` mit Chart.js und `src/charts/`, nachgeladen bei `Verlauf` oder `Training` | im Haupt Chunk | hoechstens 78 kB (gemessen 71,06 plus 4,79 kB, plus hoechstens 2 kB) |
 | Neue Shell (Navigation, Router, Leiste, Blatt, Registrierung des Service Workers) | 0 | hoechstens 4 kB, zaehlt zum Haupt Chunk |
 | CSS | 5,23 kB | hoechstens 8 kB |
 | `sw.js` mit Workbox | 0 | hoechstens 8 kB, ausserhalb des Bundles, einmal je Version |
-| Summe aller Chunks bei voller Nutzung | Stand heute | hoechstens 5 kB mehr als heute, die bestehende Grenze aus Phase 9 |
+| Summe aller Chunks bei voller Nutzung | 202,61 kB | hoechstens 207,61 kB, also 5 kB mehr als heute, die bestehende Grenze aus Phase 9 |
 
 Die Zahlen werden nach jedem Unterschritt im Commit genannt.
 

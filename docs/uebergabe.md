@@ -1,6 +1,6 @@
 # Uebergabe
 
-Stand 26.10.2026, Phase 11 abgeschlossen und live.
+Stand 26.10.2026, Phase 11 abgeschlossen und live, Phase 12 in Arbeit.
 
 ## Wo wir stehen
 
@@ -27,6 +27,32 @@ Offen beim Nutzer:
 2. Dauerpreis Startwerte in `public/data/regular_prices.json` mit
    `source: "manual"` eintragen
 3. Nachzuholen aus Phase 6: Lighthouse Messung
+
+## Phase 12 Mobile App
+
+Spec `specs/features/mobile-app.md` und ADR 0006 freigegeben 26.10.2026.
+Branch `claude/mobile-app-b71746` (Worktree `.claude/worktrees/mobile-app-b71746`),
+abgezweigt von `claude/mobile-app-spec` (`233c9c5`, enthaelt `origin/main`).
+Merge Ziel ist `origin/main`, nie das lokale `main` im Hauptordner.
+
+Entscheidungen (26.10.2026):
+* PWA mit Service Worker ueber `vite-plugin-pwa`, rein lesend, cached nur die
+  App Huelle der eigenen Herkunft, nie `googleapis.com` oder `anthropic.com`
+* Eine Oberflaeche mobile first, vier Ziele unten, ab 900 px Navigation links
+* Chart.js als nachgeladener Chunk
+* Icon und hell oder dunkel entscheidet der Nutzer am Entwurf aus 12.1
+* Die installierte App auf dem iPhone hat einen eigenen localStorage,
+  Zugangsdaten dort einmal neu eintragen
+
+12.0 erledigt: Mission und Tech Stack angepasst. Gemessen: Chart.js 71,06 kB,
+`src/charts/` 4,79 kB, Rest des Haupt Chunks 33,72 kB gzip. Ziele in der
+Budget Tabelle: Haupt Chunk hoechstens 40 kB, Chunk `charts` hoechstens 78 kB.
+Gepinnt `vite-plugin-pwa` 1.3.0 (Workbox 7.4.1) und
+`@vite-pwa/assets-generator` 1.0.4, nur installiert, noch nicht eingebunden.
+Bewusst nicht 2.0.0: erst drei Wochen alt, 1.3.0 deckt Vite 6 ab.
+
+12.1: Entwurf liegt unter `docs/design/mobile-mockup.html` zur Freigabe. Danach
+`DESIGN.md`, dann 12.2 Shell.
 
 ## Phase 11 Kochansicht
 

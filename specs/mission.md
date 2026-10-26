@@ -44,6 +44,10 @@ Mindestdatenlage und verweigert die Aussage darunter, statt zu raten.
 * Laeuft als statische Seite ohne Backend auf GitHub Pages. Einzige zweite
   Datenquelle ist `data/prices.json`, einmal pro Woche von GitHub Actions
   geschrieben (ADR 0002)
+* Ist ab Phase 12 eine installierbare Web App (PWA, ADR 0006): Start vom Home
+  Bildschirm im Vollbild, ohne Netz mit den zuletzt geladenen Sheet Werten und
+  deren Alter. Der Service Worker cached nur die eigene App Huelle, nie Anfragen
+  an Google oder Anthropic
 
 ## Was es ausdruecklich nicht tut
 
@@ -59,9 +63,10 @@ Mindestdatenlage und verweigert die Aussage darunter, statt zu raten.
 
 ## Wer es nutzt
 
-Eine Person. Auswertung am Desktop, Plan und Einkauf vor allem am Handy. Seit
-Phase 8 ist mobiles Layout ein Ziel, fuer die Reiter `Plan` und `Einkauf` bei
-375 px verbindlich.
+Eine Person, vor allem am Handy: Plan, Einkauf und Kochen in der Kueche, die
+Wochenfrage unterwegs. Ab Phase 12 ist die Oberflaeche mobile first und fuer
+alle Ziele bei 375 px verbindlich. Am Desktop laeuft dieselbe Oberflaeche ab
+900 px mit linker Navigation und zwei Spalten, ohne zweiten Code Pfad.
 
 ## Betrieb
 
@@ -69,4 +74,6 @@ Phase 8 ist mobiles Layout ein Ziel, fuer die Reiter `Plan` und `Einkauf` bei
 * Ausgeliefert unter https://me.nahobinoco.com/fitness-dashboard/
 * Seite wird per `noindex` von Suchmaschinen ferngehalten, kein Klarname in Titel
   oder Kopfbereich
-* Zugangsdaten und Zielwerte liegen ausschliesslich im localStorage des Browsers
+* Zugangsdaten und Zielwerte liegen ausschliesslich im localStorage des Browsers.
+  Die auf dem iPhone installierte App hat einen eigenen localStorage, die
+  Zugangsdaten werden dort einmal neu eingetragen
