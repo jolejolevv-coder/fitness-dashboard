@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { DAY_TOLERANCE, PREP_DAYS } from '../src/config/generator';
-import { CSP_CONNECT_HOSTS, buildCsp, cspMetaTag } from '../src/config/csp';
+import { CSP_CONNECT_HOSTS, CSP_DIRECTIVES, buildCsp, cspMetaTag } from '../src/config/csp';
 import { PLAN, validatePlan } from '../src/nutrition/plan';
 import type { PlanData } from '../src/nutrition/plan';
 import type { Meal, PrepSession, Rotation } from '../src/nutrition/types';
@@ -93,6 +93,22 @@ describe('CSP', () => {
   it('setzt default-src und object-src', () => {
     expect(directive('default-src')).toEqual(["'self'"]);
     expect(directive('object-src')).toEqual(["'none'"]);
+  });
+
+  it('erlaubt Service Worker und Manifest nur von self', () => {
+    expect(directive('worker-src')).toEqual(["'self'"]);
+    expect(directive('manifest-src')).toEqual(["'self'"]);
+  });
+
+  it('hat genau die Direktiven vor Phase 12 plus worker-src und manifest-src', () => {
+    expect(Object.keys(CSP_DIRECTIVES)).toEqual([
+      'default-src', 'script-src', 'style-src', 'img-src', 'font-src', 'connect-src',
+      'object-src', 'base-uri', 'form-action', 'worker-src', 'manifest-src',
+    ]);
+    expect(directive('img-src')).toEqual(["'self'", 'data:', 'blob:']);
+    expect(directive('font-src')).toEqual(["'self'"]);
+    expect(directive('base-uri')).toEqual(["'self'"]);
+    expect(directive('form-action')).toEqual(["'none'"]);
   });
 
   it('steht als meta Element mit dem ganzen Policy Text', () => {

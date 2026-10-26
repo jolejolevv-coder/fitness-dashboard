@@ -1,6 +1,8 @@
 import { defineConfig } from 'vite';
 import type { Plugin } from 'vite';
+import { VitePWA } from 'vite-plugin-pwa';
 import { cspMetaTag } from './src/config/csp';
+import { APP_NAME, BOARD_COLOR, MANIFEST_ICONS } from './src/config/pwa';
 
 /** CSP nur im Build. Im Dev Modus liefert Vite Inline Skripte, die sie blockieren wuerde. */
 function contentSecurityPolicy(): Plugin {
@@ -11,12 +13,40 @@ function contentSecurityPolicy(): Plugin {
   };
 }
 
+/**
+ * App Huelle als PWA (ADR 0006). Eigener Service Worker `src/sw.ts`, damit die
+ * Regel fuer erlaubte URLs eine testbare Funktion ist. Vorab gecacht werden nur
+ * eigene Dateien, keine Sourcemaps, keine Fixtures unter `preview/`.
+ */
+function progressiveWebApp(): Plugin[] {
+  return VitePWA({
+    strategies: 'injectManifest',
+    srcDir: 'src',
+    filename: 'sw.ts',
+    injectRegister: 'script-defer',
+    registerType: 'prompt',
+    manifest: {
+      name: APP_NAME,
+      short_name: APP_NAME,
+      lang: 'de',
+      display: 'standalone',
+      background_color: BOARD_COLOR,
+      theme_color: BOARD_COLOR,
+      icons: [...MANIFEST_ICONS],
+    },
+    injectManifest: {
+      globPatterns: ['**/*.{js,css,html,svg,png,ico}'],
+      globIgnores: ['preview/**'],
+    },
+  });
+}
+
 // Die Seite wird unter https://me.nahobinoco.com/fitness-dashboard/ ausgeliefert.
 // Ohne diesen Basispfad zeigen alle Asset Verweise auf die Domainwurzel und die
 // Seite bleibt weiss.
 export default defineConfig({
   base: '/fitness-dashboard/',
-  plugins: [contentSecurityPolicy()],
+  plugins: [contentSecurityPolicy(), progressiveWebApp()],
   build: {
     outDir: 'dist',
     sourcemap: true,

@@ -20,6 +20,9 @@ export const CSP_DIRECTIVES: Readonly<Record<string, readonly string[]>> = {
   'object-src': ["'none'"],
   'base-uri': ["'self'"],
   'form-action': ["'none'"],
+  // Service Worker und Manifest der App Huelle, nur von der eigenen Herkunft (ADR 0006).
+  'worker-src': ["'self'"],
+  'manifest-src': ["'self'"],
 };
 
 export function buildCsp(directives: Readonly<Record<string, readonly string[]>> = CSP_DIRECTIVES): string {
