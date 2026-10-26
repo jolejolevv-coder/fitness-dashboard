@@ -1,0 +1,822 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-26T00:00:00Z",
+  "title": "Design System: Body Recomp",
+  "extensions": {
+    "colorMeta": {
+      "board": {
+        "role": "neutral",
+        "displayName": "Emaille",
+        "canonical": "#eceeed",
+        "oklch": "oklch(94.7% 0.003 165.1)",
+        "cssVar": "--board",
+        "scheme": "light",
+        "tonalRamp": [
+          "#0a0b0b",
+          "#242525",
+          "#414242",
+          "#606261",
+          "#818382",
+          "#a4a5a4",
+          "#c8cac9",
+          "#edefee"
+        ]
+      },
+      "card": {
+        "role": "neutral",
+        "displayName": "Magnetkarte",
+        "canonical": "#fbfcfb",
+        "oklch": "oklch(99.0% 0.002 145.6)",
+        "cssVar": "--card",
+        "scheme": "light",
+        "tonalRamp": [
+          "#0b0b0b",
+          "#242524",
+          "#414241",
+          "#616161",
+          "#828282",
+          "#a4a5a4",
+          "#c8c9c8",
+          "#eeefee"
+        ]
+      },
+      "card-sunk": {
+        "role": "neutral",
+        "displayName": "Eingelassene Flaeche",
+        "canonical": "#f1f3f2",
+        "oklch": "oklch(96.2% 0.003 165.1)",
+        "cssVar": "--card-sunk",
+        "scheme": "light",
+        "tonalRamp": [
+          "#0a0b0b",
+          "#242525",
+          "#414242",
+          "#606261",
+          "#818382",
+          "#a4a5a4",
+          "#c8cac9",
+          "#edefee"
+        ]
+      },
+      "rail": {
+        "role": "neutral",
+        "displayName": "Alurahmen",
+        "canonical": "#dfe3e2",
+        "oklch": "oklch(91.2% 0.005 179.7)",
+        "cssVar": "--rail",
+        "scheme": "light",
+        "tonalRamp": [
+          "#090c0b",
+          "#232625",
+          "#404342",
+          "#5f6261",
+          "#808382",
+          "#a2a6a5",
+          "#c6cac9",
+          "#ebefee"
+        ]
+      },
+      "rail-edge": {
+        "role": "neutral",
+        "displayName": "Rahmenkante",
+        "canonical": "#c9cfcd",
+        "oklch": "oklch(84.9% 0.007 174.3)",
+        "cssVar": "--rail-edge",
+        "scheme": "light",
+        "tonalRamp": [
+          "#080c0b",
+          "#222625",
+          "#3e4342",
+          "#5d6361",
+          "#7e8482",
+          "#a1a6a5",
+          "#c5cbc9",
+          "#eaf0ee"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Markerschwarz",
+        "canonical": "#1b1e20",
+        "oklch": "oklch(23.3% 0.006 236.8)",
+        "cssVar": "--ink",
+        "scheme": "light",
+        "tonalRamp": [
+          "#090c0d",
+          "#222628",
+          "#3f4245",
+          "#5e6264",
+          "#7f8385",
+          "#a2a6a8",
+          "#c6cacc",
+          "#ebeff2"
+        ]
+      },
+      "ink-2": {
+        "role": "neutral",
+        "displayName": "Zweite Tinte",
+        "canonical": "#555c60",
+        "oklch": "oklch(47.0% 0.011 232.6)",
+        "cssVar": "--ink-2",
+        "scheme": "light",
+        "tonalRamp": [
+          "#070c0f",
+          "#20262a",
+          "#3c4347",
+          "#5b6266",
+          "#7c8488",
+          "#9fa6ab",
+          "#c2cbcf",
+          "#e8f0f5"
+        ]
+      },
+      "ink-3": {
+        "role": "neutral",
+        "displayName": "Dritte Tinte",
+        "canonical": "#848b8f",
+        "oklch": "oklch(63.2% 0.010 232.5)",
+        "cssVar": "--ink-3",
+        "scheme": "light",
+        "tonalRamp": [
+          "#070c0f",
+          "#202629",
+          "#3d4347",
+          "#5c6266",
+          "#7d8387",
+          "#9fa6aa",
+          "#c3cacf",
+          "#e8f0f4"
+        ]
+      },
+      "blue": {
+        "role": "primary",
+        "displayName": "Markerblau",
+        "canonical": "#1d5fc4",
+        "oklch": "oklch(50.5% 0.171 259.3)",
+        "cssVar": "--blue",
+        "scheme": "light",
+        "tonalRamp": [
+          "#020a1d",
+          "#0c2449",
+          "#1b407a",
+          "#2b5eaf",
+          "#3e7fe6",
+          "#70a5fa",
+          "#a1cbff",
+          "#d2f0ff"
+        ],
+        "aliases": [
+          "--magnet"
+        ]
+      },
+      "blue-wash": {
+        "role": "primary",
+        "displayName": "Blaue Spur",
+        "canonical": "#e3ecf9",
+        "oklch": "oklch(94.0% 0.020 257.5)",
+        "cssVar": "--blue-wash",
+        "scheme": "light",
+        "tonalRamp": [
+          "#0a0b0d",
+          "#222529",
+          "#3e4249",
+          "#5b626b",
+          "#7b838e",
+          "#9fa6af",
+          "#c4cad1",
+          "#ebeff4"
+        ]
+      },
+      "red": {
+        "role": "secondary",
+        "displayName": "Markerrot",
+        "canonical": "#c4372d",
+        "oklch": "oklch(54.8% 0.180 28.5)",
+        "cssVar": "--red",
+        "scheme": "light",
+        "tonalRamp": [
+          "#1a0302",
+          "#44110d",
+          "#72231c",
+          "#a4362c",
+          "#d84c40",
+          "#f17f70",
+          "#ffaea1",
+          "#ffdcd2"
+        ]
+      },
+      "red-wash": {
+        "role": "secondary",
+        "displayName": "Rote Spur",
+        "canonical": "#f8e6e4",
+        "oklch": "oklch(93.9% 0.020 25.2)",
+        "cssVar": "--red-wash",
+        "scheme": "light",
+        "tonalRamp": [
+          "#130807",
+          "#2e2120",
+          "#4c3e3d",
+          "#6c5d5b",
+          "#8e7e7c",
+          "#b1a19f",
+          "#d6c4c3",
+          "#fceae8"
+        ]
+      },
+      "green": {
+        "role": "secondary",
+        "displayName": "Markergruen",
+        "canonical": "#1d7f48",
+        "oklch": "oklch(52.8% 0.123 153.4)",
+        "cssVar": "--green",
+        "scheme": "light",
+        "tonalRamp": [
+          "#020f06",
+          "#0b2c18",
+          "#1a4e2e",
+          "#297145",
+          "#3d975f",
+          "#73b788",
+          "#a4d8b3",
+          "#d5f9df"
+        ]
+      },
+      "green-wash": {
+        "role": "secondary",
+        "displayName": "Gruene Spur",
+        "canonical": "#e2f1e8",
+        "oklch": "oklch(94.4% 0.020 159.7)",
+        "cssVar": "--green-wash",
+        "scheme": "light",
+        "tonalRamp": [
+          "#040e08",
+          "#1d2822",
+          "#39453e",
+          "#58655d",
+          "#79867e",
+          "#9ba9a1",
+          "#bfcdc5",
+          "#e4f3ea"
+        ]
+      },
+      "tape": {
+        "role": "neutral",
+        "displayName": "Klebeband",
+        "canonical": "#2a2f33",
+        "oklch": "oklch(30.2% 0.010 242.0)",
+        "cssVar": "--tape",
+        "scheme": "light",
+        "tonalRamp": [
+          "#080c0f",
+          "#21262a",
+          "#3d4347",
+          "#5c6267",
+          "#7d8388",
+          "#a0a6ab",
+          "#c4cacf",
+          "#e9eff5"
+        ]
+      },
+      "board-dark": {
+        "role": "neutral",
+        "displayName": "Emaille (Schiefer)",
+        "canonical": "#181b1d",
+        "oklch": "oklch(22.0% 0.006 236.8)",
+        "cssVar": "--board",
+        "scheme": "dark",
+        "tonalRamp": [
+          "#090c0d",
+          "#222628",
+          "#3f4245",
+          "#5e6264",
+          "#7f8385",
+          "#a2a6a8",
+          "#c6cacd",
+          "#ebeff2"
+        ]
+      },
+      "card-dark": {
+        "role": "neutral",
+        "displayName": "Magnetkarte (Schiefer)",
+        "canonical": "#24292c",
+        "oklch": "oklch(27.7% 0.009 234.0)",
+        "cssVar": "--card",
+        "scheme": "dark",
+        "tonalRamp": [
+          "#080c0e",
+          "#212629",
+          "#3d4346",
+          "#5c6266",
+          "#7d8387",
+          "#a0a6aa",
+          "#c4cace",
+          "#e9f0f4"
+        ]
+      },
+      "card-sunk-dark": {
+        "role": "neutral",
+        "displayName": "Eingelassene Flaeche (Schiefer)",
+        "canonical": "#1e2225",
+        "oklch": "oklch(24.9% 0.008 240.2)",
+        "cssVar": "--card-sunk",
+        "scheme": "dark",
+        "tonalRamp": [
+          "#080c0e",
+          "#222629",
+          "#3e4346",
+          "#5d6265",
+          "#7e8387",
+          "#a1a6aa",
+          "#c5cace",
+          "#eaeff3"
+        ]
+      },
+      "rail-dark": {
+        "role": "neutral",
+        "displayName": "Alurahmen (Schiefer)",
+        "canonical": "#2b3034",
+        "oklch": "oklch(30.6% 0.010 242.0)",
+        "cssVar": "--rail",
+        "scheme": "dark",
+        "tonalRamp": [
+          "#080c0f",
+          "#21262a",
+          "#3d4347",
+          "#5c6267",
+          "#7d8388",
+          "#a0a6ab",
+          "#c4cacf",
+          "#e9eff5"
+        ]
+      },
+      "rail-edge-dark": {
+        "role": "neutral",
+        "displayName": "Rahmenkante (Schiefer)",
+        "canonical": "#3a4044",
+        "oklch": "oklch(36.7% 0.011 236.9)",
+        "cssVar": "--rail-edge",
+        "scheme": "dark",
+        "tonalRamp": [
+          "#070c0f",
+          "#20262a",
+          "#3d4347",
+          "#5c6267",
+          "#7d8388",
+          "#9fa6ab",
+          "#c3cacf",
+          "#e8f0f5"
+        ]
+      },
+      "ink-dark": {
+        "role": "neutral",
+        "displayName": "Markerschwarz (Schiefer)",
+        "canonical": "#eef1f0",
+        "oklch": "oklch(95.6% 0.003 174.5)",
+        "cssVar": "--ink",
+        "scheme": "dark",
+        "tonalRamp": [
+          "#0a0c0b",
+          "#232625",
+          "#404342",
+          "#5f6261",
+          "#808382",
+          "#a3a6a5",
+          "#c7cac9",
+          "#ecefee"
+        ]
+      },
+      "ink-2-dark": {
+        "role": "neutral",
+        "displayName": "Zweite Tinte (Schiefer)",
+        "canonical": "#aab2b5",
+        "oklch": "oklch(75.8% 0.010 222.1)",
+        "cssVar": "--ink-2",
+        "scheme": "dark",
+        "tonalRamp": [
+          "#070c0e",
+          "#202629",
+          "#3c4346",
+          "#5b6365",
+          "#7c8487",
+          "#9fa7a9",
+          "#c3cbce",
+          "#e8f0f3"
+        ]
+      },
+      "ink-3-dark": {
+        "role": "neutral",
+        "displayName": "Dritte Tinte (Schiefer)",
+        "canonical": "#7c8488",
+        "oklch": "oklch(60.8% 0.011 229.0)",
+        "cssVar": "--ink-3",
+        "scheme": "dark",
+        "tonalRamp": [
+          "#070c0f",
+          "#202629",
+          "#3c4347",
+          "#5b6366",
+          "#7c8488",
+          "#9ea7ab",
+          "#c2cbcf",
+          "#e7f0f5"
+        ]
+      },
+      "blue-dark": {
+        "role": "primary",
+        "displayName": "Markerblau (Schiefer)",
+        "canonical": "#6aa3ff",
+        "oklch": "oklch(71.7% 0.148 259.6)",
+        "cssVar": "--blue",
+        "scheme": "dark",
+        "tonalRamp": [
+          "#030b1a",
+          "#112444",
+          "#224173",
+          "#3560a5",
+          "#4a81d9",
+          "#78a6ef",
+          "#a7cbff",
+          "#d7f0ff"
+        ],
+        "aliases": [
+          "--magnet"
+        ]
+      },
+      "blue-wash-dark": {
+        "role": "primary",
+        "displayName": "Blaue Spur (Schiefer)",
+        "canonical": "#1d2b40",
+        "oklch": "oklch(28.7% 0.043 258.3)",
+        "cssVar": "--blue-wash",
+        "scheme": "dark",
+        "tonalRamp": [
+          "#080b10",
+          "#1f252e",
+          "#394351",
+          "#556276",
+          "#73839c",
+          "#98a6bb",
+          "#bfcadb",
+          "#e7effb"
+        ]
+      },
+      "red-dark": {
+        "role": "secondary",
+        "displayName": "Markerrot (Schiefer)",
+        "canonical": "#ff7a6e",
+        "oklch": "oklch(73.2% 0.164 27.1)",
+        "cssVar": "--red",
+        "scheme": "dark",
+        "tonalRamp": [
+          "#190403",
+          "#421410",
+          "#6f2722",
+          "#a03b34",
+          "#d2534a",
+          "#ec8378",
+          "#ffb0a6",
+          "#ffded6"
+        ]
+      },
+      "red-wash-dark": {
+        "role": "secondary",
+        "displayName": "Rote Spur (Schiefer)",
+        "canonical": "#3a2422",
+        "oklch": "oklch(28.7% 0.034 25.1)",
+        "cssVar": "--red-wash",
+        "scheme": "dark",
+        "tonalRamp": [
+          "#0f0a09",
+          "#2c2221",
+          "#4d3e3c",
+          "#705b59",
+          "#967b78",
+          "#b69f9c",
+          "#d6c4c2",
+          "#f8ebea"
+        ]
+      },
+      "green-dark": {
+        "role": "secondary",
+        "displayName": "Markergruen (Schiefer)",
+        "canonical": "#5fd394",
+        "oklch": "oklch(78.3% 0.140 157.1)",
+        "cssVar": "--green",
+        "scheme": "dark",
+        "tonalRamp": [
+          "#000f06",
+          "#012e18",
+          "#034f2e",
+          "#077446",
+          "#189a60",
+          "#64ba89",
+          "#9bdab3",
+          "#cffbdf"
+        ]
+      },
+      "green-wash-dark": {
+        "role": "secondary",
+        "displayName": "Gruene Spur (Schiefer)",
+        "canonical": "#1b3326",
+        "oklch": "oklch(29.7% 0.039 159.2)",
+        "cssVar": "--green-wash",
+        "scheme": "dark",
+        "tonalRamp": [
+          "#080c0a",
+          "#1e2822",
+          "#37463d",
+          "#52675b",
+          "#6f8a7a",
+          "#95ab9e",
+          "#bdcec4",
+          "#e6f2eb"
+        ]
+      },
+      "tape-dark": {
+        "role": "neutral",
+        "displayName": "Klebeband (Schiefer)",
+        "canonical": "#d6dbd9",
+        "oklch": "oklch(88.7% 0.006 170.4)",
+        "cssVar": "--tape",
+        "scheme": "dark",
+        "tonalRamp": [
+          "#090c0b",
+          "#222625",
+          "#3f4341",
+          "#5e6261",
+          "#7f8382",
+          "#a1a6a4",
+          "#c5cac8",
+          "#ebf0ee"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "Hauptzahl einer Ansicht, hoechstens eine je Ziel. Einheit 19px."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Zahl einer Magnetkarte und Titel der oberen Leiste. Wortzustand 24px."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Abschnittsueberschrift, Zahl rechts in Listenzeilen."
+      },
+      "value-sm": {
+        "displayName": "Value Small",
+        "purpose": "Kalorien je Mahlzeit, Makros, Preise (16px)."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Beobachtungen und Zutaten."
+      },
+      "body-strong": {
+        "displayName": "Body Strong",
+        "purpose": "Namen in Listen und Mahlzeiten."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Bezeichnung oben auf der Karte, Markierungskapsel, Einkaufskategorie."
+      },
+      "caption": {
+        "displayName": "Caption",
+        "purpose": "Datenbasis, Datenalter, Unterzeilen."
+      },
+      "nav": {
+        "displayName": "Nav",
+        "purpose": "Wort unter dem Symbol der Navigation."
+      }
+    },
+    "cssVariables": {
+      "--num": "ui-rounded, 'SF Pro Rounded', system-ui, -apple-system, sans-serif",
+      "--text": "system-ui, -apple-system, 'SF Pro Text', 'Helvetica Neue', sans-serif",
+      "--magnet": "alias of --blue",
+      "--ease": "cubic-bezier(0.22, 1, 0.36, 1)"
+    },
+    "themes": {
+      "default": "light",
+      "dark": "@media (prefers-color-scheme: dark) maps every token to its -dark value; color-scheme: dark"
+    },
+    "shadows": [
+      {
+        "name": "shadow",
+        "value": "0 1px 1px rgba(27, 30, 32, 0.06), 0 3px 8px rgba(27, 30, 32, 0.07)",
+        "valueDark": "0 1px 1px rgba(0,0,0,0.3), 0 3px 8px rgba(0,0,0,0.25)",
+        "purpose": "Magnet: Karten, Listen, Filterkapseln, Auswahlzeile, Puck."
+      },
+      {
+        "name": "rail-inset",
+        "value": "inset 0 1px 0 var(--rail-edge)",
+        "purpose": "Eingelassene Segmentleiste."
+      },
+      {
+        "name": "nav-magnet",
+        "value": "0 1px 2px rgba(0,0,0,0.3)",
+        "purpose": "Magnetpunkt der Navigation."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease",
+        "value": "cubic-bezier(0.22, 1, 0.36, 1)",
+        "purpose": "Einzige Kurve fuer alle Uebergaenge."
+      },
+      {
+        "name": "magnet-slide",
+        "value": "transform 240ms var(--ease)",
+        "purpose": "Puck und Navigationsmagnet, nur transform, nie left oder width."
+      },
+      {
+        "name": "segment-color",
+        "value": "color 200ms var(--ease)",
+        "purpose": "Textfarbe des Segmenteintrags beim Wechsel."
+      },
+      {
+        "name": "disclosure",
+        "value": "transform 220ms var(--ease)",
+        "purpose": "Chevron der Mahlzeit dreht um 180 Grad."
+      },
+      {
+        "name": "reduced-motion",
+        "value": "transition: none",
+        "purpose": "Bei prefers-reduced-motion: reduce entfallen alle Uebergaenge."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "phone",
+        "value": "375px",
+        "purpose": "Entwurfsbreite, eine Spalte"
+      },
+      {
+        "name": "rail",
+        "value": "900px",
+        "purpose": "Navigation wandert nach links, bis zu zwei Spalten (Spec, im Entwurf nicht gebaut)"
+      }
+    ],
+    "focus": {
+      "value": "outline: 2px solid var(--blue); outline-offset: 2px",
+      "purpose": "Sichtbarer Fokus fuer jedes bedienbare Element."
+    },
+    "openFindings": [
+      "ink-3 erreicht als Textfarbe 3,4 zu 1 auf card und 2,7 zu 1 auf rail (dunkel 3,9 und 3,5); Datenbasis und inaktive Navigation brauchen 4,5 zu 1",
+      "Navigationsmagnet wird im Entwurf ueber left gesetzt und gleitet nicht; im Bau per transform"
+    ]
+  },
+  "components": [
+    {
+      "name": "Magnetkarte",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "Eine Zahl je Karte, Bezeichnung darueber, Datenbasis darunter.",
+      "html": "<div class=\"ds-card\"><div class=\"ds-label\">Gewicht</div><div class=\"ds-num\">00,0<small>kg</small></div><div class=\"ds-basis\">Basis 14 Tage</div></div>",
+      "css": ".ds-card { background: var(--card, #fbfcfb); color: var(--ink, #1b1e20); border-radius: 14px; box-shadow: var(--shadow, 0 1px 1px rgba(27,30,32,0.06), 0 3px 8px rgba(27,30,32,0.07)); padding: 14px 16px 15px; font-family: var(--text, system-ui, -apple-system, sans-serif); max-width: 180px; } .ds-label { font-size: 13px; font-weight: 600; color: var(--ink-2, #555c60); } .ds-num { font: 700 30px/1.05 var(--num, ui-rounded, 'SF Pro Rounded', system-ui, sans-serif); letter-spacing: -0.01em; font-variant-numeric: tabular-nums; margin-top: 6px; display: flex; align-items: baseline; gap: 4px; } .ds-num small { font-size: 15px; font-weight: 600; color: var(--ink-2, #555c60); } .ds-basis { font-size: 13px; color: var(--ink-3, #848b8f); margin-top: 5px; font-variant-numeric: tabular-nums; }"
+    },
+    {
+      "name": "Verweigerung",
+      "kind": "custom",
+      "refersTo": "refusal-gap",
+      "description": "Zahlenzeile an der Stelle der Zahl, wenn die Mindestdatenlage fehlt.",
+      "html": "<div class=\"ds-card\"><div class=\"ds-label\">Erhaltung</div><div class=\"ds-gap\">Basis 11 von 14 Tagen</div><div class=\"ds-basis\">keine Aussage</div></div>",
+      "css": ".ds-card { background: var(--card, #fbfcfb); border-radius: 14px; box-shadow: var(--shadow, 0 1px 1px rgba(27,30,32,0.06), 0 3px 8px rgba(27,30,32,0.07)); padding: 14px 16px 15px; font-family: var(--text, system-ui, -apple-system, sans-serif); max-width: 180px; } .ds-label { font-size: 13px; font-weight: 600; color: var(--ink-2, #555c60); } .ds-gap { margin-top: 10px; min-height: 34px; padding: 6px 8px; border-radius: 8px; border: 1.5px dashed var(--rail-edge, #c9cfcd); display: grid; place-items: center; text-align: center; font: 600 13px/1.25 var(--text, system-ui, -apple-system, sans-serif); color: var(--ink-2, #555c60); font-variant-numeric: tabular-nums; } .ds-basis { font-size: 13px; color: var(--ink-3, #848b8f); margin-top: 5px; }"
+    },
+    {
+      "name": "Markierungskapsel",
+      "kind": "chip",
+      "refersTo": "mark-off",
+      "description": "Abweichung als Kapsel mit Punkt, rot daneben, gruen getroffen.",
+      "html": "<span class=\"ds-mark ds-off\">ueber Plan</span> <span class=\"ds-mark ds-ok\">im Plan</span>",
+      "css": ".ds-mark { display: inline-flex; align-items: center; gap: 6px; font: 600 13px var(--text, system-ui, -apple-system, sans-serif); padding: 3px 9px 3px 7px; border-radius: 999px; } .ds-mark::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: currentColor; } .ds-off { color: var(--red, #c4372d); background: var(--red-wash, #f8e6e4); } .ds-ok { color: var(--green, #1d7f48); background: var(--green-wash, #e2f1e8); }"
+    },
+    {
+      "name": "Segmentleiste mit Magnet",
+      "kind": "nav",
+      "refersTo": "segment",
+      "description": "Puck mit blauem Magnetpunkt gleitet per transform auf dem Alurahmen.",
+      "html": "<div class=\"ds-seg\"><span class=\"ds-puck\"></span><button class=\"ds-seg-item\" aria-current=\"true\">Gewicht</button><button class=\"ds-seg-item\">Wochen</button><button class=\"ds-seg-item\">Analyse</button></div>",
+      "css": ".ds-seg { position: relative; display: flex; gap: 2px; background: var(--rail, #dfe3e2); border-radius: 12px; padding: 3px; box-shadow: inset 0 1px 0 var(--rail-edge, #c9cfcd); font-family: var(--text, system-ui, -apple-system, sans-serif); width: 300px; } .ds-seg-item { flex: 1; min-height: 38px; padding: 0 12px; border: 0; background: none; border-radius: 9px; font: 600 14px var(--text, system-ui, -apple-system, sans-serif); color: var(--ink-2, #555c60); position: relative; z-index: 1; cursor: pointer; transition: color 200ms var(--ease, cubic-bezier(0.22, 1, 0.36, 1)); } .ds-seg-item[aria-current='true'] { color: var(--ink, #1b1e20); } .ds-seg-item:focus-visible { outline: 2px solid var(--blue, #1d5fc4); outline-offset: 2px; } .ds-puck { position: absolute; top: 3px; bottom: 3px; left: 3px; width: calc((100% - 10px) / 3); border-radius: 9px; background: var(--card, #fbfcfb); box-shadow: var(--shadow, 0 1px 1px rgba(27,30,32,0.06), 0 3px 8px rgba(27,30,32,0.07)); transform: translateX(0); transition: transform 240ms var(--ease, cubic-bezier(0.22, 1, 0.36, 1)); } .ds-puck::after { content: ''; position: absolute; top: 5px; right: 6px; width: 6px; height: 6px; border-radius: 50%; background: var(--magnet, #1d5fc4); } .ds-seg:hover .ds-puck { transform: translateX(calc(100% + 2px)); } @media (prefers-reduced-motion: reduce) { .ds-puck, .ds-seg-item { transition: none; } }"
+    },
+    {
+      "name": "Filterkapsel",
+      "kind": "chip",
+      "refersTo": "chip",
+      "description": "Zeitraum oder Trainingstag, genau eine gewaehlt.",
+      "html": "<div class=\"ds-chips\"><button class=\"ds-chip\">30 Tage</button><button class=\"ds-chip\" aria-pressed=\"true\">Gesamt</button></div>",
+      "css": ".ds-chips { display: flex; gap: 8px; } .ds-chip { min-height: 36px; padding: 0 14px; border: 0; border-radius: 999px; background: var(--card, #fbfcfb); box-shadow: var(--shadow, 0 1px 1px rgba(27,30,32,0.06), 0 3px 8px rgba(27,30,32,0.07)); font: 600 14px var(--text, system-ui, -apple-system, sans-serif); color: var(--ink-2, #555c60); cursor: pointer; } .ds-chip:hover { color: var(--ink, #1b1e20); } .ds-chip:focus-visible { outline: 2px solid var(--blue, #1d5fc4); outline-offset: 2px; } .ds-chip[aria-pressed='true'] { background: var(--ink, #1b1e20); color: var(--card, #fbfcfb); box-shadow: none; }"
+    },
+    {
+      "name": "Navigation",
+      "kind": "nav",
+      "refersTo": "nav",
+      "description": "Alurahmen unten mit vier Zielen, Magnet auf dem aktiven, ab 900px links.",
+      "html": "<nav class=\"ds-nav\"><span class=\"ds-magnet\"></span><button class=\"ds-nav-item\" aria-current=\"page\"><svg viewBox=\"0 0 24 24\"><rect x=\"3.5\" y=\"5\" width=\"17\" height=\"15\" rx=\"3\"/><path d=\"M3.5 10h17M8 3v4M16 3v4\"/></svg>Heute</button><button class=\"ds-nav-item\"><svg viewBox=\"0 0 24 24\"><path d=\"M3.5 19.5h17\"/><path d=\"M4.5 7l5 5 3.5-3 6.5 7\"/></svg>Verlauf</button><button class=\"ds-nav-item\"><svg viewBox=\"0 0 24 24\"><path d=\"M6.5 7v10M17.5 7v10M3.5 9.5v5M20.5 9.5v5M6.5 12h11\"/></svg>Training</button><button class=\"ds-nav-item\"><svg viewBox=\"0 0 24 24\"><path d=\"M3.5 11h13v4.5a4 4 0 0 1-4 4h-5a4 4 0 0 1-4-4z\"/><path d=\"M16.5 13h4\"/></svg>Kueche</button></nav>",
+      "css": ".ds-nav { position: relative; display: grid; grid-template-columns: repeat(4, 1fr); width: 375px; padding: 6px 8px 10px; background: var(--rail, #dfe3e2); border-top: 1px solid var(--rail-edge, #c9cfcd); } .ds-nav-item { min-height: 54px; display: grid; justify-items: center; align-content: center; gap: 3px; border: 0; background: none; font: 600 11px var(--text, system-ui, -apple-system, sans-serif); color: var(--ink-3, #848b8f); cursor: pointer; } .ds-nav-item svg { width: 26px; height: 26px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; } .ds-nav-item:hover { color: var(--ink-2, #555c60); } .ds-nav-item:focus-visible { outline: 2px solid var(--blue, #1d5fc4); outline-offset: 2px; border-radius: 6px; } .ds-nav-item[aria-current='page'] { color: var(--blue, #1d5fc4); } .ds-magnet { position: absolute; top: -4px; left: 8px; width: 6px; height: 6px; border-radius: 50%; background: var(--magnet, #1d5fc4); box-shadow: 0 1px 2px rgba(0,0,0,0.3); transform: translateX(calc((375px - 16px) / 8 - 3px)); transition: transform 240ms var(--ease, cubic-bezier(0.22, 1, 0.36, 1)); }"
+    },
+    {
+      "name": "Listenzeile",
+      "kind": "custom",
+      "refersTo": "list-row",
+      "description": "Zeile in einer Listenkarte, Fugen in board statt Trennlinien.",
+      "html": "<div class=\"ds-list\"><div class=\"ds-row\"><div class=\"ds-row-name\">Uebung</div><div class=\"ds-row-meta\">Muskelgruppe</div><div class=\"ds-row-val\"><div class=\"ds-row-num\">+00 %</div><div class=\"ds-row-basis\">00 auf 00 kg</div></div></div><div class=\"ds-row\"><div class=\"ds-row-name\">Uebung</div><div class=\"ds-row-meta\">Muskelgruppe</div><div class=\"ds-row-val\"><div class=\"ds-row-num\">+00 %</div><div class=\"ds-row-basis\">00 auf 00 kg</div></div></div></div>",
+      "css": ".ds-list { background: var(--card, #fbfcfb); border-radius: 14px; box-shadow: var(--shadow, 0 1px 1px rgba(27,30,32,0.06), 0 3px 8px rgba(27,30,32,0.07)); overflow: hidden; width: 340px; font-family: var(--text, system-ui, -apple-system, sans-serif); } .ds-list > * + * { border-top: 6px solid var(--board, #eceeed); } .ds-row { display: grid; grid-template-columns: 1fr auto; gap: 2px 12px; align-items: center; padding: 12px 16px; min-height: 64px; } .ds-row-name { font-size: 15px; font-weight: 600; color: var(--ink, #1b1e20); } .ds-row-meta { font-size: 13px; color: var(--ink-3, #848b8f); } .ds-row-val { grid-row: 1 / span 2; grid-column: 2; text-align: right; } .ds-row-num { font: 700 20px var(--num, ui-rounded, 'SF Pro Rounded', system-ui, sans-serif); color: var(--green, #1d7f48); font-variant-numeric: tabular-nums; } .ds-row-basis { font-size: 13px; color: var(--ink-3, #848b8f); margin-top: 2px; }"
+    },
+    {
+      "name": "Hauptaktion",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Eine schwarze Aktion je Ansicht, volle Breite.",
+      "html": "<button class=\"ds-btn-primary\">Kochen</button>",
+      "css": ".ds-btn-primary { width: 300px; min-height: 52px; border: 0; border-radius: 14px; background: var(--ink, #1b1e20); color: var(--card, #fbfcfb); font: 700 17px var(--text, system-ui, -apple-system, sans-serif); cursor: pointer; } .ds-btn-primary:hover { background: var(--tape, #2a2f33); } .ds-btn-primary:focus-visible { outline: 2px solid var(--blue, #1d5fc4); outline-offset: 2px; }"
+    },
+    {
+      "name": "Fortschrittsbalken",
+      "kind": "custom",
+      "refersTo": "progress-bar",
+      "description": "Bahn mit schwarzer Fuellung und Klebeband als Zielmarke.",
+      "html": "<div class=\"ds-bar\"><span style=\"width:55%\"></span><i style=\"left:80%\"></i></div>",
+      "css": ".ds-bar { position: relative; width: 300px; height: 8px; border-radius: 4px; background: var(--card-sunk, #f1f3f2); } .ds-bar > span { position: absolute; inset: 0 auto 0 0; border-radius: 4px; background: var(--ink, #1b1e20); } .ds-bar > i { position: absolute; top: -4px; bottom: -4px; width: 3px; border-radius: 1px; background: var(--tape, #2a2f33); }"
+    }
+  ],
+  "narrative": {
+    "northStar": "Das Trainerboard",
+    "overview": "Die App ist die Tafel im Studio und am Kuehlschrank. Eine ruhige Emailleflaeche traegt Magnetkarten, jede mit genau einer Zahl und ihrer Datenbasis darunter. Der Alurahmen der Tafel ist die Navigation, ein blauer Magnet markiert das Aktive. Hell ist Emaille, dunkel ist Schiefer; das System des Geraets entscheidet ueber `prefers-color-scheme`.\n\nDie Dichte ist die eines Whiteboards, nicht die einer Tabelle. Gruppiert wird ueber Abstand und Flaechen, nie ueber Trennlinien zwischen Zeilen. Farbe ist Markerfarbe mit fester Bedeutung, kein Schmuck. Ziffern sind rund und tabellarisch, damit nichts springt, wenn sich ein Wert aendert. Es gibt keine Erklaertexte: Zahl und Datenbasis, sonst nichts.\n\nVerworfen wurden der Laborbefund (eine Tabelle, genau der Look, der weg soll) und ein Nachbau von iOS Health (vertraut, aber ohne eigene Handschrift).",
+    "keyCharacteristics": [
+      "Eine Zahl je Karte, darunter klein die Datenbasis",
+      "Markerfarben schwarz, blau, rot, gruen mit fester Bedeutung",
+      "Runde Systemziffern, keine Webfonts, kein zusaetzliches Byte",
+      "Ein blauer Magnet je Leiste markiert das Aktive und gleitet per `transform`",
+      "Hell als Grundform, dunkel nach System, jedes Token mit dunklem Gegenstueck"
+    ],
+    "rules": [
+      {
+        "name": "The Marker Rule",
+        "body": "Schwarz heisst Daten, blau heisst Bedienung, gruen heisst getroffen, rot heisst daneben. Keine Markerfarbe traegt je eine zweite Bedeutung, und keine Zahl wird blau, nur weil sie wichtig ist.",
+        "section": "colors"
+      },
+      {
+        "name": "The Wash Rule",
+        "body": "Die Spuren (`*-wash`) erscheinen nur hinter einer Markierungskapsel oder als Druckzustand. Eine Karte wird nie flaechig eingefaerbt.",
+        "section": "colors"
+      },
+      {
+        "name": "The Readable Basis Rule",
+        "body": "Text, der eine Aussage traegt, erreicht mindestens 4,5 zu 1 auf seinem Grund. `ink-3` erreicht im Entwurf auf `card` nur rund 3,4 zu 1 (dunkel 3,9 zu 1) und auf `rail` 2,7 zu 1. Das ist ein offener Befund, kein Systemwert: beim Bau wird `ink-3` abgedunkelt (dunkel aufgehellt), bis die Datenbasis und die inaktive Navigation die Schwelle halten.",
+        "section": "colors"
+      },
+      {
+        "name": "The Round Numerals Rule",
+        "body": "Jede Zahl steht in `--num` mit `font-variant-numeric: tabular-nums`. Text steht in `--text`. Eine Zahl in Textschrift oder ein Satz in Rundschrift ist ein Fehler.",
+        "section": "typography"
+      },
+      {
+        "name": "The One Number Rule",
+        "body": "Eine Karte traegt eine grosse Zahl. Was sonst gesagt werden muss, steht in der Datenbasis darunter, nie als zweite grosse Zahl daneben.",
+        "section": "typography"
+      },
+      {
+        "name": "The Space Not Lines Rule",
+        "body": "Zwischen Zeilen und Karten steht Abstand oder Emaille, nie eine Trennlinie. In einer Liste trennt eine 6px breite Fuge in `board` die Zeilen. Kanten gibt es nur am Rahmen (Navigation, Segmentleiste) und als Nulllinie in Diagrammen.",
+        "section": "layout"
+      },
+      {
+        "name": "The Magnet Card Rule",
+        "body": "Eine Flaeche liegt entweder als Magnet auf der Tafel (mit `--shadow`) oder ist in sie eingelassen (ohne Schatten). Ein gewaehlter Filter wird schwarz und verliert seinen Schatten. Es gibt keine dritte, hoehere Ebene im Ruhezustand.",
+        "section": "elevation"
+      },
+      {
+        "name": "The Transform Magnet Rule",
+        "body": "Puck und Navigationsmagnet bewegen sich ausschliesslich ueber `transform`, nie ueber `left` oder `width`. Dauer 240ms mit `--ease` (`cubic-bezier(0.22, 1, 0.36, 1)`). Bei `prefers-reduced-motion: reduce` entfallen alle Uebergaenge.",
+        "section": "components"
+      },
+      {
+        "name": "The One Magnet Rule",
+        "body": "Je Leiste gibt es genau einen blauen Magneten, und er sitzt auf dem Aktiven. Im Verlauf markiert derselbe Magnet den heutigen Punkt der Linie.",
+        "section": "components"
+      },
+      {
+        "name": "The Refusal In Place Rule",
+        "body": "Eine Verweigerung steht dort, wo die Zahl stuende, als Zahlenzeile im gestrichelten Feld. Sie rutscht nicht in eine Fussnote und verschwindet nicht.",
+        "section": "components"
+      }
+    ],
+    "dos": [
+      "**Do** eine Zahl je Karte setzen, Einheit klein daneben, Datenbasis in Caption darunter, etwa `00,0 kg` ueber `Basis 14 Tage`.",
+      "**Do** jede Farbe ueber die Custom Property beziehen, damit hell und dunkel ohne zweiten Codepfad wechseln.",
+      "**Do** Zahlen in `--num` mit `tabular-nums` setzen, auch in Achsen, Preisen und Datenbasis.",
+      "**Do** Fokus sichtbar halten: 2px Umriss in `blue`, 2px Abstand.",
+      "**Do** Tippflaechen von mindestens 44px und Listenzeilen von mindestens 64px.",
+      "**Do** Navigation mit Symbol und Wort, Aktives mit `aria-current` und Magnet."
+    ],
+    "donts": [
+      "**Don't** Trennlinien zwischen Zeilen oder Karten ziehen, und keine Tabelle als Grundbaustein.",
+      "**Don't** Markerfarben fuer etwas anderes einsetzen als Daten, Bedienung, getroffen und daneben.",
+      "**Don't** Puck oder Magnet ueber `left` oder `width` animieren.",
+      "**Don't** Webfonts laden; Ziffern und Text kommen vom System.",
+      "**Don't** Erklaertexte, Hinweise oder Tooltips mit Erklaerung in die Oberflaeche setzen.",
+      "**Don't** kleine Ueberschriften ueber Abschnittstiteln oder Karten setzen; die Bezeichnung der Karte ist die einzige Zeile ueber der Zahl.",
+      "**Don't** einer Karte einen hoeheren Schatten geben als `--shadow`."
+    ]
+  }
+}
