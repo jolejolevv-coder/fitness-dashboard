@@ -1,6 +1,6 @@
 # Uebergabe
 
-Stand 26.10.2026, Phase 11 abgeschlossen und live, Phase 12 in Arbeit (12.4 erledigt 27.10.2026, naechster Schritt 12.5 PWA).
+Stand 26.10.2026, Phase 11 abgeschlossen und live, Phase 12 in Arbeit (12.5 erledigt 27.10.2026, naechster Schritt 12.6 Abschluss).
 
 ## Wo wir stehen
 
@@ -75,21 +75,56 @@ Bekannt: Muskelgruppen im Volumendiagramm haben 14 feste Toene (in
 `DESIGN.md` als Ausnahme benannt). Mit der Fixture ergeben 14 und 30 Tage
 keine Waegungen und zeigen die bestehende Fehlermeldung, kein Rueckschritt.
 
-Startprompt 12.5 (neue Sitzung, Ordner dieses Worktrees, Branch
+12.5 PWA erledigt 27.10.2026, Commit `6a6eb92`. `vite-plugin-pwa` 1.3.0 mit
+`injectManifest` und eigenem `src/sw.ts`; die Regel der erlaubten URLs ist die
+reine Funktion `classifyRequest` in `src/pwa/policy.ts` mit Test
+(`test/pwa-policy.test.ts`). Nur GET der eigenen Herkunft unter dem Basispfad:
+Navigation Netz zuerst (4 s), Rueckfall `index.html` aus dem Precache;
+`assets/` Cache zuerst (`assets-runtime`, beim Aktivieren geleert);
+`data/prices.json` und `data/regular_prices.json` Netz zuerst (`data`). Alles
+andere geht vorbei. Updateweg ohne `skipWaiting`, Registrierung ueber
+`registerSW.js` (ausserhalb des Haupt Chunks). Icons aus `public/icon.svg`
+mit `npm run icons` (`pwa-assets.config.ts`), PNG committet. Manifest Werte in
+`src/config/pwa.ts`. CSP plus `worker-src` und `manifest-src`, Test prueft die
+volle Liste der Direktiven.
+
+Annahmen 12.5 (Standard gewaehlt, ohne Rueckfrage):
+* `injectManifest` statt `generateSW`: innerhalb ADR 0006 Variante A, noetig
+  fuer Netz zuerst bei `index.html` und eine testbare URL Regel
+* `apple-mobile-web-app-status-bar-style` `default`, weil `black-translucent`
+  weisse Statusleistenschrift auf heller Emaille zeigt. Im Live Test pruefen,
+  wie die Leiste im dunklen Schema aussieht
+* `viewport-fit=cover` neu, ohne ihn liefert `env(safe-area-inset-*)` auf
+  dem iPhone null. Die Regeln in `src/styles.css` gab es schon
+* Hintergrund und Themenfarbe im Manifest `board` `#eceeed`, `theme-color`
+  im `index.html` hell und dunkel getrennt
+
+Geprueft im gebauten Stand (`vite preview`, Browser Pane): Service Worker
+aktiv, Cache Storage nur eigene Pfade nach Durchlauf aller Ziele mit
+Dummy Zugangsdaten (zwei Sheets Anfragen gingen am Service Worker vorbei),
+Offlinestart bei gestopptem Server mit Verlauf samt Diagrammen und Einkauf
+samt Preisen. Deploy simuliert: alte Sitzung laedt ihren `charts` Chunk aus
+dem alten Precache, obwohl der Server ihn nicht mehr hat; Neuladen zeigt die
+neue Version. Die neue Version wird aktiv, wenn kein Tab der alten mehr offen
+ist. Die Manifest Ansicht von Chrome DevTools war im Pane nicht erreichbar,
+Pflichtfelder und Icons sind von Hand geprueft; die Warnungsfreiheit gehoert
+in die Lighthouse Messung von 12.6.
+Bundle gzip: Haupt Chunk 35,82 kB, CSS 5,24 kB, `charts` 74,07 kB, alle JS
+Chunks 204,43 kB, `sw.js` 6,78 kB (Ziel 8), `index.html` 3,16 kB. 361 Tests.
+
+Startprompt 12.6 (neue Sitzung, Ordner dieses Worktrees, Branch
 `claude/mobile-app-b71746`): Lies CLAUDE.md, specs/roadmap.md,
-docs/uebergabe.md (Abschnitt Phase 12), `specs/features/mobile-app.md`
-(Was Web App hier heisst, Harte Regeln, Bundle Budget, Acceptance criteria
-PWA) und ADR 0006. Setze 12.5 um: `vite-plugin-pwa` 1.3.0 einbinden, Manifest
-`Body Recomp` standalone, Icons 192, 512, maskable, apple touch 180 aus Icon B
-mit `@vite-pwa/assets-generator`, Service Worker cached nur die App Huelle der
-eigenen Herkunft und `data/prices.json`, `data/regular_prices.json`, nie
-`googleapis.com` oder `anthropic.com`, Test der erlaubten URLs. CSP nur um
-`worker-src 'self'` und `manifest-src 'self'` ergaenzen, als Test.
-`env(safe-area-inset-*)` pruefen. Updateweg so, dass nachgeladene Chunks einer
-alten Version eine offene Sitzung nicht abbrechen. `sw.js` hoechstens 8 kB.
-Pruefen im gebauten Stand (`vite preview`), Cache Storage ohne fremde URLs.
-Der Live Test auf dem iPhone (Installation, Flugmodus, Kochansicht) ist ein
-Schritt des Nutzers nach dem Merge in 12.6. Nicht pushen.
+docs/uebergabe.md (Abschnitt Phase 12) und die Acceptance criteria in
+`specs/features/mobile-app.md`. Setze 12.6 um: Branch gegen `origin/main`
+abgleichen, `npm run check` und Build, `git diff origin/main -- src/analytics
+src/parse` leer, Bundle Zahlen. Merge nach `origin/main` und Push erst nach
+ausdruecklicher Freigabe des Nutzers. Danach Live Pruefung unter
+me.nahobinoco.com/fitness-dashboard/: Manifest ohne Warnung, Cache Storage ohne
+fremde URLs, Lighthouse mobil (Accessibility und Best Practices je 95, PWA
+installierbar). Schritte des Nutzers auf dem iPhone: Zum Home Bildschirm,
+Zugangsdaten neu eintragen, Start im Vollbild, Statusleiste hell und dunkel,
+Flugmodus, Kochansicht mit Wake Lock, Ton und Vibration. Acceptance criteria
+abhaken, Retro Phase 12 in `specs/roadmap.md`.
 
 ## Phase 11 Kochansicht
 
