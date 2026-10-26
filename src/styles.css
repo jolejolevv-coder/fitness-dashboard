@@ -112,7 +112,7 @@ button, select, input, textarea { font: inherit; color: inherit; }
 .wrap { max-width: var(--page); margin: 0 auto; }
 
 /* The Round Numerals Rule: jede Zahl rund und tabellarisch. */
-.num, .stat-value {
+.num {
   font-variant-numeric: tabular-nums;
   font-feature-settings: 'tnum' 1;
 }
@@ -461,7 +461,6 @@ button, select, input, textarea { font: inherit; color: inherit; }
 .card-basis .is-off { color: var(--red); }
 .card-basis .is-ok { color: var(--green); }
 .coach:empty { display: none; }
-.section-sub { font-size: 12px; color: var(--ink-3); font-variant-numeric: tabular-nums; }
 
 /* ── Segmente und Zeitraum ─────────────────────────────────────────────────── */
 
@@ -471,184 +470,37 @@ button, select, input, textarea { font: inherit; color: inherit; }
 
 body[data-destination='heute'] .segment-row,
 body[data-destination='training'] .segment-row,
-body:not([data-destination='verlauf']) .range-btns { display: none; }
+body:not([data-destination='verlauf']) #range-chips { display: none; }
 
-/* Uebergang: alte segmentierte Steuerung, bis Verlauf umgestellt ist. */
-.range-btns, .segmented {
-  display: inline-flex;
-  gap: 2px;
-  background: var(--rail);
-  border-radius: 12px;
-  padding: 3px;
-}
-.range-btn, .seg {
-  border: none;
-  background: none;
-  color: var(--ink-2);
-  font: 600 13px/1 var(--text);
-  border-radius: 9px;
-  white-space: nowrap;
-  cursor: pointer;
-  min-height: 34px;
-  padding: 0 11px;
-}
-.range-btn[aria-pressed='true'], .seg[aria-pressed='true'] { background: var(--card); color: var(--ink); box-shadow: var(--shadow); }
 
 .section { display: none; }
 .section.active { display: block; }
 
 /* ── Diagramme ─────────────────────────────────────────────────────────────── */
 
-/*
- * Kein Rahmen, keine Flaeche, kein Radius um ein Diagramm. Ueberschrift und
- * Abstand trennen ausreichend.
- */
-.chart-card { min-width: 0; margin-bottom: 40px; }
-.chart-card:last-child { margin-bottom: 0; }
-.card.chart-card { margin: 10px 0 0; }
-
-.chart-title {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  gap: 20px;
-  font-size: 17px;
-  font-weight: 600;
-  letter-spacing: -0.012em;
-  color: var(--text-primary);
-  margin-bottom: 18px;
-}
-.chart-title > span:first-child { margin-right: auto; }
+.card.is-wide { grid-column: 1 / -1; }
+.card > .mark { margin-top: 8px; }
 
 /*
  * `overflow: hidden` ist eine Absicherung. Ein Diagramm, das gezeichnet wird
  * bevor die senkrechte Bildlaufleiste erscheint, behaelt kurzzeitig die
  * groessere Breite und wuerde sonst die ganze Seite waagerecht scrollen lassen.
  */
-.chart-body { position: relative; height: 220px; overflow: hidden; }
-.chart-body-hero { height: 340px; }
+.chart-body { position: relative; height: 220px; margin-top: 10px; overflow: hidden; }
+.chart-body-hero { height: 340px; margin-top: 0; }
 .chart-body-short { height: 170px; }
 .chart-body-mid { height: 200px; }
-.chart-body canvas { position: absolute; inset: 0; }
+.chart-body canvas, .spark-canvas canvas { position: absolute; inset: 0; }
+.spark-canvas { position: relative; height: 30px; margin-top: 10px; }
 
-.chart-legend {
-  display: flex;
-  gap: 20px;
-  flex-wrap: wrap;
-  margin-top: 14px;
-  font-size: 12px;
-  color: var(--text-tertiary);
-}
+.chart-legend { display: flex; flex-wrap: wrap; gap: 6px 20px; margin-top: 12px; font-size: 13px; color: var(--ink-3); }
 .chart-legend span { display: inline-flex; align-items: center; gap: 7px; }
-.chart-legend i { width: 12px; height: 2px; border-radius: 1px; display: inline-block; }
-.chart-legend i.dashed { background: none; border-top: 1px dashed currentColor; height: 0; }
+.chart-legend i { display: inline-block; width: 12px; height: 2px; border-radius: 1px; }
+.chart-legend i.dashed { height: 0; background: none; border-top: 1px dashed currentColor; }
+.card > .chart-export { width: fit-content; margin: 2px -6px -8px auto; }
 
-.chart-export {
-  opacity: 0;
-  font-size: 11px;
-  padding: 4px 8px;
-  transition: opacity var(--duration) var(--ease);
-}
-.chart-card:hover .chart-export, .chart-export:focus-visible { opacity: 1; }
-
-.charts-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 40px 56px;
-}
-.chart-full { grid-column: 1 / -1; }
-
-/* ── Listen und Tabellen ───────────────────────────────────────────────────── */
-
-.panel { margin-bottom: 40px; }
-.panel:last-child { margin-bottom: 0; }
-.panel-title {
-  font-size: 17px;
-  font-weight: 600;
-  letter-spacing: -0.012em;
-  margin-bottom: 16px;
-}
-
-.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 0 56px; }
-.stat {
-  display: grid;
-  grid-template-columns: 1fr auto auto;
-  gap: 16px;
-  align-items: baseline;
-  padding: 11px 0;
-  border-bottom: 1px solid var(--separator);
-  font-size: 14px;
-}
-.stat-name { color: var(--text-primary); }
-.stat-value { font-weight: 500; }
-.stat-note { color: var(--text-tertiary); font-size: 12px; text-align: right; min-width: 6ch; font-variant-numeric: tabular-nums; }
-
-
-/* ── Wochen ────────────────────────────────────────────────────────────────── */
-
-.week-summary {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-  gap: 0;
-  margin-bottom: 40px;
-  border-top: 1px solid var(--separator);
-  border-bottom: 1px solid var(--separator);
-}
-.week-card { padding: 14px 20px 14px 0; }
-.week-card + .week-card { border-left: 1px solid var(--separator); padding-left: 20px; }
-.week-card h4 { font-size: 12px; color: var(--text-secondary); font-weight: 400; margin-bottom: 5px; }
-.week-card .wval { font-size: 18px; font-weight: 600; letter-spacing: -0.014em; font-variant-numeric: tabular-nums; }
-.week-card .wdelta { font-size: 12px; margin-top: 3px; font-variant-numeric: tabular-nums; }
-
-.comment-card { padding: 14px 0; border-bottom: 1px solid var(--separator); }
-.comment-date { font-size: 12px; color: var(--text-tertiary); margin-bottom: 4px; font-variant-numeric: tabular-nums; }
-.comment-text { font-size: 14px; color: var(--text-primary); line-height: 1.5; max-width: 80ch; }
-
-/* ── Zielbereiche ──────────────────────────────────────────────────────────── */
-
-.range-row { padding: 16px 0 24px; border-bottom: 1px solid var(--separator); }
-.range-row:first-child { border-top: 1px solid var(--separator); }
-.range-head { display: flex; justify-content: space-between; align-items: baseline; gap: 20px; margin-bottom: 16px; }
-.range-head .name { font-size: 14px; color: var(--text-primary); }
-.range-head .num { font-size: 13px; color: var(--text-secondary); font-variant-numeric: tabular-nums; }
-.range-head .num b { color: var(--text-primary); font-weight: 500; }
-
-.range-track { position: relative; height: 4px; border-radius: 2px; background: var(--surface-secondary); }
-.range-zone { position: absolute; top: 0; bottom: 0; border-radius: 2px; }
-.range-zone.ok { background: rgba(48, 209, 88, 0.32); }
-.range-goal { position: absolute; top: -3px; bottom: -3px; width: 1px; background: var(--text-tertiary); }
-.range-goal-label { position: absolute; top: 12px; font-size: 11px; color: var(--text-tertiary); white-space: nowrap; transform: translateX(-50%); }
-.range-actual { position: absolute; top: -4px; width: 2px; height: 12px; border-radius: 1px; background: var(--text-primary); }
-.range-actual-label { position: absolute; top: 12px; font-size: 11px; color: var(--text-primary); white-space: nowrap; transform: translateX(-50%); font-variant-numeric: tabular-nums; }
-.range-scale { display: flex; justify-content: space-between; font-size: 11px; color: var(--text-quaternary); margin-top: 30px; font-variant-numeric: tabular-nums; }
-.range-legend { display: flex; gap: 24px; flex-wrap: wrap; font-size: 12px; color: var(--text-tertiary); margin-top: 20px; }
-.range-legend span { display: inline-flex; align-items: center; gap: 7px; }
-.range-legend i { width: 12px; height: 4px; border-radius: 2px; display: inline-block; }
-.range-legend i.zone { background: rgba(48, 209, 88, 0.32); }
-.range-legend i.goal { width: 1px; height: 11px; background: var(--text-tertiary); border-radius: 0; }
-.range-legend i.actual { width: 2px; height: 11px; background: var(--text-primary); border-radius: 1px; }
-
-/* ── Verlaufsminiaturen ────────────────────────────────────────────────────── */
-
-.sparkline-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 24px 48px; }
-.spark { display: grid; grid-template-columns: 1fr auto; gap: 2px 16px; align-items: baseline; }
-.spark-name { font-size: 13px; color: var(--text-secondary); }
-.spark-value { font-size: 15px; font-weight: 500; text-align: right; font-variant-numeric: tabular-nums; }
-.spark-canvas { grid-column: 1 / -1; height: 30px; position: relative; margin-top: 6px; }
-.spark-canvas canvas { position: absolute; inset: 0; }
-
-/* ── Vergleich Training gegen Ruhetag ──────────────────────────────────────── */
-
-.corr-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 40px; }
-.corr-cell { min-width: 0; }
-.corr-label { font-size: 12px; color: var(--text-secondary); margin-bottom: 12px; }
-.corr-row { display: flex; align-items: baseline; gap: 10px; margin-bottom: 6px; }
-.corr-val { font-size: 20px; font-weight: 600; letter-spacing: -0.016em; font-variant-numeric: tabular-nums; }
-.corr-sub { font-size: 13px; color: var(--text-secondary); }
-.corr-diff { font-size: 12px; margin-top: 10px; font-variant-numeric: tabular-nums; }
-.corr-n { font-size: 12px; color: var(--text-tertiary); margin-top: 18px; }
-
-.analysis-note { font-size: 12px; color: var(--text-tertiary); line-height: 1.5; margin-top: 16px; max-width: 80ch; }
+.note { padding: 12px 16px; overflow-wrap: anywhere; }
+.note .card-basis { margin: 0 0 2px; }
 
 /* ── Bedienfelder ──────────────────────────────────────────────────────────── */
 
@@ -898,20 +750,8 @@ body.no-sheet .settings-export { display: none; }
  * gleich spezifische Basisregel weiter unten sonst gegen sie gewinnt.
  */
 
-@media (max-width: 1180px) {
-  .charts-grid { gap: 36px 40px; }
-}
-
 @media (max-width: 900px) {
-  /* Segmente und Zeitraum untereinander, die Seite darf nie waagerecht scrollen. */
-  .segment-row { flex-direction: column; align-items: flex-start; gap: 12px; }
-  .range-btns { align-self: flex-start; }
-  .charts-grid { grid-template-columns: 1fr; }
-  .chart-full { grid-column: 1; }
   .chart-body-hero { height: 260px; }
-  .stats { grid-template-columns: 1fr; }
-  .week-summary { grid-template-columns: repeat(auto-fit, minmax(104px, 1fr)); }
-  .chart-export { opacity: 1; }
 }
 
 /* Ab 900 px wandert dieselbe Navigation als Leiste nach links. */
@@ -936,10 +776,6 @@ body.no-sheet .settings-export { display: none; }
   /* Zwei Spalten Magnetkarten, Listen bleiben lesbar schmal. */
   .stack { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; }
   #shopping-content > div, .ck, .gen-form, .gen-result { max-width: 760px; }
-}
-
-@media (max-width: 700px) {
-  .chart-title { flex-wrap: wrap; }
 }
 
 @media (max-width: 700px) {

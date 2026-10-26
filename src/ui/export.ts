@@ -81,22 +81,22 @@ export function downloadCsv(entries: readonly DailyEntry[]): void {
 /**
  * Haengt an jede Diagrammkarte einen Knopf, der das Diagramm als PNG speichert.
  *
+ * Der Titel kommt aus `data-export` der Karte, sonst aus ihrer Bezeichnung.
  * Wird einmal beim Start aufgerufen. Die Knoepfe lesen das Diagramm erst beim
  * Klick aus, deshalb stoert es nicht, dass zu diesem Zeitpunkt noch keines
  * gezeichnet ist.
  */
 export function attachChartExports(): void {
-  for (const card of document.querySelectorAll<HTMLElement>('.chart-card')) {
-    const canvas = card.querySelector('canvas');
-    const title = card.querySelector('.chart-title');
+  for (const card of document.querySelectorAll<HTMLElement>('.card')) {
+    const canvas = card.querySelector('.chart-body canvas');
+    const title = card.dataset['export'] ?? card.querySelector('.card-label')?.textContent;
     if (!canvas || !title || card.querySelector('.chart-export')) continue;
 
     const button = document.createElement('button');
     button.className = 'btn chart-export';
     button.type = 'button';
     button.textContent = 'PNG';
-    button.style.cssText = 'float:right;padding:2px 8px;font-size:10px;margin-top:-2px';
-    button.setAttribute('aria-label', `Diagramm ${title.textContent ?? ''} als Bild speichern`);
+    button.setAttribute('aria-label', `Diagramm ${title} als Bild speichern`);
 
     button.addEventListener('click', () => {
       const chart = loadedCharts()?.getChart(canvas.id);
@@ -104,6 +104,6 @@ export function attachChartExports(): void {
       download(`${canvas.id}-${stamp()}.png`, chart.toBase64Image('image/png', 1));
     });
 
-    title.append(button);
+    card.append(button);
   }
 }

@@ -98,122 +98,111 @@
 
   <div class="segment-row">
     <div id="segment-bar"></div>
-    <div class="range-btns" role="group" aria-label="Zeitraum">
-      <button class="range-btn" aria-pressed="false" data-range="14">14 Tage</button>
-      <button class="range-btn" aria-pressed="false" data-range="30">30 Tage</button>
-      <button class="range-btn" aria-pressed="false" data-range="90">90 Tage</button>
-      <button class="range-btn" aria-pressed="true" data-range="0">Gesamt</button>
+    <div class="chips" id="range-chips" role="group" aria-label="Zeitraum">
+      <button class="chip" type="button" aria-pressed="false" data-range="14">14 Tage</button>
+      <button class="chip" type="button" aria-pressed="false" data-range="30">30 Tage</button>
+      <button class="chip" type="button" aria-pressed="false" data-range="90">90 Tage</button>
+      <button class="chip" type="button" aria-pressed="true" data-range="0">Gesamt</button>
     </div>
   </div>
 
   <div class="section" id="overview">
-    <div class="chart-card">
-      <div class="chart-title">
-        <span>Gewichtsverlauf</span>
-        <span class="section-sub" id="weight-range"></span>
-        <span class="segmented" role="group" aria-label="Darstellung des Gewichtsverlaufs">
-          <button class="seg" aria-pressed="true" data-mode="weight">Gewicht</button>
-          <button class="seg" aria-pressed="false" data-mode="trend">Trend</button>
-          <button class="seg" aria-pressed="false" data-mode="forecast">Prognose</button>
-          <button class="seg" aria-pressed="false" data-mode="delta">Veränderung</button>
-        </span>
-      </div>
-      <div class="chart-body chart-body-hero"><canvas id="weightChart"></canvas></div>
-      <div class="chart-legend" id="weight-legend"></div>
+    <h2 class="group-title">Gewichtsverlauf</h2>
+    <p class="group-sub" id="weight-range"></p>
+    <div class="chips" role="group" aria-label="Darstellung des Gewichtsverlaufs">
+      <button class="chip" type="button" aria-pressed="true" data-mode="weight">Gewicht</button>
+      <button class="chip" type="button" aria-pressed="false" data-mode="trend">Trend</button>
+      <button class="chip" type="button" aria-pressed="false" data-mode="forecast">Prognose</button>
+      <button class="chip" type="button" aria-pressed="false" data-mode="delta">Veränderung</button>
     </div>
-
-    <div class="charts-grid">
-      <div class="chart-card">
-        <div class="chart-title"><span>Schritte pro Tag</span></div>
+    <div class="stack">
+      <div class="card is-wide" data-export="Gewichtsverlauf">
+        <div class="chart-body chart-body-hero"><canvas id="weightChart"></canvas></div>
+        <div class="chart-legend" id="weight-legend"></div>
+      </div>
+      <div class="card">
+        <div class="card-label">Schritte pro Tag</div>
         <div class="chart-body chart-body-short"><canvas id="stepsChart"></canvas></div>
       </div>
-      <div class="chart-card">
-        <div class="chart-title"><span>Wochenmittel Gewicht</span></div>
+      <div class="card">
+        <div class="card-label">Wochenmittel Gewicht</div>
         <div class="chart-body chart-body-short"><canvas id="weeklyChart"></canvas></div>
       </div>
     </div>
   </div>
 
   <div class="section" id="nutrition">
-    <div class="panel">
-      <div class="panel-title">Zielbereiche im Schnitt</div>
-      <div id="nutrition-ranges"></div>
-    </div>
-    <div class="charts-grid">
-      <div class="chart-card chart-full">
-        <div class="chart-title"><span>Protein pro Tag</span></div>
+    <h2 class="group-title">Zielbereiche im Schnitt</h2>
+    <div class="grid2" id="nutrition-ranges"></div>
+    <h2 class="group-title">Tagesverläufe</h2>
+    <div class="stack">
+      <div class="card is-wide">
+        <div class="card-label">Protein pro Tag</div>
         <div class="chart-body chart-body-mid"><canvas id="proteinChart"></canvas></div>
       </div>
-      <div class="chart-card chart-full">
-        <div class="chart-title"><span>Kalorien pro Tag</span></div>
+      <div class="card is-wide">
+        <div class="card-label">Kalorien pro Tag</div>
         <div class="chart-body chart-body-mid"><canvas id="caloriesChart"></canvas></div>
       </div>
-      <div class="chart-card">
-        <div class="chart-title"><span>Makros im Schnitt gegen Ziel</span></div>
+      <div class="card">
+        <div class="card-label">Makros im Schnitt gegen Ziel</div>
         <div class="chart-body chart-body-short"><canvas id="macroChart"></canvas></div>
       </div>
-      <div class="chart-card">
-        <div class="chart-title"><span>Obst und Gemüse in Gramm</span></div>
+      <div class="card">
+        <div class="card-label">Obst und Gemüse in Gramm</div>
         <div class="chart-body chart-body-short"><canvas id="fvChart"></canvas></div>
       </div>
     </div>
   </div>
 
   <div class="section" id="wellness">
-    <div class="panel">
-      <div class="panel-title">Verlauf im Überblick</div>
-      <div class="sparkline-list" id="wellness-sparks"></div>
-    </div>
-    <div class="charts-grid">
-      <div class="chart-card">
-        <div class="chart-title"><span>Schlafdauer in Stunden</span></div>
+    <h2 class="group-title">Verlauf im Überblick</h2>
+    <div class="grid2" id="wellness-sparks"></div>
+    <h2 class="group-title">Tagesverläufe</h2>
+    <div class="stack">
+      <div class="card">
+        <div class="card-label">Schlafdauer in Stunden</div>
         <div class="chart-body chart-body-short"><canvas id="sleepChart"></canvas></div>
       </div>
-      <div class="chart-card">
-        <div class="chart-title"><span>Energielevel, 1 bis 5</span></div>
+      <div class="card">
+        <div class="card-label">Energielevel, 1 bis 5</div>
         <div class="chart-body chart-body-short"><canvas id="energyChart"></canvas></div>
       </div>
-      <div class="chart-card">
-        <div class="chart-title"><span>Stresslevel, 1 bis 5, niedriger ist besser</span></div>
+      <div class="card">
+        <div class="card-label">Stresslevel, 1 bis 5, niedriger ist besser</div>
         <div class="chart-body chart-body-short"><canvas id="stressChart"></canvas></div>
       </div>
-      <div class="chart-card">
-        <div class="chart-title"><span>Verdauung</span></div>
+      <div class="card">
+        <div class="card-label">Verdauung</div>
         <div class="chart-body chart-body-short"><canvas id="digestionChart"></canvas></div>
       </div>
     </div>
-    <div class="panel">
-      <div class="panel-title">Befinden am Tag nach dem Training</div>
-      <div id="correlation-content"></div>
-    </div>
+    <h2 class="group-title">Befinden am Tag nach dem Training</h2>
+    <div class="grid2" id="correlation-content"></div>
   </div>
 
   <div class="section" id="weeks">
-    <div class="week-summary" id="week-cards"></div>
-    <div class="chart-card">
-      <div class="chart-title"><span>Wochenmittel Gewicht</span></div>
-      <div class="chart-body"><canvas id="weekBarChart"></canvas></div>
+    <h2 class="group-title">Wochen</h2>
+    <div class="grid2" id="week-cards"></div>
+    <h2 class="group-title">Wochenmittel Gewicht</h2>
+    <div class="stack">
+      <div class="card is-wide" data-export="Wochenmittel Gewicht je Woche">
+        <div class="chart-body"><canvas id="weekBarChart"></canvas></div>
+      </div>
     </div>
-    <div class="panel">
-      <div class="panel-title">Notizen aus dem Tracking</div>
-      <div id="comments-container"></div>
-    </div>
+    <h2 class="group-title">Notizen aus dem Tracking</h2>
+    <div id="comments-container"></div>
   </div>
 
   <div class="section" id="analysis">
-    <div class="stats" id="a-kpis"></div>
-    <div class="panel">
-      <div class="panel-title">Trend</div>
-      <div id="a-trend-detail"></div>
-    </div>
-    <div class="panel">
-      <div class="panel-title">Serien und Compliance</div>
-      <div id="a-streaks"></div>
-    </div>
-    <div class="panel">
-      <div class="panel-title">Zusammenhänge</div>
-      <div id="correlation-pairs"></div>
-    </div>
+    <h2 class="group-title">Kennzahlen</h2>
+    <div class="grid2" id="a-kpis"></div>
+    <h2 class="group-title">Trend</h2>
+    <div class="grid2" id="a-trend-detail"></div>
+    <h2 class="group-title">Serien und Compliance</h2>
+    <div class="stack" id="a-streaks"></div>
+    <h2 class="group-title">Zusammenhänge</h2>
+    <div class="stack" id="correlation-pairs"></div>
   </div>
 
   <div class="section" id="training">
@@ -225,11 +214,11 @@
       <div class="list" id="t-list"></div>
       <h2 class="group-title">Lastprogression</h2>
       <p class="group-sub" id="t-prog-title"></p>
-      <div class="card chart-card"><div class="chart-body"><canvas id="t-prog-chart"></canvas></div></div>
+      <div class="stack"><div class="card is-wide" data-export="Lastprogression"><div class="chart-body"><canvas id="t-prog-chart"></canvas></div></div></div>
       <h2 class="group-title">Geschätztes Einwiederholungsmaximum</h2>
-      <div class="card chart-card"><div class="chart-body chart-body-short"><canvas id="t-1rm-chart"></canvas></div></div>
+      <div class="stack"><div class="card is-wide" data-export="Geschätztes Einwiederholungsmaximum"><div class="chart-body chart-body-short"><canvas id="t-1rm-chart"></canvas></div></div></div>
       <h2 class="group-title">Volumen nach Muskelgruppe</h2>
-      <div class="card chart-card"><div class="chart-body chart-body-short"><canvas id="t-volume-chart"></canvas></div></div>
+      <div class="stack"><div class="card is-wide" data-export="Volumen nach Muskelgruppe"><div class="chart-body chart-body-short"><canvas id="t-volume-chart"></canvas></div></div></div>
     </div>
   </div>
 

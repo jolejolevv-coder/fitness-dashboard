@@ -5,7 +5,9 @@ import { daysDiffer, targetRateKgPerWeek, type Goals } from '../parse/goals';
 import { byId, COLORS, setText } from './dom';
 import { renderCorrelation } from './correlation';
 import { renderNutritionRanges, renderWellnessSparks } from './panels';
-import { decimal, signed } from './format';
+import { decimal, integer, signed } from './format';
+import { el } from './build';
+import { card, mark, refusalCard, valueNode } from './cards';
 import type { Charts } from './charts';
 
 /** Wird ausgeloest, wenn keine verwertbaren Gewichtsdaten vorliegen. */
@@ -238,27 +240,21 @@ function renderWeekCards(weekBlocks: readonly WeekBlock[]): void {
   let previous: number | null = null;
 
   weekBlocks.forEach((block, index) => {
+    const label = `Woche ${index + 1}`;
     const average = block.avgWeight ?? avg(block.rows.map((r) => r.weight));
     const delta = block.delta !== null ? block.delta : previous !== null && average !== null ? average - previous : null;
-
-    const card = document.createElement('div');
-    card.className = 'week-card';
-
-    const heading = document.createElement('h4');
-    heading.textContent = `Woche ${index + 1}`;
-
-    const value = document.createElement('div');
-    value.className = 'wval';
-    value.textContent = average !== null ? `${decimal(average, 2)} kg` : '–';
-
-    const change = document.createElement('div');
-    change.className = 'wdelta';
-    change.style.color = delta === null ? 'var(--text-tertiary)' : delta < 0 ? 'var(--green)' : 'var(--red)';
-    change.textContent = index === 0 ? 'Start' : delta !== null ? `${signed(delta, 2)} kg` : '–';
-
-    card.append(heading, value, change);
-    cards.push(card);
     previous = average;
+
+    const weighed = block.rows.filter((r) => r.weight !== null).length;
+    const basis = `Basis ${integer(weighed)} von ${integer(block.rows.length)} Tagen`;
+    if (average === null) {
+      cards.push(refusalCard(label, basis));
+      return;
+    }
+
+    const element = card(label, valueNode(decimal(average, 2), 'kg'), index === 0 ? ['Start', basis] : basis);
+    if (index > 0 && delta !== null) element.append(mark(`${signed(delta, 2)} kg`, delta < 0 ? 'is-ok' : 'is-off'));
+    cards.push(element);
   });
 
   container.replaceChildren(...cards);
@@ -271,27 +267,15 @@ function renderComments(daily: readonly DailyEntry[]): void {
   const withComment = daily.filter((r) => r.comment && r.comment.trim() && r.comment.trim() !== '-');
 
   if (!withComment.length) {
-    const empty = document.createElement('p');
-    empty.className = 'analysis-note';
-    empty.textContent = 'Keine Notizen im gewählten Zeitraum.';
-    container.replaceChildren(empty);
+    container.replaceChildren(el('div', { class: 'stack' }, [
+      refusalCard('Notizen', `0 Notizen in ${integer(daily.length)} Tagen`),
+    ]));
     return;
   }
 
-  container.replaceChildren(...withComment.map((entry) => {
-    const card = document.createElement('div');
-    card.className = 'comment-card';
-
-    const date = document.createElement('div');
-    date.className = 'comment-date';
-    date.textContent = entry.date;
-
-    const text = document.createElement('div');
-    text.className = 'comment-text';
+  container.replaceChildren(el('div', { class: 'list' }, withComment.map((entry) => el('div', { class: 'note' }, [
+    el('div', { class: 'card-basis', text: entry.date }),
     // textContent statt innerHTML: Inhalte aus dem Sheet werden nie als Markup ausgefuehrt.
-    text.textContent = entry.comment;
-
-    card.append(date, text);
-    return card;
-  }));
+    el('div', { text: entry.comment }),
+  ]))));
 }

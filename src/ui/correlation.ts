@@ -1,7 +1,8 @@
 import type { DailyEntry } from '../types';
-import { fmt } from '../analytics/smoothing';
 import { trainingEffect } from '../analytics/correlation';
-import { byId, COLORS } from './dom';
+import { byId } from './dom';
+import { card, refusalCard, valueNode } from './cards';
+import { decimal, integer, signed } from './format';
 
 /** Anzeige des Vergleichs Trainingstag gegen Ruhetag. Gerechnet wird in analytics. */
 
@@ -14,85 +15,32 @@ export function renderCorrelation(daily: readonly DailyEntry[]): void {
 
   const effect = trainingEffect(daily);
   if (!effect.ok) {
-    element.replaceChildren(note(effect.reason));
+    element.replaceChildren(refusalCard('Training gegen Ruhetag', effect.reason));
     return;
   }
 
+  const basis = `Basis ${integer(effect.afterTraining.n)} Training und ${integer(effect.afterRest.n)} Ruhe Folgetage`;
   element.replaceChildren(
-    grid([
-      cell('Energie (1 bis 5)', effect.afterTraining.energy, effect.afterRest.energy, effect.energyDifference, 'Punkte Differenz'),
-      cell('Schlaf (h)', effect.afterTraining.sleep, effect.afterRest.sleep, effect.sleepDifference, 'h Differenz'),
-    ]),
-    basis(effect.afterTraining.n, effect.afterRest.n),
+    differenceCard('Energie', effect.energyDifference, 'Punkte', effect.afterTraining.energy, effect.afterRest.energy, basis),
+    differenceCard('Schlaf', effect.sleepDifference, 'h', effect.afterTraining.sleep, effect.afterRest.sleep, basis),
   );
 }
 
-function note(text: string): HTMLElement {
-  const p = document.createElement('p');
-  p.className = 'analysis-note';
-  p.textContent = text;
-  return p;
-}
-
-function grid(cells: HTMLElement[]): HTMLElement {
-  const div = document.createElement('div');
-  div.className = 'corr-grid';
-  div.append(...cells);
-  return div;
-}
-
-function differenceColor(value: number | null): string {
-  if (value === null) return COLORS.muted;
-  if (Math.abs(value) < NOTABLE_DIFFERENCE) return 'var(--text-secondary)';
-  return value > 0 ? COLORS.good : COLORS.bad;
-}
-
-function cell(
+function differenceCard(
   label: string,
-  afterTraining: number | null,
-  afterRest: number | null,
   difference: number | null,
   unit: string,
+  afterTraining: number | null,
+  afterRest: number | null,
+  basis: string,
 ): HTMLElement {
-  const div = document.createElement('div');
-  div.className = 'corr-cell';
+  const title = `${label} nach Training gegen Ruhetag`;
+  if (difference === null) return refusalCard(title, basis);
 
-  const title = document.createElement('div');
-  title.className = 'corr-label';
-  title.textContent = label;
-  div.append(title, row(afterTraining, 'nach Training', COLORS.accent), row(afterRest, 'nach Ruhetag', COLORS.info));
-
-  if (difference !== null) {
-    const diff = document.createElement('div');
-    diff.className = 'corr-diff';
-    diff.style.color = differenceColor(difference);
-    diff.textContent = `${difference > 0 ? '+' : ''}${difference.toFixed(2)} ${unit}`;
-    div.append(diff);
-  }
-
-  return div;
-}
-
-function row(value: number | null, label: string, color: string): HTMLElement {
-  const div = document.createElement('div');
-  div.className = 'corr-row';
-
-  const number = document.createElement('span');
-  number.className = 'corr-val';
-  number.style.color = color;
-  number.textContent = fmt(value);
-
-  const text = document.createElement('span');
-  text.className = 'corr-sub';
-  text.textContent = label;
-
-  div.append(number, text);
-  return div;
-}
-
-function basis(trainingDays: number, restDays: number): HTMLElement {
-  const div = document.createElement('div');
-  div.className = 'corr-n';
-  div.textContent = `Basis: ${trainingDays} Training Folgetage · ${restDays} Ruhe Folgetage`;
-  return div;
+  const tone = Math.abs(difference) < NOTABLE_DIFFERENCE ? '' : difference > 0 ? 'is-ok' : 'is-off';
+  return card(
+    title,
+    valueNode(signed(difference, 2), unit, tone),
+    [`Training ${decimal(afterTraining, 2)} gegen Ruhetag ${decimal(afterRest, 2)}`, basis],
+  );
 }

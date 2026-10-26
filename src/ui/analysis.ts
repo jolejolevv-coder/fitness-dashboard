@@ -2,67 +2,33 @@ import type { DailyEntry } from '../types';
 import type { Goals } from '../parse/goals';
 import { targetRateKgPerWeek } from '../parse/goals';
 import { complianceOf, streakOf, type Picker, type Predicate } from '../analytics/compliance';
-import { correlations, MIN_CORRELATION_PAIRS } from '../analytics/correlation';
+import { correlations } from '../analytics/correlation';
 import { detectPlateau, projectToTarget, weightTrend, type PlateauStatus } from '../analytics/trend';
 import { tdeeRange } from '../analytics/tdee';
-import { byId, COLORS } from './dom';
+import { byId } from './dom';
+import { card, refusalCard, valueNode } from './cards';
+import { decimal, dateFormat, integer, target } from './format';
 
 /**
  * Anzeige der abgeleiteten Kennzahlen.
  *
  * Grundsatz: Zahl und Datenbasis, sonst nichts. Keine Erklaertexte, keine
- * Empfehlungen. Wo eine Kennzahl schweigt, steht ihr Grund, damit ein Strich
- * nie mit einem Defekt verwechselt wird.
+ * Empfehlungen. Wo eine Kennzahl schweigt, steht ihr Grund an der Stelle der
+ * Zahl, damit ein Strich nie mit einem Defekt verwechselt wird.
  */
 
-const dateFormat = new Intl.DateTimeFormat('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
+/** Ab diesem Vielfachen der Sollrate gilt das Tempo als auffaellig. */
+const RATE_TOLERANCE = 1.5;
 
-function kcal(value: number): string {
-  return Math.round(value).toLocaleString('de-DE');
-}
+/** Compliance: ab diesem Anteil getroffen, darunter daneben. */
+const COMPLIANCE_OK_PCT = 80;
+const COMPLIANCE_OFF_PCT = 60;
 
-function kg(value: number, digits = 2): string {
-  return value.toFixed(digits).replace('.', ',');
-}
+/** Ab diesem Betrag gilt eine Korrelation als nennenswert. */
+const NOTABLE_R = 0.2;
 
-/** Zielzahl ohne unnoetige Nachkommastelle, mit deutschem Dezimalkomma. */
-function target(value: number | null): string {
-  if (value === null) return '–';
-  return Number.isInteger(value) ? String(value) : String(value).replace('.', ',');
-}
-
-/**
- * Eine Zeile der Werteliste.
- *
- * Frueher eine Kachel je Kennzahl. Vier gleich grosse Kaesten in vier Farben
- * sagen nichts darueber, welcher wichtig ist. Eine Liste sagt es auch nicht,
- * beansprucht aber nicht so zu tun.
- */
-function card(label: string, value: string, sub: string, color: string): HTMLElement {
-  const element = document.createElement('div');
-  element.className = 'stat';
-
-  const name = document.createElement('span');
-  name.className = 'stat-name';
-  name.textContent = label;
-
-  const valueEl = document.createElement('span');
-  valueEl.className = 'stat-value';
-  valueEl.style.color = color;
-  valueEl.textContent = value;
-
-  const note = document.createElement('span');
-  note.className = 'stat-note';
-  note.textContent = sub;
-
-  element.append(name, valueEl, note);
-  return element;
-}
-
-/** Kachel fuer eine Kennzahl, die keine Aussage treffen kann. */
-function refusedCard(label: string, insight: { reason: string }): HTMLElement {
-  return card(label, '–', insight.reason, COLORS.muted);
-}
+/** Kurzes Datum fuer das Wort der Karte, `25. Okt. 2026`. */
+const wordDate = new Intl.DateTimeFormat('de-DE', { day: 'numeric', month: 'short', year: 'numeric' });
 
 const PLATEAU_LABELS: Record<PlateauStatus, string> = {
   'kein-plateau': 'Kein Plateau',
@@ -70,10 +36,11 @@ const PLATEAU_LABELS: Record<PlateauStatus, string> = {
   ausfuehrung: 'Stillstand',
 };
 
-const PLATEAU_COLORS: Record<PlateauStatus, string> = {
-  'kein-plateau': COLORS.good,
-  plateau: COLORS.bad,
-  ausfuehrung: COLORS.warn,
+/** Kein Plateau ist getroffen, Plateau und Stillstand sind daneben. */
+const PLATEAU_TONES: Record<PlateauStatus, string> = {
+  'kein-plateau': 'is-ok',
+  plateau: 'is-off',
+  ausfuehrung: 'is-off',
 };
 
 interface StreakDefinition {
@@ -92,50 +59,6 @@ function streakDefinitions(goals: Goals): StreakDefinition[] {
   ];
 }
 
-function row(cells: (string | HTMLElement)[], colors: (string | null)[] = []): HTMLTableRowElement {
-  const tr = document.createElement('tr');
-  cells.forEach((content, index) => {
-    const td = document.createElement('td');
-    const color = colors[index];
-    if (color) td.style.color = color;
-    if (typeof content === 'string') td.textContent = content;
-    else td.append(content);
-    tr.append(td);
-  });
-  return tr;
-}
-
-function table(headers: string[], rows: HTMLTableRowElement[]): HTMLElement {
-  const wrapper = document.createElement('div');
-  wrapper.style.overflowX = 'auto';
-
-  const element = document.createElement('table');
-  element.className = 't-table';
-
-  const head = document.createElement('thead');
-  const headRow = document.createElement('tr');
-  for (const header of headers) {
-    const th = document.createElement('th');
-    th.textContent = header;
-    headRow.append(th);
-  }
-  head.append(headRow);
-
-  const body = document.createElement('tbody');
-  body.append(...rows);
-
-  element.append(head, body);
-  wrapper.append(element);
-  return wrapper;
-}
-
-function note(text: string): HTMLElement {
-  const element = document.createElement('p');
-  element.className = 'analysis-note';
-  element.textContent = text;
-  return element;
-}
-
 export function renderAnalysis(
   daily: readonly DailyEntry[],
   goals: Goals,
@@ -147,6 +70,7 @@ export function renderAnalysis(
     : complianceOf(daily, (e) => e.protein, (v) => v >= goals.average.proteinG!).pct;
 
   renderKpis(daily, goals, targetWeightKg, trend, proteinCompliance);
+  renderTrendDetail(trend);
   renderStreaks(daily, goals);
   renderCorrelations(daily);
 }
@@ -167,83 +91,91 @@ function renderKpis(
   const tdee = tdeeRange(daily);
   if (tdee.ok) {
     const windows = tdee.estimates.map((e) => e.windowDays).join(', ');
-    const value = Math.round(tdee.low) === Math.round(tdee.high)
-      ? `${kcal(tdee.low)} kcal`
-      : `${kcal(tdee.low)} bis ${kcal(tdee.high)}`;
-    cards.push(card('Erhaltungsbedarf', value, `kcal/Tag · Basis ${windows} Tage`, COLORS.info));
+    const same = Math.round(tdee.low) === Math.round(tdee.high);
+    cards.push(card(
+      'Erhaltungsbedarf',
+      valueNode(same ? integer(tdee.low) : `${integer(tdee.low)} bis ${integer(tdee.high)}`, 'kcal/Tag', 'is-word'),
+      `Basis ${windows} Tage`,
+    ));
   } else {
-    cards.push(refusedCard('Erhaltungsbedarf', tdee));
+    cards.push(refusalCard('Erhaltungsbedarf', tdee.reason));
   }
 
   // Rate gegen Sollrate.
   if (trend.ok) {
     const soll = targetRateKgPerWeek(goals.rateOfLossPct, trend.currentSmoothed);
     const direction = trend.ratePerWeek < 0 ? 'Abnahme' : 'Zunahme';
-    const sub = soll !== null
-      ? `${direction} · Soll ${kg(Math.abs(soll))} · Basis ${trend.basisDays} Tage`
-      : `${direction} · Basis ${trend.basisDays} Tage`;
-    const color = soll === null
-      ? COLORS.info
-      : Math.abs(trend.ratePerWeek) > Math.abs(soll) * 1.5 ? COLORS.warn : COLORS.good;
-    cards.push(card('Rate', `${kg(Math.abs(trend.ratePerWeek))} kg/Woche`, sub, color));
+    const offPlan = soll !== null && Math.abs(trend.ratePerWeek) > Math.abs(soll) * RATE_TOLERANCE;
+    cards.push(card(
+      'Rate',
+      valueNode(decimal(Math.abs(trend.ratePerWeek), 2), 'kg/Woche', offPlan ? 'is-off' : soll !== null ? 'is-ok' : ''),
+      [soll !== null ? `${direction}, Soll ${decimal(Math.abs(soll), 2)}` : direction, `Basis ${integer(trend.basisDays)} Tage`],
+    ));
   } else {
-    cards.push(refusedCard('Rate', trend));
+    cards.push(refusalCard('Rate', trend.reason));
   }
 
   // Plateau.
   const plateau = detectPlateau(daily, proteinCompliance);
   if (plateau.ok) {
-    const sub = plateau.status === 'ausfuehrung' && proteinCompliance !== null
-      ? `${kg(Math.abs(plateau.ratePerWeek))} kg/Woche · Compliance ${proteinCompliance}%`
-      : `${kg(Math.abs(plateau.ratePerWeek))} kg/Woche · Basis ${plateau.basisDays} Tage`;
-    cards.push(card('Letzte 14 Tage', PLATEAU_LABELS[plateau.status], sub, PLATEAU_COLORS[plateau.status]));
+    const basis = plateau.status === 'ausfuehrung' && proteinCompliance !== null
+      ? `Compliance ${integer(proteinCompliance)} %`
+      : `Basis ${integer(plateau.basisDays)} Tage`;
+    cards.push(card(
+      'Letzte 14 Tage',
+      valueNode(PLATEAU_LABELS[plateau.status], undefined, `is-word ${PLATEAU_TONES[plateau.status]}`),
+      [`${decimal(Math.abs(plateau.ratePerWeek), 2)} kg/Woche`, basis],
+    ));
   } else {
-    cards.push(refusedCard('Letzte 14 Tage', plateau));
+    cards.push(refusalCard('Letzte 14 Tage', plateau.reason));
   }
 
   // Zielprojektion.
   const projection = projectToTarget(trend, targetWeightKg);
   if (projection.ok) {
-    const band = `${dateFormat.format(projection.earliest)} bis ${dateFormat.format(projection.latest)}`;
-    cards.push(card(`Ziel ${targetWeightKg} kg`, dateFormat.format(projection.date), band, COLORS.blue));
+    cards.push(card(
+      `Ziel ${targetWeightKg} kg`,
+      valueNode(wordDate.format(projection.date), undefined, 'is-word'),
+      `${dateFormat.format(projection.earliest)} bis ${dateFormat.format(projection.latest)}`,
+    ));
   } else {
-    cards.push(refusedCard(targetWeightKg === null ? 'Zielprojektion' : `Ziel ${targetWeightKg} kg`, projection));
+    cards.push(refusalCard(targetWeightKg === null ? 'Zielprojektion' : `Ziel ${targetWeightKg} kg`, projection.reason));
   }
 
   container.replaceChildren(...cards);
+}
 
-  const detail = byId('a-trend-detail');
-  if (detail) {
-    detail.replaceChildren(trend.ok
-      ? note(`R² ${trend.r2.toFixed(2)} · geglaettetes Gewicht ${kg(trend.currentSmoothed, 1)} kg · ${trend.basisDays} Tage im Trend`)
-      : note(trend.reason));
-  }
+function renderTrendDetail(trend: ReturnType<typeof weightTrend>): void {
+  const container = byId('a-trend-detail');
+  if (!container) return;
+
+  container.replaceChildren(trend.ok
+    ? card(
+      'Bestimmtheitsmaß R²',
+      valueNode(decimal(trend.r2, 2)),
+      [`Geglättetes Gewicht ${decimal(trend.currentSmoothed, 1)} kg`, `Basis ${integer(trend.basisDays)} Tage`],
+    )
+    : refusalCard('Bestimmtheitsmaß R²', trend.reason));
 }
 
 function renderStreaks(daily: readonly DailyEntry[], goals: Goals): void {
   const container = byId('a-streaks');
   if (!container) return;
 
-  const rows = streakDefinitions(goals).map((definition) => {
-    if (!definition.hit) return row([definition.label, '–', '–', '–', 'Kein Zielwert']);
-    const compliance = complianceOf(daily, definition.pick, definition.hit);
-    const streak = streakOf(daily, definition.pick, definition.hit);
-    const color = compliance.pct === null ? COLORS.muted
-      : compliance.pct >= 80 ? COLORS.good
-      : compliance.pct >= 60 ? COLORS.warn : COLORS.bad;
-    return row(
-      [
-        definition.label,
-        `${compliance.hit} von ${compliance.recorded}`,
-        String(streak.current),
-        String(streak.best),
-        String(streak.gaps),
-      ],
-      [null, color],
-    );
-  });
+  container.replaceChildren(...streakDefinitions(goals).map((definition) => {
+    if (!definition.hit) return refusalCard(definition.label, 'Kein Zielwert');
 
-  container.replaceChildren(table(['Ziel', 'Getroffen', 'Laufend', 'Bestserie', 'Luecken'], rows));
+    const compliance = complianceOf(daily, definition.pick, definition.hit);
+    if (compliance.pct === null) return refusalCard(definition.label, `Basis 0 von ${integer(daily.length)} Tagen`);
+
+    const streak = streakOf(daily, definition.pick, definition.hit);
+    const tone = compliance.pct >= COMPLIANCE_OK_PCT ? 'is-ok' : compliance.pct < COMPLIANCE_OFF_PCT ? 'is-off' : '';
+    return card(
+      definition.label,
+      valueNode(`${integer(compliance.hit)} von ${integer(compliance.recorded)}`, 'Tage', tone),
+      [`Laufend ${integer(streak.current)}, Bestserie ${integer(streak.best)}`, `${integer(streak.gaps)} Lücken`],
+    );
+  }));
 }
 
 function renderCorrelations(daily: readonly DailyEntry[]): void {
@@ -251,17 +183,11 @@ function renderCorrelations(daily: readonly DailyEntry[]): void {
   if (!container) return;
 
   const result = correlations(daily);
-  const rows = result.found.map((entry) => {
-    const color = Math.abs(entry.r) < 0.2 ? COLORS.muted : entry.r > 0 ? COLORS.good : COLORS.bad;
-    return row([entry.label, entry.r.toFixed(2), String(entry.n)], [null, color]);
+  const cards = result.found.map((entry) => {
+    const tone = Math.abs(entry.r) < NOTABLE_R ? '' : entry.r > 0 ? 'is-ok' : 'is-off';
+    return card(entry.label, valueNode(decimal(entry.r, 2), 'r', tone), `Basis ${integer(entry.n)} Paare`);
   });
+  for (const skipped of result.skipped) cards.push(refusalCard(skipped.label, skipped.reason));
 
-  for (const skipped of result.skipped) {
-    rows.push(row([skipped.label, '–', skipped.reason], [null, COLORS.muted, COLORS.dim]));
-  }
-
-  container.replaceChildren(
-    table(['Paar', 'r', 'n'], rows),
-    note(`Zusammenhang belegt keine Ursache. Unter ${MIN_CORRELATION_PAIRS} Paaren wird kein Wert ausgegeben.`),
-  );
+  container.replaceChildren(...cards);
 }

@@ -223,9 +223,9 @@ export function closeSettings(): void {
 
 /** Setzt die Zeitraumknoepfe auf `aria-pressed` statt auf eine Klasse. Sichtbar nur im Verlauf. */
 export function setupRangeButtons(onChange: (days: number) => void): void {
-  for (const button of document.querySelectorAll<HTMLButtonElement>('.range-btn')) {
+  for (const button of document.querySelectorAll<HTMLButtonElement>('#range-chips .chip')) {
     button.addEventListener('click', () => {
-      for (const other of document.querySelectorAll<HTMLButtonElement>('.range-btn')) {
+      for (const other of document.querySelectorAll<HTMLButtonElement>('#range-chips .chip')) {
         other.setAttribute('aria-pressed', String(other === button));
       }
       onChange(Number(button.dataset['range']));

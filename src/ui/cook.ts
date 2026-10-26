@@ -267,7 +267,7 @@ function findStep(view: Mounted, stepId: string): CookStep | undefined {
 function header(view: Mounted): HTMLElement {
   const { cook } = view;
   const head = el('div', { class: 'ck-head' }, [
-    el('h3', { class: 'panel-title', text: cook.title }),
+    el('h3', { text: cook.title }),
     el('div', { class: 'ck-actions' }, [
       button('Zurücksetzen', 'ck-reset', () => resetSession(view)),
       button('Schließen', 'ck-close', () => {

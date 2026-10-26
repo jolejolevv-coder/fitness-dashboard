@@ -86,23 +86,3 @@ export function icon(paths: readonly string[], className = 'icon'): SVGSVGElemen
   }
   return svg;
 }
-
-/** Segmentierte Umschaltung wie bei den Darstellungen im Gewichtsverlauf. */
-export function segmented<T extends string>(
-  label: string,
-  choices: readonly { value: T; text: string }[],
-  current: T,
-  onSelect: (value: T) => void,
-): HTMLElement {
-  const group = el('span', { class: 'segmented', attrs: { role: 'group', 'aria-label': label } });
-  for (const choice of choices) {
-    const button = el('button', {
-      class: 'seg',
-      text: choice.text,
-      attrs: { type: 'button', 'aria-pressed': String(choice.value === current), [FOCUS_ATTR]: `seg-${choice.value}` },
-    });
-    button.addEventListener('click', () => onSelect(choice.value));
-    group.appendChild(button);
-  }
-  return group;
-}

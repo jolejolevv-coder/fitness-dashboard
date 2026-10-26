@@ -318,7 +318,7 @@ function renderShared(): void {
 /** Umschalter ueber dem Gewichtsverlauf. Zeichnet nur diesen Abschnitt neu. */
 function setWeightMode(mode: WeightMode): void {
   weightMode = mode;
-  for (const button of document.querySelectorAll<HTMLButtonElement>('.seg[data-mode]')) {
+  for (const button of document.querySelectorAll<HTMLButtonElement>('.chip[data-mode]')) {
     button.setAttribute('aria-pressed', String(button.dataset['mode'] === mode));
   }
   if (!goals) return;
@@ -425,7 +425,7 @@ function wire(): void {
   byId('btn-config')?.addEventListener('click', showConfig);
   byId('btn-export-csv')?.addEventListener('click', () => downloadCsv(filteredDaily()));
 
-  for (const button of document.querySelectorAll<HTMLButtonElement>('.seg[data-mode]')) {
+  for (const button of document.querySelectorAll<HTMLButtonElement>('.chip[data-mode]')) {
     button.addEventListener('click', () => setWeightMode((button.dataset['mode'] ?? 'weight') as WeightMode));
   }
 
