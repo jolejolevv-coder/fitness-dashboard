@@ -4,21 +4,24 @@ import { complianceOf } from '../analytics/compliance';
 import { projectToTarget, weightTrend } from '../analytics/trend';
 import { weightChange } from '../analytics/weight';
 import { byId } from './dom';
+import { el } from './build';
 import { decimal, EMPTY, integer, signed } from './format';
 
 /**
  * Der Fortschritt als eine Aussage.
  *
- * Eine grosse Zahl, eine Zeile Kontext, eine duenne Strecke, drei Kennzahlen
- * durch senkrechte Trenner geteilt, darunter das erwartete Zieldatum. Kein
- * Container, keine Kacheln. Die Rangfolge entsteht aus Schriftgroesse und
- * Abstand, nicht aus Flaechen.
+ * Eine Magnetkarte mit den verlorenen kg und dem Fortschritt zum Ziel, darunter
+ * vier Karten: Aktuell, Wochenrate, Compliance, erwartetes Zieldatum.
  *
  * Gerechnet wird ueber den gesamten Bestand, unabhaengig vom Zeitraumfilter.
  */
 
 /** Ab dieser Abweichung von der Sollrate gilt das Tempo als auffaellig. */
 const RATE_TOLERANCE = 1.5;
+
+/** Ab dieser Compliance gilt der Wert als getroffen, darunter als daneben. */
+const COMPLIANCE_OK_PCT = 80;
+const COMPLIANCE_OFF_PCT = 60;
 
 const MONTHS = [
   'Jan.', 'Feb.', 'März', 'Apr.', 'Mai', 'Juni',
@@ -39,13 +42,6 @@ function longDate(date: Date): string {
   return `${date.getDate()}. ${MONTHS[date.getMonth()]} ${date.getFullYear()}`;
 }
 
-function element(tag: string, className?: string, text?: string): HTMLElement {
-  const node = document.createElement(tag);
-  if (className) node.className = className;
-  if (text !== undefined) node.textContent = text;
-  return node;
-}
-
 /** Anteil der Strecke vom Startgewicht zum Ziel, auf 0 bis 100 begrenzt. */
 function progressPct(start: number, current: number, target: number): number | null {
   const span = target - start;
@@ -53,12 +49,34 @@ function progressPct(start: number, current: number, target: number): number | n
   return Math.max(0, Math.min(100, ((current - start) / span) * 100));
 }
 
-function metric(label: string, value: string, sub: string, color?: string): HTMLElement {
-  const wrapper = element('div', 'hero-metric');
-  const valueNode = element('div', 'hero-metric-value', value);
-  if (color) valueNode.style.color = color;
-  wrapper.append(element('div', 'hero-metric-label', label), valueNode, element('div', 'hero-metric-sub', sub));
-  return wrapper;
+/** Zahl mit Einheit als kleinem Kind. */
+function valueNode(className: string, text: string, unit?: string): HTMLElement {
+  return el('div', { class: className }, [document.createTextNode(text), unit ? el('small', { text: unit }) : null]);
+}
+
+/** Verweigerung an der Stelle der Zahl, darunter `keine Aussage`. */
+function refusalCard(label: string, reason: string): HTMLElement {
+  return el('div', { class: 'card' }, [
+    el('div', { class: 'card-label', text: label }),
+    el('div', { class: 'refusal', text: reason }),
+    el('div', { class: 'card-basis', text: 'keine Aussage' }),
+  ]);
+}
+
+function card(label: string, value: HTMLElement, basis: string): HTMLElement {
+  return el('div', { class: 'card' }, [
+    el('div', { class: 'card-label', text: label }),
+    value,
+    el('div', { class: 'card-basis', text: basis }),
+  ]);
+}
+
+function progressBar(pct: number): HTMLElement {
+  const fill = el('span');
+  fill.style.width = `${pct}%`;
+  const mark = el('i');
+  mark.style.left = 'calc(100% - 3px)';
+  return el('div', { class: 'bar' }, [fill, mark]);
 }
 
 export function renderHero({ daily, goals, targetWeightKg }: HeroData): void {
@@ -68,101 +86,77 @@ export function renderHero({ daily, goals, targetWeightKg }: HeroData): void {
   const weighed = daily.filter((d) => d.weight !== null && !isNaN(d.weight) && d.dateObj);
   const change = weightChange(weighed);
   if (!change || !weighed.length) {
-    container.replaceChildren(element('p', 'hero-caption', 'Noch keine Wägungen erfasst.'));
+    container.replaceChildren(refusalCard('Verlauf', 'Noch keine Wägungen erfasst'));
     return;
   }
 
   const lost = change.lastRaw - change.firstRaw;
   const since = weighed[0]!.dateObj!;
-  const nodes: HTMLElement[] = [];
 
-  // Die eine Aussage der Seite.
-  const headline = element('div', 'hero-headline');
-  headline.append(
-    element('span', 'hero-value', decimal(Math.abs(lost), 1)),
-    element('span', 'hero-unit', 'kg'),
+  // Die eine Aussage der Seite: verlorene kg, Fortschritt zum Ziel in derselben Karte.
+  const main = card(
+    lost <= 0 ? 'Verloren' : 'Zugelegt',
+    valueNode('card-value is-hero', decimal(Math.abs(lost), 1), 'kg'),
+    `seit ${shortDate(since)}`,
   );
-  nodes.push(headline);
-  nodes.push(element('p', 'hero-caption', `${lost <= 0 ? 'verloren' : 'zugelegt'} seit ${shortDate(since)}`));
+  if (targetWeightKg !== null) {
+    const pct = progressPct(change.firstRaw, change.lastRaw, targetWeightKg);
+    if (pct !== null) {
+      main.append(progressBar(pct));
+      const basis = el('div', { class: 'card-basis' }, [
+        el('b', { text: `${decimal(change.lastRaw, 1)} kg` }),
+        document.createTextNode(` aktuell · ${decimal(targetWeightKg, 1)} kg Ziel · ${integer(pct)} %`),
+      ]);
+      main.append(basis);
+    }
+  }
 
   const trend = weightTrend(daily);
   const projection = projectToTarget(trend, targetWeightKg);
 
-  if (targetWeightKg !== null) {
-    const pct = progressPct(change.firstRaw, change.lastRaw, targetWeightKg);
-    if (pct !== null) {
-      const track = element('div', 'track');
-      const bar = element('div', 'track-bar');
-      const fill = element('div', 'track-fill');
-      fill.style.width = `${pct}%`;
-      bar.append(fill);
-
-      const ends = element('div', 'track-ends');
-      const left = element('span');
-      left.append(element('span', 'num', `${decimal(change.lastRaw, 1)} kg`), document.createTextNode(' aktuell'));
-      const middle = element('span', undefined, `${integer(pct)} % des Ziels erreicht`);
-      const right = element('span');
-      right.append(element('span', 'num', `${decimal(targetWeightKg, 1)} kg`), document.createTextNode(' Ziel'));
-      ends.append(left, middle, right);
-
-      track.append(bar, ends);
-      nodes.push(track);
-    }
-  }
-
-  // Drei Kennzahlen, getrennt durch senkrechte Linien statt durch Karten.
-  const metrics = element('div', 'hero-metrics');
-
-  metrics.append(metric(
-    'Aktuell',
-    `${decimal(change.lastRaw, 1)} kg`,
-    `${signed(lost, 1)} kg · ${integer(weighed.length)} Wägungen`,
-  ));
-
+  let weekly: HTMLElement;
   if (trend.ok) {
     const plan = targetRateKgPerWeek(goals.rateOfLossPct, trend.currentSmoothed);
     const offPlan = plan !== null && Math.abs(trend.ratePerWeek) > Math.abs(plan) * RATE_TOLERANCE;
-    metrics.append(metric(
+    weekly = card(
       'Ø pro Woche',
-      `${signed(trend.ratePerWeek, 2)} kg`,
+      valueNode(offPlan ? 'card-value is-off' : 'card-value', signed(trend.ratePerWeek, 2), 'kg'),
       plan !== null ? `Plan ${signed(plan, 2)} kg` : `Basis ${integer(trend.basisDays)} Tage`,
-      offPlan ? 'var(--orange)' : undefined,
-    ));
+    );
   } else {
-    metrics.append(metric('Ø pro Woche', EMPTY, trend.reason));
+    weekly = refusalCard('Ø pro Woche', trend.reason);
   }
 
-  metrics.append(complianceMetric(daily, goals));
-  nodes.push(metrics);
+  const forecast = projection.ok
+    ? card('Ziel voraussichtlich', valueNode('card-value is-word', longDate(projection.date)), `Basis ${integer(trend.ok ? trend.basisDays : 0)} Tage`)
+    : refusalCard('Ziel voraussichtlich', projection.reason);
 
-  // Prognose, klein und ohne Hinweisrahmen.
-  const forecast = element('div', 'forecast');
-  forecast.append(element('span', 'forecast-label', 'Ziel voraussichtlich'));
-  forecast.append(element('span', 'forecast-value',
-    projection.ok ? longDate(projection.date) : projection.reason));
-  nodes.push(forecast);
-
-  container.replaceChildren(...nodes);
+  container.replaceChildren(
+    main,
+    el('div', { class: 'grid2' }, [
+      card('Aktuell', valueNode('card-value', decimal(change.lastRaw, 1), 'kg'), `${signed(lost, 1)} kg · ${integer(weighed.length)} Wägungen`),
+      weekly,
+      complianceCard(daily, goals),
+      forecast,
+    ]),
+  );
 }
 
 /** Gesamtcompliance ueber Protein und Kalorien, als Anteil der erfassten Tage. */
-function complianceMetric(daily: readonly DailyEntry[], goals: Goals): HTMLElement {
+function complianceCard(daily: readonly DailyEntry[], goals: Goals): HTMLElement {
   const protein = goals.average.proteinG;
   const calories = goals.average.caloriesKcal;
-  if (protein === null || calories === null) {
-    return metric('Compliance', EMPTY, 'Keine Zielwerte gelesen');
-  }
+  if (protein === null || calories === null) return refusalCard('Compliance', 'Keine Zielwerte gelesen');
 
   const p = complianceOf(daily, (e) => e.protein, (v) => v >= protein);
   const c = complianceOf(daily, (e) => e.calories, (v) => v <= calories);
-  const hit = p.hit + c.hit;
   const recorded = p.recorded + c.recorded;
-  const pct = recorded ? Math.round((hit / recorded) * 100) : null;
+  const pct = recorded ? Math.round(((p.hit + c.hit) / recorded) * 100) : null;
+  const tone = pct === null ? '' : pct >= COMPLIANCE_OK_PCT ? ' is-ok' : pct < COMPLIANCE_OFF_PCT ? ' is-off' : '';
 
-  return metric(
+  return card(
     'Compliance',
-    pct === null ? EMPTY : `${integer(pct)} %`,
+    valueNode(`card-value${tone}`, pct === null ? EMPTY : `${integer(pct)} %`),
     `Protein ${integer(p.hit)}/${integer(p.recorded)} · Kalorien ${integer(c.hit)}/${integer(c.recorded)}`,
-    pct === null ? undefined : pct >= 80 ? 'var(--green)' : pct >= 60 ? 'var(--orange)' : 'var(--red)',
   );
 }

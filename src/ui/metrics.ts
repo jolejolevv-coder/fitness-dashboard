@@ -2,14 +2,14 @@ import type { DailyEntry } from '../types';
 import type { Goals } from '../parse/goals';
 import { avg } from '../analytics/smoothing';
 import { byId } from './dom';
+import { el } from './build';
 import { decimal, EMPTY, integer, signed, target as formatTarget } from './format';
 
 /**
  * Sekundaere Kennzahlen, in drei Gruppen.
  *
- * Vorher sieben gleichfoermige Spalten nebeneinander, die keine Ordnung
- * erkennen liessen. Jetzt Ernaehrung, Aktivitaet und Regeneration, mit
- * unterschiedlicher Darstellung je nachdem, ob es ein Ziel gibt.
+ * Ernaehrung, Aktivitaet und Regeneration als Magnetkarten, je nachdem mit
+ * oder ohne Ziel.
  *
  * Wo ein Ziel existiert, steht die Abweichung des Schnitts davon, mit Vorzeichen
  * in die gute Richtung: Protein, Ballaststoffe und Schritte sind positiv, wenn
@@ -19,8 +19,6 @@ import { decimal, EMPTY, integer, signed, target as formatTarget } from './forma
 
 /** Richtung, in der ein Wert das Ziel schlagen kann. */
 type Direction = 'atLeast' | 'atMost';
-
-const TONE_COLORS = { pos: 'var(--green)', neg: 'var(--red)' } as const;
 
 /**
  * Abweichung vom Ziel in Prozent, positiv in die gute Richtung.
@@ -41,78 +39,36 @@ interface TargetedSpec {
   direction: Direction;
 }
 
-/**
- * Zeile mit Ziel: Bezeichnung, Wert, darunter der Zielwert und die Abweichung,
- * darunter ein sehr flacher Balken.
- */
-function targetedRow(spec: TargetedSpec): HTMLElement {
-  const wrapper = document.createElement('div');
-  wrapper.className = 'metric';
-
-  const label = document.createElement('span');
-  label.className = 'metric-label';
-  label.textContent = spec.label;
-
-  const suffix = spec.unit ? ` ${spec.unit}` : '';
-  const value = document.createElement('span');
-  value.className = 'metric-value';
-  value.textContent = spec.actual === null ? EMPTY : `${integer(spec.actual)}${suffix}`;
-
-  wrapper.append(label, value);
-
-  if (spec.actual === null || spec.target === null || spec.target <= 0) return wrapper;
-
-  const deviation = deviationPct(spec.actual, spec.target, spec.direction);
-  const tone = deviation >= 0 ? 'pos' : 'neg';
-
-  const sub = document.createElement('div');
-  sub.className = 'metric-sub';
-  sub.append(document.createTextNode(`${formatTarget(spec.target)}${suffix} Ziel · `));
-  const badge = document.createElement('span');
-  badge.className = 'metric-delta';
-  badge.style.color = TONE_COLORS[tone];
-  badge.textContent = `${signed(deviation, 1)} %`;
-  sub.append(badge);
-  wrapper.append(sub);
-
-  const bar = document.createElement('div');
-  bar.className = 'metric-bar';
-  const inner = document.createElement('span');
-  inner.style.width = `${Math.max(3, Math.min(100, (spec.actual / spec.target) * 100))}%`;
-  inner.style.background = TONE_COLORS[tone];
-  bar.append(inner);
-  wrapper.append(bar);
-
-  return wrapper;
+function valueNode(text: string, unit: string): HTMLElement {
+  return el('div', { class: 'card-value' }, [document.createTextNode(text), unit ? el('small', { text: unit }) : null]);
 }
 
-/** Zeile ohne Ziel: nur Bezeichnung und Wert, kein Balken. */
-function plainRow(label: string, value: number | null, unit = ''): HTMLElement {
-  const wrapper = document.createElement('div');
-  wrapper.className = 'metric';
+/** Karte mit Ziel: Wert, darunter Zielwert und Abweichung in die gute Richtung. */
+function targetedCard(spec: TargetedSpec): HTMLElement {
+  const value = valueNode(spec.actual === null ? EMPTY : integer(spec.actual), spec.actual === null ? '' : spec.unit);
+  const children: (Node | null)[] = [el('div', { class: 'card-label', text: spec.label }), value];
 
-  const name = document.createElement('span');
-  name.className = 'metric-label';
-  name.textContent = label;
-
-  const number = document.createElement('span');
-  number.className = 'metric-value';
-  number.textContent = value === null ? EMPTY : `${decimal(value, 1)}${unit ? ` ${unit}` : ''}`;
-
-  wrapper.append(name, number);
-  return wrapper;
+  if (spec.actual !== null && spec.target !== null && spec.target > 0) {
+    const deviation = deviationPct(spec.actual, spec.target, spec.direction);
+    const suffix = spec.unit ? ` ${spec.unit}` : '';
+    children.push(el('div', { class: 'card-basis' }, [
+      document.createTextNode(`Ziel ${formatTarget(spec.target)}${suffix} · `),
+      el('b', { class: deviation >= 0 ? 'is-ok' : 'is-off', text: `${signed(deviation, 1)} %` }),
+    ]));
+  }
+  return el('div', { class: 'card' }, children);
 }
 
-function group(title: string, children: HTMLElement[]): HTMLElement {
-  const wrapper = document.createElement('div');
-  wrapper.className = 'metric-group';
+/** Karte ohne Ziel: nur Bezeichnung und Wert. */
+function plainCard(label: string, value: number | null, unit = ''): HTMLElement {
+  return el('div', { class: 'card' }, [
+    el('div', { class: 'card-label', text: label }),
+    valueNode(value === null ? EMPTY : decimal(value, 1), value === null ? '' : unit),
+  ]);
+}
 
-  const heading = document.createElement('div');
-  heading.className = 'metric-group-title';
-  heading.textContent = title;
-
-  wrapper.append(heading, ...children);
-  return wrapper;
+function group(title: string, cards: HTMLElement[]): HTMLElement[] {
+  return [el('div', { class: 'group-label', text: title }), el('div', { class: 'grid2' }, cards)];
 }
 
 export function renderMetrics(daily: readonly DailyEntry[], goals: Goals): void {
@@ -123,20 +79,20 @@ export function renderMetrics(daily: readonly DailyEntry[], goals: Goals): void 
   const mean = (pick: (e: DailyEntry) => number | null): number | null => avg(daily.map(pick));
 
   const nutrition = group('Ernährung', [
-    targetedRow({ label: 'Kalorien', actual: mean((e) => e.calories), target: goal.caloriesKcal, unit: '', direction: 'atMost' }),
-    targetedRow({ label: 'Protein', actual: mean((e) => e.protein), target: goal.proteinG, unit: 'g', direction: 'atLeast' }),
-    targetedRow({ label: 'Ballaststoffe', actual: mean((e) => e.fiber), target: goal.fiberG, unit: 'g', direction: 'atLeast' }),
+    targetedCard({ label: 'Kalorien', actual: mean((e) => e.calories), target: goal.caloriesKcal, unit: '', direction: 'atMost' }),
+    targetedCard({ label: 'Protein', actual: mean((e) => e.protein), target: goal.proteinG, unit: 'g', direction: 'atLeast' }),
+    targetedCard({ label: 'Ballaststoffe', actual: mean((e) => e.fiber), target: goal.fiberG, unit: 'g', direction: 'atLeast' }),
   ]);
 
   const activity = group('Aktivität', [
-    targetedRow({ label: 'Schritte', actual: mean((e) => e.steps), target: goal.steps, unit: '', direction: 'atLeast' }),
+    targetedCard({ label: 'Schritte', actual: mean((e) => e.steps), target: goal.steps, unit: '', direction: 'atLeast' }),
   ]);
 
   const recovery = group('Regeneration', [
-    plainRow('Schlaf', mean((e) => e.sleep), 'h'),
-    plainRow('Energie', mean((e) => e.energy)),
-    plainRow('Stress', mean((e) => e.stress)),
+    plainCard('Schlaf', mean((e) => e.sleep), 'h'),
+    plainCard('Energie', mean((e) => e.energy)),
+    plainCard('Stress', mean((e) => e.stress)),
   ]);
 
-  container.replaceChildren(nutrition, activity, recovery);
+  container.replaceChildren(...nutrition, ...activity, ...recovery);
 }

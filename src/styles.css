@@ -112,7 +112,7 @@ button, select, input, textarea { font: inherit; color: inherit; }
 .wrap { max-width: var(--page); margin: 0 auto; }
 
 /* The Round Numerals Rule: jede Zahl rund und tabellarisch. */
-.num, .metric-value, .stat-value, .hero-metric-value {
+.num, .stat-value {
   font-variant-numeric: tabular-nums;
   font-feature-settings: 'tnum' 1;
 }
@@ -432,208 +432,14 @@ button, select, input, textarea { font: inherit; color: inherit; }
 
 .err { color: var(--red); font-size: 13px; margin-top: 10px; }
 
-/* ── Hero ──────────────────────────────────────────────────────────────────── */
+/* ── Heute ─────────────────────────────────────────────────────────────────── */
 
-.hero { margin-bottom: 40px; }
-
-.hero-headline { display: flex; align-items: baseline; gap: 8px; }
-.hero-value {
-  font-size: 46px;
-  font-weight: 600;
-  letter-spacing: -0.028em;
-  line-height: 1.05;
-  font-variant-numeric: tabular-nums;
-}
-.hero-unit {
-  font-size: 22px;
-  font-weight: 500;
-  color: var(--text-secondary);
-  letter-spacing: -0.01em;
-}
-.hero-caption {
-  font-size: 15px;
-  color: var(--text-secondary);
-  margin-top: 6px;
-  letter-spacing: -0.006em;
-}
-
-/* Fortschritt: duenn, ohne Umriss, ohne Beschriftung im Balken. */
-.track { margin: 26px 0 0; max-width: 720px; }
-.track-bar {
-  position: relative;
-  height: 4px;
-  border-radius: 2px;
-  background: var(--surface-secondary);
-  overflow: hidden;
-}
-.track-fill {
-  position: absolute;
-  inset: 0 auto 0 0;
-  border-radius: 2px;
-  background: var(--blue);
-  transition: width 320ms var(--ease);
-}
-.track-ends {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 9px;
-  font-size: 12px;
-  color: var(--text-tertiary);
-  font-variant-numeric: tabular-nums;
-}
-.track-ends .num { color: var(--text-secondary); }
-
-/* Drei Kennzahlen, durch senkrechte Trenner geteilt, nicht durch Karten. */
-.hero-metrics {
-  display: flex;
-  gap: 0;
-  margin-top: 32px;
-  flex-wrap: wrap;
-}
-.hero-metric { padding-right: 40px; }
-.hero-metric + .hero-metric {
-  padding-left: 40px;
-  border-left: 1px solid var(--separator);
-}
-.hero-metric-label {
-  font-size: 12px;
-  color: var(--text-secondary);
-  margin-bottom: 6px;
-  letter-spacing: -0.003em;
-}
-.hero-metric-value {
-  font-size: 22px;
-  font-weight: 600;
-  letter-spacing: -0.018em;
-  line-height: 1.1;
-}
-.hero-metric-sub {
-  font-size: 12px;
-  color: var(--text-tertiary);
-  margin-top: 4px;
-  font-variant-numeric: tabular-nums;
-}
-
-/* Prognose, bewusst klein und ohne Hinweisrahmen. */
-.forecast {
-  margin-top: 28px;
-  padding-top: 18px;
-  border-top: 1px solid var(--separator);
-  display: flex;
-  align-items: baseline;
-  gap: 12px;
-  font-size: 13px;
-  max-width: 720px;
-}
-.forecast-label { color: var(--text-secondary); }
-.forecast-value { color: var(--text-primary); font-weight: 500; font-variant-numeric: tabular-nums; }
-
-/* ── Abschnitte ────────────────────────────────────────────────────────────── */
-
-.section-block { margin-bottom: 44px; }
-
-.section-head {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  gap: 24px;
-  margin-bottom: 16px;
-}
-.section-title {
-  font-size: 17px;
-  font-weight: 600;
-  letter-spacing: -0.012em;
-}
-.section-sub {
-  font-size: 12px;
-  color: var(--text-tertiary);
-  font-variant-numeric: tabular-nums;
-}
-
-/* ── Insights ──────────────────────────────────────────────────────────────── */
-
-.coach { display: block; }
+#hero > .card { margin-top: 10px; }
+.card-text { margin-top: 6px; font-size: 15px; line-height: 1.45; }
+.card-basis .is-off { color: var(--red); }
+.card-basis .is-ok { color: var(--green); }
 .coach:empty { display: none; }
-
-.insight {
-  display: grid;
-  grid-template-columns: 14px 1fr;
-  gap: 0 10px;
-  padding: 14px 0;
-  border-top: 1px solid var(--separator);
-  align-items: start;
-}
-.insight:last-child { border-bottom: 1px solid var(--separator); }
-
-.insight-dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: var(--text-tertiary);
-  margin-top: 7px;
-  justify-self: center;
-}
-.insight-title {
-  font-size: 14px;
-  font-weight: 500;
-  letter-spacing: -0.006em;
-}
-.insight-body {
-  grid-column: 2;
-  font-size: 13px;
-  color: var(--text-secondary);
-  margin-top: 3px;
-  line-height: 1.5;
-  max-width: 78ch;
-}
-.insight-body .num { font-variant-numeric: tabular-nums; }
-
-/* ── Tageskennzahlen ───────────────────────────────────────────────────────── */
-
-.metrics {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 0 56px;
-}
-.metric-group { min-width: 0; }
-.metric-group-title {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--text-secondary);
-  letter-spacing: 0.02em;
-  text-transform: uppercase;
-  padding-bottom: 10px;
-  border-bottom: 1px solid var(--separator);
-}
-
-.metric {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  align-items: baseline;
-  gap: 2px 16px;
-  padding: 11px 0;
-  border-bottom: 1px solid var(--separator);
-}
-.metric-label { font-size: 14px; color: var(--text-primary); letter-spacing: -0.006em; }
-.metric-value { font-size: 15px; font-weight: 500; text-align: right; }
-.metric-sub {
-  grid-column: 1 / -1;
-  font-size: 12px;
-  color: var(--text-tertiary);
-  font-variant-numeric: tabular-nums;
-}
-.metric-delta { font-variant-numeric: tabular-nums; }
-
-/* Sehr flacher Balken, nur wo ein Ziel existiert. */
-.metric-bar {
-  grid-column: 1 / -1;
-  height: 3px;
-  border-radius: 1.5px;
-  background: var(--surface-secondary);
-  margin-top: 7px;
-  overflow: hidden;
-}
-.metric-bar span { display: block; height: 100%; border-radius: 1.5px; }
+.section-sub { font-size: 12px; color: var(--ink-3); font-variant-numeric: tabular-nums; }
 
 /* ── Segmente und Zeitraum ─────────────────────────────────────────────────── */
 
@@ -1109,7 +915,6 @@ body.no-sheet .settings-export { display: none; }
  */
 
 @media (max-width: 1180px) {
-  .metrics { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0 40px; }
   .charts-grid { gap: 36px 40px; }
 }
 
@@ -1120,8 +925,6 @@ body.no-sheet .settings-export { display: none; }
   .charts-grid { grid-template-columns: 1fr; }
   .chart-full { grid-column: 1; }
   .chart-body-hero { height: 260px; }
-  .metrics { grid-template-columns: 1fr; gap: 0; }
-  .metric-group + .metric-group { margin-top: 28px; }
   .stats { grid-template-columns: 1fr; }
   .week-summary { grid-template-columns: repeat(auto-fit, minmax(104px, 1fr)); }
   .chart-export { opacity: 1; }
@@ -1152,12 +955,6 @@ body.no-sheet .settings-export { display: none; }
 }
 
 @media (max-width: 700px) {
-  .hero-value { font-size: 38px; }
-  .section-head { flex-wrap: wrap; gap: 4px 16px; }
-  .hero-metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
-  .hero-metric { padding: 14px 0; border-top: 1px solid var(--separator); }
-  .hero-metric + .hero-metric { padding-left: 0; border-left: none; }
-  .hero-metric:nth-child(even) { padding-left: 20px; border-left: 1px solid var(--separator); }
   .chart-title { flex-wrap: wrap; }
 }
 

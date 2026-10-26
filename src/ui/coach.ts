@@ -5,6 +5,7 @@ import { avg } from '../analytics/smoothing';
 import { detectPlateau, weightTrend } from '../analytics/trend';
 import { tdeeRange } from '../analytics/tdee';
 import { byId } from './dom';
+import { el } from './build';
 import { decimal, integer, signed } from './format';
 
 /**
@@ -39,12 +40,6 @@ interface Statement {
   /** Hoehere Zahl gewinnt. Die staerkste Aussage fuehrt, zwei folgen kleiner. */
   weight: number;
 }
-
-const TONE_COLORS: Record<Tone, string> = {
-  pos: 'var(--green)',
-  warn: 'var(--orange)',
-  neutral: 'var(--text-tertiary)',
-};
 
 export function buildStatements(
   daily: readonly DailyEntry[],
@@ -190,38 +185,20 @@ function weakestPillar(daily: readonly DailyEntry[], goals: Goals): Statement | 
 }
 
 /**
- * Ein Insight als Zeile.
+ * Ein Insight als Karte.
  *
- * Statuspunkt, Titel, ein bis zwei Zeilen Erklaerung. Kein eigener Container je
- * Hinweis, nur feine waagerechte Trenner. Drei gleich schwere Kaesten lasen sich
- * wie eine Tabelle und liessen offen, was zuerst zu lesen ist.
+ * Mit Ton (warn rot, pos gruen) steht die Rubrik als Kapsel, ohne Ton als
+ * Bezeichnung. Darunter der Satz und die Zahlenbasis.
  */
 function statementNode(statement: Statement): HTMLElement {
-  const row = document.createElement('div');
-  row.className = 'insight';
-
-  const dot = document.createElement('span');
-  dot.className = 'insight-dot';
-  dot.style.background = TONE_COLORS[statement.tone];
-
-  const title = document.createElement('span');
-  title.className = 'insight-title';
-  title.textContent = statement.kind;
-
-  const body = document.createElement('p');
-  body.className = 'insight-body';
-  body.textContent = statement.text;
-
-  if (statement.note) {
-    const note = document.createElement('span');
-    note.className = 'num';
-    note.style.color = 'var(--text-tertiary)';
-    note.textContent = ` ${statement.note}`;
-    body.append(note);
-  }
-
-  row.append(dot, title, body);
-  return row;
+  const head = statement.tone === 'neutral'
+    ? el('div', { class: 'card-label', text: statement.kind })
+    : el('span', { class: `mark ${statement.tone === 'warn' ? 'is-off' : 'is-ok'}`, text: statement.kind });
+  return el('div', { class: 'card' }, [
+    head,
+    el('p', { class: 'card-text', text: statement.text }),
+    statement.note ? el('div', { class: 'card-basis', text: statement.note }) : null,
+  ]);
 }
 
 export function renderCoach(daily: readonly DailyEntry[], goals: Goals): void {
