@@ -67,7 +67,7 @@ export const COLORS = {
   get pos() { return token('--green'); },
   get bad() { return token('--red'); },
   get neg() { return token('--red'); },
-  /** Das Orange ist entfallen, daneben heisst rot. */
+  /** Eine eigene Warnfarbe gibt es nicht, daneben heisst rot. */
   get warn() { return token('--red'); },
   /** Haupt Datenzug. */
   get data() { return withAlpha(token('--ink'), ALPHA_DATA); },
