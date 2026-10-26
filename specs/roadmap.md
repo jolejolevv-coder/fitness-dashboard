@@ -21,7 +21,7 @@ Stand der Qualitaet: 88 Tests, Lint, Typpruefung und Build sauber. Geprueft bei 
 * Phase 7 Blockuebergreifende Trainingshistorie: nicht gestartet
 * Phase 8 Ernaehrung und Einkauf (Reiter Plan und Einkauf, Wuerzen und Soßen, Preis Pipeline): 8.0 Recherche erledigt 25.10.2026: Selektoren in `specs/features/muskelmarkt-parser.md`, ADR 0003 Dauerpreise angenommen 25.10.2026 (Normalpreis aus Muskelmarkt sammeln plus handgepflegte Startwerte). abgeschlossen und live seit 25.10.2026 (228 Tests), erster Preislauf erfolgreich, Cron aktiv. Spec `specs/features/nutrition-shopping.md`, Quelle `docs/HANDOFF.md`, ADR 0002 angenommen
 * Phase 9 Plangenerator ueber die Anthropic API: Spec `specs/features/plan-generator.md` freigegeben 25.10.2026. 9.0 bis 9.3 erledigt 25.10.2026 (ADR 0004, reine Funktionen, Planquelle, API Aufruf). 9.4 Oberflaeche, Export und CSP umgesetzt, gemergt und live 25.10.2026, 326 Tests. Offen beim Nutzer: erster Live Lauf mit eigenem Key, Netzwerkpruefung, dann Retro. Bundle Grenze 5 kB gilt gzip gegen `main` (eingehalten, +3,7 kB)
-* Phase 11 Kochansicht: Spec `specs/features/recipes.md` freigegeben 26.10.2026, Branch `recipes` ab `plan-generator`. 11.0 Daten erledigt 26.10.2026 (Schritt `id`s, `data/recipes.json`, 337 Tests). 11.1 reine Funktionen erledigt 26.10.2026 (`src/nutrition/cook.ts`, 353 Tests). 11.2 Oberflaeche erledigt 26.10.2026 (Knopf `Kochen`, Chunk `cook` 4,1 kB gzip, Haupt Bundle +0,25 kB). Naechster Schritt 11.3 Test am Handy durch den Nutzer, Korrekturen, Merge, Retro
+* Phase 11 Kochansicht: Spec `specs/features/recipes.md` freigegeben 26.10.2026. Abgeschlossen und live seit 26.10.2026 (353 Tests, Chunk `cook` 4,1 kB gzip, Haupt Bundle +0,25 kB). Handytest in echter Prep Session bestanden: Ton, Vibration, Wake Lock, `data/recipes.json` ohne Korrektur (OptiGrill 210 °C, 800 W, Chili mit einem Halt). Nicht umgesetzt: Stueckangaben neben Gramm
 
 ## Naechste Schritte
 
@@ -47,8 +47,8 @@ Nach Phase 6 nachzuholen: Lighthouse Messung (braucht eine erreichbare Instanz m
 
 Die harten Regeln stehen in `CLAUDE.md` (kein Schreibzugriff aufs Sheet, keine Zielwerte als Literal, Spaltenzuordnung ueber Kopfzeilen, `textContent` statt `innerHTML`, keine Zugangsdaten im Repo, `testdata/` nie committen). Dazu aus der Roadmap: Bei jeder Datei, die committet wird, vorher fragen, wer sie am Ende lesen kann.
 
-## Neueste Retro (Phase 8)
+## Neueste Retro (Phase 11)
 
-1. Gut: Die Recherche vor dem Code (ein Abruf, Belege fuer jeden Selektor) hat den Parser ohne Raten moeglich gemacht. Rechenkern und Pipeline liefen parallel, weil die Schnittstelle `shopping_items.json` vorher festgelegt war.
-2. Falsche Annahme: "Soßen kosten hoechstens rund 20 kcal" stimmte fuer den Sonntag nicht, zwei Soßen an einem Tag rissen das Band. Ebenso war die Packungsrundung zu streng, das Plan Dokument hatte bewusst leicht abgerundet. Und der Handoff haette Klarname, Sheet ID und Filialadressen ins oeffentliche Repo getragen.
-3. Besser spezifizieren: Toleranzen (Packungen, kcal Band) als Zahl in die Spec schreiben, nicht implizit aus einem Beispiel ableiten. Bei uebernommenen Dokumenten die Frage "wer kann das lesen" vor dem ersten Commit stellen.
+1. Gut: Daten, reine Funktionen und Oberflaeche in getrennten Schritten. Zeit als `now` Parameter machte Timer, Halte und Neuladen ohne Geraet testbar, der eigene Chunk hielt das Haupt Bundle bei +0,25 kB. Der Handytest lief ohne eine Korrektur an den Rezeptdaten.
+2. Falsche Annahme: Der Auftrag fuer 11.3 ging davon aus, `plan-generator` sei noch nicht auf `main` und lokales `main` sei die Basis. Tatsaechlich lag `plan-generator` schon auf `origin/main`, lokales `main` war mit einem ungepushten Phase 10 Commit davon abgezweigt. Aufgefallen erst an Konflikten im Probemerge. Ausserdem stand der lokale Test im WLAN als gleichwertige Option da, obwohl Wake Lock dort ohne HTTPS gar nicht laeuft.
+3. Besser spezifizieren: Merge Ziele immer gegen `origin/main` pruefen (`git merge-base`), nicht gegen das lokale `main`. Browser APIs mit Secure Context Pflicht (Wake Lock) in der Spec als Testbedingung nennen. Jede Spalte einer Mustertabelle braucht ein Akzeptanzkriterium oder den Vermerk spaeter, wie bei den Stueckangaben.
