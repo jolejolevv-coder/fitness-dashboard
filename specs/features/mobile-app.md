@@ -1,6 +1,7 @@
 # Mobile App (Phase 12)
 
-Status: Entwurf zur Freigabe, 26.10.2026. Entscheidungen des Nutzers vom
+Status: freigegeben 26.10.2026, mit ADR 0006 Variante A (`vite-plugin-pwa`).
+Icon und hell oder dunkel entscheidet der Vorschlag in 12.1. Entscheidungen des Nutzers vom
 26.10.2026 sind eingearbeitet (PWA mit Service Worker, rein lesend, eine
 Oberflaeche mobile first, Chart.js bleibt und wird nachgeladen). Architektur in
 `docs/adr/0006-pwa-und-mobile-shell.md`.

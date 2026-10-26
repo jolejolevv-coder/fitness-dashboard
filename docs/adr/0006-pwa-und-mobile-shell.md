@@ -1,9 +1,9 @@
 # ADR 0006: PWA mit Service Worker und eine Oberflaeche mobile first
 
-Status: vorgeschlagen (26.10.2026). Die Richtungsentscheidungen hat der Nutzer
+Status: angenommen (26.10.2026), Entscheidung 2 Variante A. Die Richtungsentscheidungen hat der Nutzer
 am 26.10.2026 getroffen (PWA mit Service Worker, rein lesend, eine Oberflaeche,
-Chart.js bleibt und wird nachgeladen). Offen zur Freigabe ist die Wahl des
-Werkzeugs fuer den Service Worker. Spec: `specs/features/mobile-app.md`.
+Chart.js bleibt und wird nachgeladen). Die Werkzeugwahl
+`vite-plugin-pwa` hat der Nutzer am selben Tag freigegeben. Spec: `specs/features/mobile-app.md`.
 
 ## Kontext
 
