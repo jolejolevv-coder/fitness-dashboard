@@ -25,7 +25,7 @@ import { renderHero } from './ui/hero';
 import { renderCoach } from './ui/coach';
 import { renderMetrics } from './ui/metrics';
 import type { WeightMode } from './charts/weight';
-import { filterTrainingDay, renderProgression, renderTraining } from './ui/training';
+import { renderTraining } from './ui/training';
 import { closeSettings, currentRoute, navigate, openSettings, setHasSheet, setupRangeButtons, setupShell } from './ui/shell';
 import { kuecheRouteFor, planViewFor, sectionFor, type Route } from './ui/router';
 import { onPlanViewChange, renderPlan, setPlanView } from './ui/plan';
@@ -33,7 +33,7 @@ import { renderShopping } from './ui/shopping';
 import { onPlanSourceChange } from './ui/planSource';
 import { sheetDayGoals } from './nutrition/goals';
 import { attachChartExports, downloadCsv } from './ui/export';
-import { loadCharts, type Charts } from './ui/charts';
+import { loadCharts, loadedCharts, type Charts } from './ui/charts';
 
 /**
  * Ladepolitik.
@@ -424,8 +424,6 @@ function wire(): void {
   byId('btn-refresh')?.addEventListener('click', () => void loadData(true));
   byId('btn-config')?.addEventListener('click', showConfig);
   byId('btn-export-csv')?.addEventListener('click', () => downloadCsv(filteredDaily()));
-  byId('t-day-select')?.addEventListener('change', filterTrainingDay);
-  byId('t-exercise-select')?.addEventListener('change', renderProgression);
 
   for (const button of document.querySelectorAll<HTMLButtonElement>('.seg[data-mode]')) {
     button.addEventListener('click', () => setWeightMode((button.dataset['mode'] ?? 'weight') as WeightMode));
@@ -438,6 +436,13 @@ function wire(): void {
   // Ein Wechsel der Planquelle passiert im Reiter Plan, der Einkauf zeichnet beim naechsten Oeffnen neu.
   onPlanSourceChange(() => dirty.add('shopping'));
   attachChartExports();
+
+  // Diagrammfarben folgen dem Schema, ein Wechsel zeichnet die sichtbaren Diagramme neu.
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+    loadedCharts()?.destroyAllCharts();
+    for (const name of CHART_SECTIONS) dirty.add(name);
+    renderActiveSection();
+  });
 
   document.addEventListener('visibilitychange', () => {
     if (!document.hidden) void loadData();

@@ -2,6 +2,9 @@ import type { Exercise, ParsedTraining } from '../types';
 import { avgRepsFromStr, epley1RM } from '../analytics/strength';
 import { baselineLoad, usableLoad } from '../parse/training';
 import { byId, COLORS, setText, show } from './dom';
+import { el } from './build';
+import { EMPTY, integer, signed, target as plain } from './format';
+import { withAlpha } from './palette';
 import type { Charts } from './charts';
 
 const MUSCLE_COLORS = [
@@ -16,9 +19,8 @@ const FALLBACK_REPS = 8;
 /** Ab dieser prozentualen Veraenderung gilt eine Progression als Fortschritt. */
 const PROGRESSION_THRESHOLD_PCT = 1;
 
-/** Maximale Laenge des Uebungsnamens in der Kennzahlkachel. */
-const TOP_NAME_MAX = 22;
-const TOP_NAME_CUT = 20;
+/** Alpha der Flaeche unter den Linien. */
+const AREA_ALPHA = 0.12;
 
 interface State {
   exercises: Record<string, Exercise>;
@@ -29,6 +31,10 @@ interface State {
 }
 
 let state: State | null = null;
+/** Gewaehlter Trainingstag, leer heisst alle. */
+let dayFilter = '';
+/** Schluessel der Uebung in der Detailansicht. */
+let selectedKey = '';
 
 /**
  * Volumen einer Uebungswoche.
@@ -45,7 +51,7 @@ function volumeOf(exercise: Exercise, weekIndex: number): number {
 
 export function renderTraining(parsed: ParsedTraining | null, charts: Charts): void {
   if (!parsed || !Object.keys(parsed.exercises).length) {
-    show('t-no-data', true);
+    show('t-no-data', true, 'grid');
     show('t-content', false);
     state = null;
     return;
@@ -55,27 +61,32 @@ export function renderTraining(parsed: ParsedTraining | null, charts: Charts): v
   show('t-content', true);
   state = { exercises: parsed.exercises, weekCount: parsed.weekCount, currentWeek: parsed.currentWeek, charts };
 
-  setText('t-current-week', String(state.currentWeek));
-  setText('t-exercise-count', String(Object.keys(state.exercises).length));
-  // PHASE 2: Wochenzahl aus dem Sheet statt der verdrahteten 12.
-  setText('t-week-count', `von ${state.weekCount} Wochen`);
+  const days = trainingDays();
+  if (!days.includes(dayFilter)) dayFilter = '';
 
-  renderVolumeKpi();
-  renderTopProgression();
+  renderCards();
   renderVolumeChart();
-  populateDaySelect();
-  populateExerciseSelect('');
-  renderProgression();
-  renderExerciseTable();
+  renderDayChips(days);
+  renderExerciseList();
 }
 
-function renderVolumeKpi(): void {
-  if (!state) return;
+function weekVolume(): number {
+  if (!state) return 0;
   let total = 0;
   for (const exercise of Object.values(state.exercises)) {
     total += volumeOf(exercise, state.currentWeek - 1);
   }
-  setText('t-volume-current', Math.round(total).toLocaleString('de'));
+  return total;
+}
+
+function trainingDays(): string[] {
+  if (!state) return [];
+  return [...new Set(Object.values(state.exercises).map((e) => e.day).filter(Boolean))].sort();
+}
+
+function dayLabel(day: string): string {
+  // Das Sheet schreibt `Day 1 - Torso`, in der Oberflaeche steht kein Bindestrich.
+  return day.replace('Day ', 'Tag ').replace(/\s+-\s+/g, ' ');
 }
 
 /**
@@ -92,30 +103,66 @@ function progressionPct(exercise: Exercise, currentWeek: number): number | null 
   return ((current - base.load) / base.load) * 100;
 }
 
-function renderTopProgression(): void {
-  if (!state) return;
-  let topName = '–';
-  let topPct = -Infinity;
-  let topSub = '–';
+function card(label: string, value: HTMLElement, basis: (Node | string)[]): HTMLElement {
+  return el('div', { class: 'card' }, [
+    el('div', { class: 'card-label', text: label }),
+    value,
+    el('div', { class: 'card-basis' }, basis.map((part) => (typeof part === 'string' ? document.createTextNode(part) : part))),
+  ]);
+}
 
+function valueNode(text: string, unit?: string, tone?: string): HTMLElement {
+  return el('div', { class: tone ? `card-value ${tone}` : 'card-value' }, [
+    document.createTextNode(text),
+    unit ? el('small', { text: unit }) : null,
+  ]);
+}
+
+interface TopProgression {
+  name: string;
+  pct: number;
+  base: number;
+  current: number;
+}
+
+/** Staerkste Progression der aktuellen Woche, oder `null`, wenn keine Uebung zulegt. */
+function topProgression(): TopProgression | null {
+  if (!state) return null;
+  let top: TopProgression | null = null;
   for (const exercise of Object.values(state.exercises)) {
     const pct = progressionPct(exercise, state.currentWeek);
-    if (pct === null) continue;
-    if (pct > topPct) {
-      const base = baselineLoad(exercise)!;
-      const current = usableLoad(exercise, state.currentWeek - 1)!;
-      topPct = pct;
-      topName = exercise.name;
-      topSub = `+${pct.toFixed(0)}% (${base.load}→${current} kg)`;
-    }
+    if (pct === null || pct <= 0 || (top && pct <= top.pct)) continue;
+    top = {
+      name: exercise.name,
+      pct,
+      base: baselineLoad(exercise)!.load,
+      current: usableLoad(exercise, state.currentWeek - 1)!,
+    };
   }
+  return top;
+}
 
-  const element = byId('t-top-prog');
-  if (element) {
-    element.textContent = topName.length > TOP_NAME_MAX ? `${topName.substring(0, TOP_NAME_CUT)}…` : topName;
-    element.title = topName;
-  }
-  setText('t-top-prog-sub', topPct > 0 ? topSub : '–');
+function renderCards(): void {
+  const container = byId('t-cards');
+  if (!container || !state) return;
+  const top = topProgression();
+  const topCard = top
+    ? card('Stärkste Progression', valueNode(signed(top.pct, 0), '%', 'is-ok'), [
+      el('b', { text: top.name }),
+      ` ${plain(top.base)} → ${plain(top.current)} kg`,
+    ])
+    : el('div', { class: 'card' }, [
+      el('div', { class: 'card-label', text: 'Stärkste Progression' }),
+      el('div', { class: 'refusal', text: 'Keine Progression' }),
+      el('div', { class: 'card-basis', text: 'keine Aussage' }),
+    ]);
+
+  container.replaceChildren(
+    card('Aktuelle Woche', valueNode(String(state.currentWeek)), [`von ${state.weekCount} Wochen`]),
+    card('Übungen', valueNode(String(Object.keys(state.exercises).length)), ['im Mesozyklus']),
+    card('Volumen aktuelle Woche', valueNode(integer(weekVolume()), 'kg'), [`Woche ${state.currentWeek}`]),
+    topCard,
+  );
 }
 
 function renderVolumeChart(): void {
@@ -146,52 +193,40 @@ function renderVolumeChart(): void {
   const options = charts.mutableOptions();
   options.scales.x.stacked = true;
   options.scales.y.stacked = true;
-  options.plugins.legend = { display: true, labels: { color: '#94a3b8', font: { size: 10 }, boxWidth: 10, padding: 8 } };
+  options.plugins.legend = { display: true, labels: { color: COLORS.muted, font: { size: 10 }, boxWidth: 10, padding: 8 } };
 
   charts.upsert('t-volume-chart', { type: 'bar', data: { labels: weekLabels, datasets }, options });
 }
 
-function populateDaySelect(): void {
-  const select = byId<HTMLSelectElement>('t-day-select');
-  if (!select || !state) return;
-  const days = [...new Set(Object.values(state.exercises).map((e) => e.day).filter(Boolean))].sort();
-
-  const options = [new Option('Alle Tage', '')];
-  for (const day of days) options.push(new Option(day, day));
-  select.replaceChildren(...options);
+function renderDayChips(days: string[]): void {
+  const container = byId('t-days');
+  if (!container) return;
+  const choices = [{ value: '', text: 'Alle' }, ...days.map((day) => ({ value: day, text: dayLabel(day) }))];
+  container.replaceChildren(...choices.map((choice) => {
+    const chip = el('button', {
+      class: 'chip',
+      text: choice.text,
+      attrs: { type: 'button', 'aria-pressed': String(choice.value === dayFilter) },
+    });
+    chip.addEventListener('click', () => {
+      dayFilter = choice.value;
+      renderDayChips(days);
+      renderExerciseList();
+    });
+    return chip;
+  }));
 }
 
-function populateExerciseSelect(dayFilter: string): void {
-  const select = byId<HTMLSelectElement>('t-exercise-select');
-  if (!select || !state) return;
-
-  const previous = select.value;
-  const entries = Object.values(state.exercises)
+function visibleExercises(): Exercise[] {
+  if (!state) return [];
+  return Object.values(state.exercises)
     .filter((exercise) => !dayFilter || exercise.day === dayFilter)
-    .sort((a, b) => a.name.localeCompare(b.name));
-
-  // Wert ist der Schluessel aus Tag und Name, damit gleichnamige Uebungen an
-  // verschiedenen Tagen unterscheidbar bleiben.
-  select.replaceChildren(...entries.map((exercise) => new Option(
-    dayFilter ? exercise.name : `${exercise.name} · ${exercise.day.replace('Day ', 'D')}`,
-    exercise.key,
-    false,
-    exercise.key === previous,
-  )));
+    .sort((a, b) => (a.day || '').localeCompare(b.day || '') || a.name.localeCompare(b.name));
 }
 
-export function filterTrainingDay(): void {
-  const select = byId<HTMLSelectElement>('t-day-select');
-  populateExerciseSelect(select?.value ?? '');
-  renderProgression();
-  renderExerciseTable();
-}
-
-export function renderProgression(): void {
+function renderProgression(): void {
   if (!state) return;
-  const key = byId<HTMLSelectElement>('t-exercise-select')?.value;
-  if (!key) return;
-  const exercise = state.exercises[key];
+  const exercise = state.exercises[selectedKey];
   if (!exercise) return;
   const { charts } = state;
 
@@ -247,7 +282,7 @@ export function renderProgression(): void {
           label: 'Load (kg)',
           data: loads,
           borderColor: COLORS.accent,
-          backgroundColor: `${COLORS.accent}25`,
+          backgroundColor: withAlpha(COLORS.accent, AREA_ALPHA),
           borderWidth: 2.5,
           pointRadius: 5,
           pointHoverRadius: 8,
@@ -267,8 +302,8 @@ export function renderProgression(): void {
         labels,
         datasets: [{
           data: oneRepMax,
-          borderColor: COLORS.indigo,
-          backgroundColor: `${COLORS.indigo}25`,
+          borderColor: COLORS.ink,
+          backgroundColor: withAlpha(COLORS.ink, AREA_ALPHA),
           borderWidth: 2,
           pointRadius: 4,
           fill: true,
@@ -281,65 +316,41 @@ export function renderProgression(): void {
   }
 }
 
-function progressionBadge(delta: number | null): HTMLElement {
-  if (delta === null) {
-    const dash = document.createElement('span');
-    dash.style.color = COLORS.dim;
-    dash.textContent = '–';
-    return dash;
-  }
-  const badge = document.createElement('span');
-  const kind = delta > PROGRESSION_THRESHOLD_PCT ? 'pos' : delta < -PROGRESSION_THRESHOLD_PCT ? 'neg' : 'neu';
-  badge.className = `t-badge t-badge-${kind}`;
-  badge.textContent = `${delta > 0 ? '+' : ''}${delta.toFixed(0)}%`;
-  return badge;
-}
+function exerciseRow(exercise: Exercise): HTMLElement {
+  const base = baselineLoad(exercise);
+  const current = usableLoad(exercise, state!.currentWeek - 1);
+  const delta = progressionPct(exercise, state!.currentWeek);
 
-function textCell(text: string, style = ''): HTMLTableCellElement {
-  const td = document.createElement('td');
-  if (style) td.style.cssText = style;
-  td.textContent = text;
-  return td;
-}
+  const tone = delta === null ? '' : delta > PROGRESSION_THRESHOLD_PCT ? ' is-ok' : delta < -PROGRESSION_THRESHOLD_PCT ? ' is-off' : '';
+  const sub = [exercise.muscleGroup, exercise.day ? dayLabel(exercise.day) : ''].filter(Boolean).join(' · ');
+  const range = base && current !== null ? `${plain(base.load)} → ${plain(current)} kg` : '';
 
-export function renderExerciseTable(): void {
-  if (!state) return;
-  const body = byId<HTMLTableSectionElement>('t-table-body');
-  if (!body) return;
-
-  const dayFilter = byId<HTMLSelectElement>('t-day-select')?.value ?? '';
-  const entries = Object.values(state.exercises)
-    .filter((exercise) => !dayFilter || exercise.day === dayFilter)
-    .sort((a, b) => (a.day || '').localeCompare(b.day || '') || a.name.localeCompare(b.name));
-
-  const rows = entries.map((exercise) => {
-    const base = baselineLoad(exercise);
-    const current = usableLoad(exercise, state!.currentWeek - 1);
-    const delta = progressionPct(exercise, state!.currentWeek);
-
-    const tr = document.createElement('tr');
-    tr.append(
-      textCell(exercise.name, 'font-weight:500;max-width:200px;overflow:hidden;text-overflow:ellipsis'),
-      textCell(exercise.muscleGroup, `color:${COLORS.muted}`),
-      textCell((exercise.day || '').replace('Day ', 'D'), `color:${COLORS.muted};font-size:11px`),
-      textCell(base ? `${base.load} kg` : '–', 'color:#94a3b8'),
-      textCell(current !== null ? `${current} kg` : '–', `font-weight:600;color:${COLORS.accent}`),
-    );
-
-    const badgeCell = document.createElement('td');
-    badgeCell.append(progressionBadge(delta));
-    tr.append(badgeCell);
-
-    tr.addEventListener('click', () => {
-      const select = byId<HTMLSelectElement>('t-exercise-select');
-      if (select) {
-        select.value = exercise.key;
-        renderProgression();
-      }
-    });
-
-    return tr;
+  const row = el('button', {
+    class: 't-row',
+    attrs: { type: 'button', 'aria-current': String(exercise.key === selectedKey) },
+  }, [
+    el('span', { class: 't-main' }, [
+      el('span', { class: 't-name', text: exercise.name }),
+      el('span', { class: 't-sub', text: sub }),
+    ]),
+    el('span', { class: 't-side' }, [
+      el('span', { class: `t-delta${tone}`, text: delta === null ? EMPTY : `${signed(delta, 0)}%` }),
+      el('span', { class: 'card-basis', text: range }),
+    ]),
+  ]);
+  row.addEventListener('click', () => {
+    selectedKey = exercise.key;
+    renderExerciseList();
   });
+  return row;
+}
 
-  body.replaceChildren(...rows);
+function renderExerciseList(): void {
+  const list = byId('t-list');
+  if (!list || !state) return;
+  const entries = visibleExercises();
+  if (!entries.some((exercise) => exercise.key === selectedKey)) selectedKey = entries[0]?.key ?? '';
+
+  list.replaceChildren(...entries.map(exerciseRow));
+  renderProgression();
 }

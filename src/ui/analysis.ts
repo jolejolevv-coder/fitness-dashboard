@@ -205,7 +205,7 @@ function renderKpis(
   const projection = projectToTarget(trend, targetWeightKg);
   if (projection.ok) {
     const band = `${dateFormat.format(projection.earliest)} bis ${dateFormat.format(projection.latest)}`;
-    cards.push(card(`Ziel ${targetWeightKg} kg`, dateFormat.format(projection.date), band, COLORS.violet));
+    cards.push(card(`Ziel ${targetWeightKg} kg`, dateFormat.format(projection.date), band, COLORS.blue));
   } else {
     cards.push(refusedCard(targetWeightKg === null ? 'Zielprojektion' : `Ziel ${targetWeightKg} kg`, projection));
   }

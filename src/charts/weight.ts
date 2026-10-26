@@ -3,6 +3,7 @@ import { movingAvg, MOVING_AVERAGE_WINDOW } from '../analytics/smoothing';
 import { projectToTarget, smoothedWeightSeries, weightTrend } from '../analytics/trend';
 import { mutableOptions, upsert } from './base';
 import { decimal } from '../ui/format';
+import { COLORS, withAlpha } from '../ui/palette';
 
 /**
  * Der Gewichtsverlauf, das wichtigste Diagramm der Seite.
@@ -21,13 +22,6 @@ const OUTLIER_KG = 1.0;
 /** So weit reicht die Prognose hoechstens in die Zukunft. */
 const MAX_FORECAST_DAYS = 400;
 
-const COLORS = {
-  data: 'rgba(235, 235, 245, 0.55)',
-  soft: 'rgba(235, 235, 245, 0.30)',
-  accent: '#0a84ff',
-  pos: '#30d158',
-  neg: '#ff453a',
-} as const;
 
 function label(date: Date): string {
   return `${String(date.getDate()).padStart(2, '0')}.${String(date.getMonth() + 1).padStart(2, '0')}.`;
@@ -75,12 +69,12 @@ function withTooltip(unit: string): Record<string, unknown> {
   return {
     mode: 'index',
     intersect: false,
-    backgroundColor: 'rgba(44, 44, 46, 0.98)',
-    borderColor: 'rgba(84, 84, 88, 0.5)',
+    backgroundColor: COLORS.tipBg,
+    borderColor: COLORS.tipBorder,
     borderWidth: 1,
     padding: 10,
-    titleColor: '#f5f5f7',
-    bodyColor: 'rgba(235, 235, 245, 0.6)',
+    titleColor: COLORS.tipTitle,
+    bodyColor: COLORS.tipBody,
     displayColors: true,
     boxWidth: 8,
     boxHeight: 8,
@@ -131,7 +125,7 @@ function renderWeight(canvasId: string, series: Series, targetWeightKg: number |
     {
       label: 'Tageswert',
       data: series.weights,
-      borderColor: 'rgba(235, 235, 245, 0.16)',
+      borderColor: COLORS.line,
       borderWidth: 1,
       pointRadius: points.radius,
       pointBackgroundColor: points.colors,
@@ -165,7 +159,7 @@ function renderWeight(canvasId: string, series: Series, targetWeightKg: number |
     datasets.push({
       label: 'Zielgewicht',
       data: series.labels.map(() => targetWeightKg),
-      borderColor: 'rgba(235, 235, 245, 0.28)',
+      borderColor: COLORS.faint,
       borderDash: [6, 6],
       borderWidth: 1.5,
       pointRadius: 0,
@@ -222,7 +216,7 @@ function renderTrend(canvasId: string, series: Series): LegendEntry[] {
         {
           label: 'Gerade',
           data: line,
-          borderColor: 'rgba(235, 235, 245, 0.30)',
+          borderColor: COLORS.soft,
           borderWidth: 1.5,
           borderDash: [5, 5],
           pointRadius: 0,
@@ -325,7 +319,7 @@ function renderForecast(
       borderColor: 'transparent',
       pointRadius: 0,
       fill: '+1',
-      backgroundColor: 'rgba(10, 132, 255, 0.12)',
+      backgroundColor: withAlpha(COLORS.accent, 0.12),
       spanGaps: false,
     },
     {
@@ -339,7 +333,7 @@ function renderForecast(
     {
       label: 'Prognose',
       data: central,
-      borderColor: 'rgba(10, 132, 255, 0.65)',
+      borderColor: withAlpha(COLORS.accent, 0.65),
       borderDash: [5, 4],
       borderWidth: 1.75,
       pointRadius: 0,
@@ -352,7 +346,7 @@ function renderForecast(
     datasets.push({
       label: 'Zielgewicht',
       data: labels.map(() => targetWeightKg),
-      borderColor: 'rgba(235, 235, 245, 0.28)',
+      borderColor: COLORS.faint,
       borderDash: [6, 6],
       borderWidth: 1.5,
       pointRadius: 0,
@@ -365,7 +359,7 @@ function renderForecast(
   return [
     { text: 'Gemessenes Mittel', color: COLORS.accent },
     { text: 'Prognose bei gleichbleibender Rate', color: COLORS.accent, dashed: true },
-    { text: 'Band aus dem Standardfehler der Rate', color: 'rgba(10, 132, 255, 0.35)' },
+    { text: 'Band aus dem Standardfehler der Rate', color: withAlpha(COLORS.accent, 0.35) },
     ...(targetWeightKg !== null ? [{ text: `Ziel ${decimal(targetWeightKg, 1)} kg`, color: COLORS.soft, dashed: true }] : []),
   ];
 }
@@ -386,7 +380,7 @@ function renderDelta(canvasId: string, series: Series): LegendEntry[] {
       datasets: [{
         label: 'Veränderung',
         data: deltas,
-        backgroundColor: deltas.map((d) => (d === null ? 'transparent' : d <= 0 ? 'rgba(48, 209, 88, 0.75)' : 'rgba(255, 69, 58, 0.75)')),
+        backgroundColor: deltas.map((d) => (d === null ? 'transparent' : d <= 0 ? withAlpha(COLORS.pos, 0.75) : withAlpha(COLORS.neg, 0.75))),
         borderWidth: 0,
         borderRadius: 1,
       }],

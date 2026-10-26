@@ -369,6 +369,28 @@ button, select, input, textarea { font: inherit; color: inherit; }
 .mark.is-off { background: var(--red-wash); }
 .mark.is-ok { background: var(--green-wash); }
 
+/* Uebungszeile: Name und Unterzeile links, Progression mit Start und Aktuell rechts. */
+.t-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  min-height: 64px;
+  padding: 10px 16px;
+  border: none;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+}
+.t-row[aria-current='true'] { background: var(--blue-wash); }
+.t-main, .t-side { display: flex; flex-direction: column; min-width: 0; }
+.t-side { align-items: flex-end; flex: none; }
+.t-name { font: 600 15px/1.3 var(--text); overflow-wrap: anywhere; }
+.t-sub { font-size: 13px; color: var(--ink-3); }
+.t-delta { font: 700 20px/1.1 var(--num); font-variant-numeric: tabular-nums; }
+.t-side .card-basis { margin-top: 2px; }
+
 /* Fortschrittsbalken, Zielmarke als Klebeband. */
 .bar { position: relative; height: 8px; margin-top: 12px; border-radius: 4px; background: var(--card-sunk); }
 .bar > span { position: absolute; inset: 0 auto 0 0; border-radius: 4px; background: var(--ink); }
@@ -483,6 +505,7 @@ body:not([data-destination='verlauf']) .range-btns { display: none; }
  */
 .chart-card { min-width: 0; margin-bottom: 40px; }
 .chart-card:last-child { margin-bottom: 0; }
+.card.chart-card { margin: 10px 0 0; }
 
 .chart-title {
   display: flex;
@@ -560,29 +583,6 @@ body:not([data-destination='verlauf']) .range-btns { display: none; }
 .stat-value { font-weight: 500; }
 .stat-note { color: var(--text-tertiary); font-size: 12px; text-align: right; min-width: 6ch; font-variant-numeric: tabular-nums; }
 
-.t-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-.t-table th {
-  color: var(--text-secondary);
-  text-align: left;
-  padding: 0 16px 10px 0;
-  border-bottom: 1px solid var(--separator);
-  font-weight: 500;
-  font-size: 12px;
-  white-space: nowrap;
-}
-.t-table td {
-  padding: 11px 16px 11px 0;
-  border-bottom: 1px solid var(--separator);
-  color: var(--text-primary);
-  white-space: nowrap;
-}
-.t-table tbody tr { transition: background var(--duration) var(--ease); }
-.t-table tbody tr:hover td { background: rgba(255, 255, 255, 0.03); }
-.t-badge { font-variant-numeric: tabular-nums; font-size: 13px; }
-.t-badge-pos { color: var(--green); }
-.t-badge-neg { color: var(--red); }
-.t-badge-neu { color: var(--text-tertiary); }
-#t-no-data { color: var(--text-tertiary); font-size: 14px; padding: 64px 0; text-align: center; }
 
 /* ── Wochen ────────────────────────────────────────────────────────────────── */
 
@@ -652,22 +652,6 @@ body:not([data-destination='verlauf']) .range-btns { display: none; }
 
 /* ── Bedienfelder ──────────────────────────────────────────────────────────── */
 
-.training-controls { display: flex; gap: 24px; margin-bottom: 28px; flex-wrap: wrap; align-items: flex-end; }
-.training-controls .ctrl-group { display: flex; flex-direction: column; gap: 7px; min-width: 0; max-width: 100%; }
-/* Lange Uebungsnamen duerfen die Seite nicht verbreitern. */
-.training-controls select { max-width: 100%; }
-.training-controls label { font-size: 12px; color: var(--text-secondary); }
-.training-controls select {
-  background: var(--surface-primary);
-  border: none;
-  border-radius: var(--radius-small);
-  color: var(--text-primary);
-  padding: 8px 12px;
-  font-size: 13px;
-  font-family: inherit;
-  cursor: pointer;
-  min-width: 220px;
-}
 
 /* ── Einstellungen ─────────────────────────────────────────────────────────── */
 

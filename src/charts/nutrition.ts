@@ -2,6 +2,7 @@ import type { DailyEntry } from '../types';
 import { movingAvg, MOVING_AVERAGE_WINDOW } from '../analytics/smoothing';
 import { mutableOptions, upsert } from './base';
 import { decimal, integer, signed } from '../ui/format';
+import { COLORS } from '../ui/palette';
 
 /**
  * Tagesverlauf gegen einen Zielwert.
@@ -14,12 +15,6 @@ import { decimal, integer, signed } from '../ui/format';
  * die Zielline verdeckt.
  */
 
-const COLORS = {
-  data: 'rgba(235, 235, 245, 0.55)',
-  soft: 'rgba(235, 235, 245, 0.30)',
-  accent: '#0a84ff',
-  neg: '#ff453a',
-} as const;
 
 const WEEKDAYS = ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'] as const;
 
@@ -70,7 +65,7 @@ export function renderDailyTargetChart(spec: DailyTargetChart): void {
     {
       label: 'Tageswert',
       data: values,
-      borderColor: 'rgba(235, 235, 245, 0.14)',
+      borderColor: COLORS.line,
       borderWidth: 1,
       pointRadius: pointRadii,
       pointBackgroundColor: pointColors,
@@ -99,7 +94,7 @@ export function renderDailyTargetChart(spec: DailyTargetChart): void {
     datasets.push({
       label: 'Ziel',
       data: labels.map(() => target),
-      borderColor: 'rgba(235, 235, 245, 0.28)',
+      borderColor: COLORS.faint,
       borderDash: [6, 5],
       borderWidth: 1.5,
       pointRadius: 0,
@@ -116,12 +111,12 @@ export function renderDailyTargetChart(spec: DailyTargetChart): void {
     tooltip: {
       mode: 'index',
       intersect: false,
-      backgroundColor: 'rgba(44, 44, 46, 0.98)',
-      borderColor: 'rgba(84, 84, 88, 0.5)',
+      backgroundColor: COLORS.tipBg,
+      borderColor: COLORS.tipBorder,
       borderWidth: 1,
       padding: 10,
-      titleColor: '#f5f5f7',
-      bodyColor: 'rgba(235, 235, 245, 0.6)',
+      titleColor: COLORS.tipTitle,
+      bodyColor: COLORS.tipBody,
       usePointStyle: true,
       boxWidth: 8,
       boxHeight: 8,

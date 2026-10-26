@@ -2,9 +2,10 @@ import { Chart, registerables, type ChartOptions, type ChartType } from 'chart.j
 
 Chart.register(...registerables);
 
-/** Farben der Achsen und Gitter, passend zu den CSS Variablen. */
-const TICK_COLOR = 'rgba(235, 235, 245, 0.35)';
-const Y_GRID_COLOR = 'rgba(84, 84, 88, 0.32)';
+import { COLORS, withAlpha } from '../ui/palette';
+
+/** Alpha des Gitters auf dem Brett. */
+const GRID_ALPHA = 0.7;
 
 const charts = new Map<string, Chart>();
 
@@ -16,6 +17,7 @@ const charts = new Map<string, Chart>();
  * Diagramm auf breiten Bildschirmen ein flacher Streifen.
  */
 export function baseOptions(): ChartOptions<'line' | 'bar'> {
+  const tick = COLORS.tick;
   return {
     responsive: true,
     maintainAspectRatio: false,
@@ -24,13 +26,13 @@ export function baseOptions(): ChartOptions<'line' | 'bar'> {
     scales: {
       // Senkrechte Gitterlinien tragen nichts bei und verrauschen die Flaeche.
       x: {
-        ticks: { color: TICK_COLOR, font: { size: 11 }, maxRotation: 0, autoSkip: true, maxTicksLimit: 8 },
+        ticks: { color: tick, font: { size: 11 }, maxRotation: 0, autoSkip: true, maxTicksLimit: 8 },
         grid: { display: false },
         border: { display: false },
       },
       y: {
-        ticks: { color: TICK_COLOR, font: { size: 11 }, padding: 6 },
-        grid: { color: Y_GRID_COLOR },
+        ticks: { color: tick, font: { size: 11 }, padding: 6 },
+        grid: { color: withAlpha(COLORS.grid, GRID_ALPHA) },
         border: { display: false },
       },
     },
@@ -77,6 +79,11 @@ export function destroyChart(id: string): void {
   }
 }
 
+/** Verwirft alle Diagramme. Chart.js haelt aufgeloeste Farben vor, ein Schemawechsel braucht neue Diagramme. */
+export function destroyAllCharts(): void {
+  for (const id of [...charts.keys()]) destroyChart(id);
+}
+
 export function getChart(id: string): Chart | undefined {
   return charts.get(id);
 }
@@ -96,26 +103,6 @@ export function resizeVisibleCharts(): void {
   for (const chart of charts.values()) {
     if (chart.canvas.offsetParent !== null) chart.resize();
   }
-}
-
-/**
- * Durchsichtige Variante einer Farbe.
- *
- * Die Palette mischt Hexwerte und `rgba()`. Alpha als Hex anzuhaengen
- * funktioniert nur bei Hexwerten und ergibt bei `rgba()` eine unlesbare
- * Zeichenkette, die still ignoriert wird.
- */
-function withAlpha(color: string, alpha: number): string {
-  if (color.startsWith('#') && color.length === 7) {
-    const hex = Math.round(alpha * 255).toString(16).padStart(2, '0');
-    return `${color}${hex}`;
-  }
-  const match = /^rgba?\(([^)]+)\)$/.exec(color);
-  if (match) {
-    const [r, g, b] = match[1]!.split(',').map((v) => v.trim());
-    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
-  }
-  return color;
 }
 
 function canvas(id: string): HTMLCanvasElement | null {
@@ -183,7 +170,7 @@ export function lineChart(
   if (reference !== null) {
     datasets.push({
       data: labels.map(() => reference),
-      borderColor: 'rgba(235, 235, 245, 0.22)',
+      borderColor: COLORS.faint,
       borderDash: [5, 5],
       borderWidth: 1,
       pointRadius: 0,
@@ -194,7 +181,7 @@ export function lineChart(
   if (movingAverage !== null) {
     datasets.push({
       data: movingAverage,
-      borderColor: '#0a84ff',
+      borderColor: COLORS.accent,
       borderWidth: 2,
       pointRadius: 0,
       fill: false,

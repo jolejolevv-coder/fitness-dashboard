@@ -5,7 +5,7 @@
  * dynamischem Import erreicht, siehe `src/ui/charts.ts`. Ein statischer Import
  * aus `src/charts/` an anderer Stelle zieht Chart.js zurueck in den Haupt Chunk.
  */
-export { barChart, getChart, lineChart, mutableOptions, resizeVisibleCharts, upsert } from './base';
+export { barChart, destroyAllCharts, getChart, lineChart, mutableOptions, resizeVisibleCharts, upsert } from './base';
 export { renderWeightChart } from './weight';
 export { renderDailyTargetChart } from './nutrition';
 export { sparkline } from './sparkline';

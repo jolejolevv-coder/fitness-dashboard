@@ -116,7 +116,7 @@ function weeklyChart(charts: Charts, id: string, labels: string[], values: (numb
         label: 'Wochenmittel',
         data: values,
         borderColor: COLORS.accent,
-        backgroundColor: 'rgba(10, 132, 255, 0.10)',
+        backgroundColor: COLORS.wash,
         borderWidth: 2,
         pointRadius: 3,
         pointBackgroundColor: COLORS.accent,
@@ -220,7 +220,7 @@ function renderMacroChart(charts: Charts, daily: readonly DailyEntry[], goals: G
         {
           label: 'Ziel',
           data: [goals.average.proteinG ?? 0, goals.average.carbsG ?? 0, goals.average.fatG ?? 0],
-          backgroundColor: 'rgba(235, 235, 245, 0.18)',
+          backgroundColor: COLORS.faint,
           borderRadius: 3,
           barPercentage: 0.55,
         },
