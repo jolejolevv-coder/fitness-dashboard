@@ -51,8 +51,17 @@ Gepinnt `vite-plugin-pwa` 1.3.0 (Workbox 7.4.1) und
 `@vite-pwa/assets-generator` 1.0.4, nur installiert, noch nicht eingebunden.
 Bewusst nicht 2.0.0: erst drei Wochen alt, 1.3.0 deckt Vite 6 ab.
 
-12.1: Entwurf liegt unter `docs/design/mobile-mockup.html` zur Freigabe. Danach
-`DESIGN.md`, dann 12.2 Shell.
+12.1: Entwurf liegt zur Freigabe vor, nur lokal unter
+`public/preview/mobile-mockup.html` (gitignored, echte Werte aus den Fixtures),
+anzusehen mit `npx vite` unter `/fitness-dashboard/preview/mobile-mockup.html`.
+Richtung Trainerboard (impeccable Seed `29b8874f`): Magnetkarten auf Emaille,
+Markerfarben mit fester Bedeutung, blauer Magnet fuer das Aktive, Systemziffern
+`ui-rounded`, kein Webfont. Vorschlag hell als Grundform, dunkel ueber
+`prefers-color-scheme`. Icons A (Wortmarke BR) und B (Verlauf mit Magnet).
+`PRODUCT.md` aus den freigegebenen Specs abgeleitet, ohne eigene
+Interviewrunde. Offen fuer 12.2: Segmentmagnet ueber `transform` statt
+`left`/`width` animieren (Detektor Hinweis). Nach Freigabe: `DESIGN.md`
+ueber den impeccable Documenter, dann 12.2 Shell.
 
 ## Phase 11 Kochansicht
 
