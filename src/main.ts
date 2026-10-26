@@ -26,8 +26,9 @@ import { renderCoach } from './ui/coach';
 import { renderMetrics } from './ui/metrics';
 import type { WeightMode } from './charts/weight';
 import { filterTrainingDay, renderProgression, renderTraining } from './ui/training';
-import { activeTab, selectTab, setupRangeButtons, setupTabs } from './ui/tabs';
-import { renderPlan } from './ui/plan';
+import { closeSettings, currentRoute, navigate, openSettings, setHasSheet, setupRangeButtons, setupShell } from './ui/shell';
+import { kuecheRouteFor, planViewFor, sectionFor, type Route } from './ui/router';
+import { onPlanViewChange, renderPlan, setPlanView } from './ui/plan';
 import { renderShopping } from './ui/shopping';
 import { onPlanSourceChange } from './ui/planSource';
 import { sheetDayGoals } from './nutrition/goals';
@@ -51,11 +52,6 @@ const MS_PER_DAY = 864e5;
 
 const SECTION_NAMES = ['overview', 'nutrition', 'wellness', 'weeks', 'training', 'analysis', 'plan', 'shopping'] as const;
 
-/** Reiter, die ohne Sheet Verbindung funktionieren, weil ihre Daten im Bundle liegen. */
-const STANDALONE_TABS: readonly string[] = ['plan', 'shopping'];
-const OFFLINE_START_TAB = 'plan';
-const ONLINE_START_TAB = 'overview';
-
 let allDaily: DailyEntry[] = [];
 let allWeekBlocks: WeekBlock[] = [];
 let goals: Goals | null = null;
@@ -70,9 +66,6 @@ let dataFromCache = false;
 let statusSuffix = '';
 
 const dirty = new Set<string>(['plan', 'shopping']);
-
-/** True, solange Plan wegen fehlendem Sheet automatisch gewaehlt wurde und nicht vom Nutzer. */
-let planChosenByFallback = false;
 
 function input(id: string): HTMLInputElement | null {
   return byId<HTMLInputElement>(id);
@@ -93,7 +86,7 @@ function showConfig(): void {
   set('input-anthropic-key', loadApiKey() ?? '');
   const target = getTargets().targetWeightKg;
   set('input-target-weight', target === null ? '' : String(target));
-  show('config-banner', true);
+  openSettings();
   input('input-sheet-id')?.focus();
 }
 
@@ -121,7 +114,7 @@ function handleSaveConfig(): void {
   saveTargets({ targetWeightKg: parsedTarget });
   // Eigener Schluessel, getrennt von den Google Zugangsdaten. Leer entfernt ihn.
   saveApiKey(input('input-anthropic-key')?.value ?? null);
-  show('config-banner', false);
+  closeSettings();
   if (goals) renderShared();
   void loadData(true);
 }
@@ -129,23 +122,19 @@ function handleSaveConfig(): void {
 // ── Status ───────────────────────────────────────────────────────────────────
 
 /**
- * Ohne Sheet Daten (keine Zugangsdaten, Abruf gescheitert, kein Cache) bleiben
- * Plan und Einkauf nutzbar, die anderen Reiter und ihre Kopfbloecke sind
- * ausgeblendet. Sobald Daten da sind, kehrt alles zum bisherigen Verhalten zurueck.
+ * Ohne Sheet Daten (keine Zugangsdaten, Abruf gescheitert, kein Cache) bleibt
+ * die Kueche nutzbar, die anderen Ziele sind ausgeblendet. Der Hash bleibt
+ * stehen, mit den Daten kehrt das gewuenschte Ziel zurueck, siehe `resolveRoute`.
  */
 function enterStandaloneMode(): void {
   document.body.classList.add('no-sheet');
   show('dashboard', true);
-  if (!STANDALONE_TABS.includes(activeTab())) {
-    selectTab(OFFLINE_START_TAB);
-    planChosenByFallback = true;
-  }
+  setHasSheet(false);
 }
 
 function leaveStandaloneMode(): void {
   document.body.classList.remove('no-sheet');
-  if (planChosenByFallback && activeTab() === OFFLINE_START_TAB) selectTab(ONLINE_START_TAB);
-  planChosenByFallback = false;
+  setHasSheet(true);
 }
 
 function showError(message: string): void {
@@ -236,7 +225,8 @@ function rendererFor(name: string): (() => void) | undefined {
 
 /** Zeichnet den sichtbaren Abschnitt, falls seine Daten sich geaendert haben. */
 function renderActiveSection(): void {
-  const name = activeTab();
+  const route = currentRoute();
+  const name = route ? sectionFor(route) : null;
   if (!name) return;
   if (dirty.has(name)) {
     rendererFor(name)?.();
@@ -292,7 +282,7 @@ function renderShared(): void {
 /** Umschalter ueber dem Gewichtsverlauf. Zeichnet nur diesen Abschnitt neu. */
 function setWeightMode(mode: WeightMode): void {
   weightMode = mode;
-  for (const button of document.querySelectorAll<HTMLButtonElement>('.seg')) {
+  for (const button of document.querySelectorAll<HTMLButtonElement>('.seg[data-mode]')) {
     button.setAttribute('aria-pressed', String(button.dataset['mode'] === mode));
   }
   if (!goals) return;
@@ -335,7 +325,7 @@ function describe(error: unknown): string {
 export async function loadData(force = false): Promise<void> {
   const credentials = getCredentials();
   if (!hasCredentials(credentials)) {
-    show('config-banner', true);
+    showConfig();
     show('status', false);
     enterStandaloneMode();
     return;
@@ -383,24 +373,30 @@ export async function loadData(force = false): Promise<void> {
 
 // ── Verdrahtung ──────────────────────────────────────────────────────────────
 
+/** Jede Route, ob per Tipp, Zurueck Geste oder Neuladen. */
+function showRoute(route: Route): void {
+  const view = planViewFor(route);
+  if (view && setPlanView(view)) dirty.add('plan');
+  renderActiveSection();
+}
+
 function wire(): void {
   byId('btn-save-config')?.addEventListener('click', handleSaveConfig);
-  byId('btn-cancel-config')?.addEventListener('click', () => show('config-banner', false));
+  byId('btn-cancel-config')?.addEventListener('click', closeSettings);
+  byId('btn-close-settings')?.addEventListener('click', closeSettings);
   byId('btn-refresh')?.addEventListener('click', () => void loadData(true));
   byId('btn-config')?.addEventListener('click', showConfig);
   byId('btn-export-csv')?.addEventListener('click', () => downloadCsv(filteredDaily()));
   byId('t-day-select')?.addEventListener('change', filterTrainingDay);
   byId('t-exercise-select')?.addEventListener('change', renderProgression);
 
-  for (const button of document.querySelectorAll<HTMLButtonElement>('.seg')) {
+  for (const button of document.querySelectorAll<HTMLButtonElement>('.seg[data-mode]')) {
     button.addEventListener('click', () => setWeightMode((button.dataset['mode'] ?? 'weight') as WeightMode));
   }
 
-  setupTabs(() => {
-    // Jeder Wechsel per Hand beendet die automatische Wahl.
-    planChosenByFallback = false;
-    renderActiveSection();
-  });
+  setupShell(showRoute, hasCredentials(getCredentials()));
+  // Der Plan wechselt nach einer Uebernahme selbst auf Woche, der Hash zieht nach.
+  onPlanViewChange((view) => navigate(kuecheRouteFor(view)));
   setupRangeButtons(applyDateRange);
   // Ein Wechsel der Planquelle passiert im Reiter Plan, der Einkauf zeichnet beim naechsten Oeffnen neu.
   onPlanSourceChange(() => dirty.add('shopping'));

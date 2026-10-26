@@ -24,17 +24,9 @@ import type { PlanSource } from '../generator/source';
 import { roundedDayValues } from '../generator/check';
 import { byId } from './dom';
 import { decimal, integer, signed, target } from './format';
-import { FOCUS_ATTR, checkRow, el, focusedKey, restoreFocus, segmented, span } from './build';
+import { FOCUS_ATTR, checkRow, el, focusedKey, restoreFocus, span } from './build';
+import type { PlanView } from './router';
 import { getPlanSource, hasStoredPlan, onPlanSourceChange, returnToSeed } from './planSource';
-
-type View = 'today' | 'week' | 'prep' | 'proposal';
-
-const VIEW_CHOICES: readonly { value: View; text: string }[] = [
-  { value: 'today', text: 'Heute' },
-  { value: 'week', text: 'Woche' },
-  { value: 'prep', text: 'Prep' },
-  { value: 'proposal', text: 'Vorschlag' },
-];
 
 type GeneratorModule = typeof import('./generator');
 
@@ -81,7 +73,9 @@ function planContext(source: PlanSource): PlanContext {
   };
 }
 
-let view: View = 'today';
+let view: PlanView = 'today';
+/** Meldet Wechsel, die der Plan selbst ausloest, damit der Hash mitzieht. */
+let viewListener: (next: PlanView) => void = () => undefined;
 let overrides: Overrides = loadOverrides();
 let prepDone: Set<string> = loadChecked(PREP_DONE_KEY);
 let lastGoals: DayGoals | null = null;
@@ -380,16 +374,12 @@ function prepView(plan: ReturnType<typeof effectivePlan>, focus: string | null):
 
 // ── Aufbau ───────────────────────────────────────────────────────────────────
 
-function toolbar(): HTMLElement {
-  const bar = el('div', { class: 'pl-toolbar' }, [
-    segmented('Ansicht', VIEW_CHOICES, view, (next) => {
-      view = next;
-      rerender();
-    }),
-  ]);
+function toolbar(): HTMLElement | null {
+  // Die Wahl der Ansicht sitzt in der Segmentleiste der Shell.
+  const bar = el('div', { class: 'pl-toolbar' });
 
-  if (view === 'proposal') return bar;
-  if (view === 'prep' && cooking !== null) return bar;
+  if (view === 'proposal') return null;
+  if (view === 'prep' && cooking !== null) return null;
   const resetsPrep = view === 'prep';
   const needed = resetsPrep ? prepDone.size > 0 : hasOverrides(overrides);
   if (needed) {
@@ -408,8 +398,9 @@ function toolbar(): HTMLElement {
       }
     });
     bar.appendChild(reset);
+    return bar;
   }
-  return bar;
+  return null;
 }
 
 /** Herkunft des Plans. Steht nur da, wenn ein Plan gespeichert ist, gueltig oder nicht. */
@@ -450,6 +441,7 @@ function proposalSlot(days: readonly PlannedDay[], goals: DayGoals | null, focus
         rerender,
         onAdopted: () => {
           view = 'week';
+          viewListener(view);
           rerender();
         },
       }));
@@ -458,6 +450,17 @@ function proposalSlot(days: readonly PlannedDay[], goals: DayGoals | null, focus
     })
     .catch(() => slot.replaceChildren(el('p', { class: 'err', text: 'Ansicht Vorschlag nicht geladen' })));
   return slot;
+}
+
+/** Setzt die Ansicht aus der Route. `true`, wenn sie sich geaendert hat und neu gezeichnet werden muss. */
+export function setPlanView(next: PlanView): boolean {
+  if (next === view) return false;
+  view = next;
+  return true;
+}
+
+export function onPlanViewChange(listener: (next: PlanView) => void): void {
+  viewListener = listener;
 }
 
 function rerender(): void {
@@ -478,7 +481,8 @@ export function renderPlan(goals: DayGoals | null): void {
   const content = el('div');
   const source = sourceBar();
   if (source) content.appendChild(source);
-  content.appendChild(toolbar());
+  const bar = toolbar();
+  if (bar) content.appendChild(bar);
   for (const issue of issues) content.appendChild(el('p', { class: 'err', text: issue }));
   if (view === 'today') content.appendChild(todayView(plan.days, goals));
   else if (view === 'week') content.appendChild(weekView(plan.days, goals));

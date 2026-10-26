@@ -7,10 +7,45 @@
 <meta name="description" content="Privates Auswertungs Dashboard.">
 <title>Body Recomp</title>
 </head>
-<body class="no-sheet" data-tab="overview">
-<div class="wrap">
+<body class="no-sheet">
+<header class="topbar">
+  <h1 class="topbar-title" id="topbar-title">Body Recomp</h1>
+  <span class="last-updated" id="last-updated"></span>
+  <button class="icon-btn" id="btn-refresh" type="button" aria-label="Aktualisieren">
+    <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M20 12a8 8 0 1 1-2.34-5.66"/><path d="M20 4v4.5h-4.5"/></svg>
+  </button>
+  <button class="icon-btn" id="btn-config" type="button" aria-label="Einstellungen">
+    <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg>
+  </button>
+</header>
 
-<div id="config-banner">
+<nav class="nav" aria-label="Ziele">
+  <a class="nav-link" href="#heute" data-destination="heute">
+    <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.5M12 19v2.5M2.5 12H5M19 12h2.5M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M5.3 18.7l1.8-1.8M16.9 7.1l1.8-1.8"/></svg>
+    <span>Heute</span>
+  </a>
+  <a class="nav-link" href="#verlauf" data-destination="verlauf">
+    <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 5l6 6 4-3 8 9"/><path d="M3 20.5h18"/></svg>
+    <span>Verlauf</span>
+  </a>
+  <a class="nav-link" href="#training" data-destination="training">
+    <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6.5 7v10M17.5 7v10M3.5 9.5v5M20.5 9.5v5M6.5 12h11"/></svg>
+    <span>Training</span>
+  </a>
+  <a class="nav-link" href="#kueche" data-destination="kueche">
+    <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 10h16v6a4 4 0 0 1-4 4H8a4 4 0 0 1-4-4z"/><path d="M2 10h2M20 10h2M9 6.5c0-1 1-1.5 1-2.5M14 6.5c0-1 1-1.5 1-2.5"/></svg>
+    <span>Küche</span>
+  </a>
+</nav>
+
+<main class="wrap">
+
+<dialog id="settings" class="settings-sheet" aria-labelledby="settings-title">
+  <div class="settings-head">
+    <h2 id="settings-title">Einstellungen</h2>
+    <button class="btn btn-tap" id="btn-close-settings" type="button">Schließen</button>
+  </div>
+  <div id="config-banner">
   <h3>Einmalige Konfiguration</h3>
   <p>Deine Zugangsdaten werden nur lokal im Browser gespeichert und nie übertragen.<br>
   <strong>Sheet ID:</strong> Der Teil zwischen <code>/d/</code> und <code>/edit</code> in der URL.<br>
@@ -23,7 +58,11 @@
   <input type="number" step="0.1" id="input-target-weight" placeholder="Zielgewicht in kg, optional" />
   <button id="btn-save-config">Speichern und laden</button>
   <button class="secondary" id="btn-cancel-config">Abbrechen</button>
-</div>
+  </div>
+  <div class="settings-export">
+    <button class="btn btn-tap" id="btn-export-csv" type="button">Tagesdaten als CSV</button>
+  </div>
+</dialog>
 
 <div id="status">
   <div class="skeleton-hero">
@@ -40,48 +79,32 @@
 
 <div id="dashboard">
 
-  <header class="page-head">
-    <div>
-      <h1>Body Recomp</h1>
+  <div id="view-heute">
+    <div class="today-head">
       <p class="sub" id="header-sub"></p>
       <div class="goals-hint" id="goals-hint" style="display:none"></div>
     </div>
-    <div class="actions">
-      <span class="last-updated" id="last-updated"></span>
-      <button class="btn" id="btn-refresh">Aktualisieren</button>
-      <button class="btn" id="btn-export-csv" title="Gefilterte Tagesdaten als CSV">CSV</button>
-      <button class="btn" id="btn-config">Einstellungen</button>
-    </div>
-  </header>
 
-  <!-- Fortschritt als eine Aussage, nicht als vier Kacheln. -->
-  <section class="hero sheet-only" id="hero" aria-label="Fortschritt"></section>
+    <!-- Fortschritt als eine Aussage, nicht als vier Kacheln. -->
+    <section class="hero" id="hero" aria-label="Fortschritt"></section>
 
-  <section class="section-block sheet-only" aria-labelledby="insights-title">
-    <div class="section-head"><h2 class="section-title" id="insights-title">Insights</h2></div>
-    <!-- Beobachtungen zum aktuellen Stand. Bewusst keine Anweisungen. -->
-    <div class="coach" id="coach"></div>
-  </section>
+    <section class="section-block" aria-labelledby="insights-title">
+      <div class="section-head"><h2 class="section-title" id="insights-title">Insights</h2></div>
+      <!-- Beobachtungen zum aktuellen Stand. Bewusst keine Anweisungen. -->
+      <div class="coach" id="coach"></div>
+    </section>
 
-  <section class="section-block sheet-only" aria-labelledby="metrics-title">
-    <div class="section-head">
-      <h2 class="section-title" id="metrics-title">Tagesdurchschnitt</h2>
-      <span class="section-sub" id="metrics-range"></span>
-    </div>
-    <div class="metrics" id="metrics"></div>
-  </section>
+    <section class="section-block" aria-labelledby="metrics-title">
+      <div class="section-head">
+        <h2 class="section-title" id="metrics-title">Tagesdurchschnitt</h2>
+        <span class="section-sub" id="metrics-range"></span>
+      </div>
+      <div class="metrics" id="metrics"></div>
+    </section>
+  </div>
 
-  <div class="tab-row">
-    <div class="tabs" role="tablist" aria-label="Ansichten">
-      <button class="tab" role="tab" aria-selected="true" aria-controls="overview" id="tab-overview" data-tab="overview">Übersicht</button>
-      <button class="tab" role="tab" aria-selected="false" tabindex="-1" aria-controls="nutrition" id="tab-nutrition" data-tab="nutrition">Ernährung</button>
-      <button class="tab" role="tab" aria-selected="false" tabindex="-1" aria-controls="wellness" id="tab-wellness" data-tab="wellness">Wellness</button>
-      <button class="tab" role="tab" aria-selected="false" tabindex="-1" aria-controls="weeks" id="tab-weeks" data-tab="weeks">Wochen</button>
-      <button class="tab" role="tab" aria-selected="false" tabindex="-1" aria-controls="training" id="tab-training" data-tab="training">Training</button>
-      <button class="tab" role="tab" aria-selected="false" tabindex="-1" aria-controls="analysis" id="tab-analysis" data-tab="analysis">Analyse</button>
-      <button class="tab" role="tab" aria-selected="false" tabindex="-1" aria-controls="plan" id="tab-plan" data-tab="plan">Plan</button>
-      <button class="tab" role="tab" aria-selected="false" tabindex="-1" aria-controls="shopping" id="tab-shopping" data-tab="shopping">Einkauf</button>
-    </div>
+  <div class="segment-row">
+    <div id="segment-bar"></div>
     <div class="range-btns" role="group" aria-label="Zeitraum">
       <button class="range-btn" aria-pressed="false" data-range="14">14 Tage</button>
       <button class="range-btn" aria-pressed="false" data-range="30">30 Tage</button>
@@ -90,7 +113,7 @@
     </div>
   </div>
 
-  <div class="section active" role="tabpanel" aria-labelledby="tab-overview" id="overview">
+  <div class="section" id="overview">
     <div class="chart-card">
       <div class="chart-title">
         <span>Gewichtsverlauf</span>
@@ -118,7 +141,7 @@
     </div>
   </div>
 
-  <div class="section" role="tabpanel" aria-labelledby="tab-nutrition" id="nutrition">
+  <div class="section" id="nutrition">
     <div class="panel">
       <div class="panel-title">Zielbereiche im Schnitt</div>
       <div id="nutrition-ranges"></div>
@@ -143,7 +166,7 @@
     </div>
   </div>
 
-  <div class="section" role="tabpanel" aria-labelledby="tab-wellness" id="wellness">
+  <div class="section" id="wellness">
     <div class="panel">
       <div class="panel-title">Verlauf im Überblick</div>
       <div class="sparkline-list" id="wellness-sparks"></div>
@@ -172,7 +195,7 @@
     </div>
   </div>
 
-  <div class="section" role="tabpanel" aria-labelledby="tab-weeks" id="weeks">
+  <div class="section" id="weeks">
     <div class="week-summary" id="week-cards"></div>
     <div class="chart-card">
       <div class="chart-title"><span>Wochenmittel Gewicht</span></div>
@@ -184,7 +207,7 @@
     </div>
   </div>
 
-  <div class="section" role="tabpanel" aria-labelledby="tab-analysis" id="analysis">
+  <div class="section" id="analysis">
     <div class="stats" id="a-kpis"></div>
     <div class="panel">
       <div class="panel-title">Trend</div>
@@ -200,7 +223,7 @@
     </div>
   </div>
 
-  <div class="section" role="tabpanel" aria-labelledby="tab-training" id="training">
+  <div class="section" id="training">
     <div id="t-no-data" style="display:none">Keine Trainingsdaten geladen. Prüfe den Tabnamen in den Einstellungen.</div>
     <div id="t-content" style="display:none">
       <div class="stats">
@@ -245,16 +268,16 @@
     </div>
   </div>
 
-  <div class="section" role="tabpanel" aria-labelledby="tab-plan" id="plan">
+  <div class="section" id="plan">
     <div id="plan-content"></div>
   </div>
 
-  <div class="section" role="tabpanel" aria-labelledby="tab-shopping" id="shopping">
+  <div class="section" id="shopping">
     <div id="shopping-content"></div>
   </div>
 
 </div>
-</div>
+</main>
 
 <script type="module" src="/src/main.ts"></script>
 </body>

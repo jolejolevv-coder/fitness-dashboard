@@ -62,8 +62,27 @@ Markerfarben mit fester Bedeutung, blauer Magnet fuer das Aktive, Systemziffern
 `prefers-color-scheme`. Icons A (Wortmarke BR) und B (Verlauf mit Magnet).
 `PRODUCT.md` aus den freigegebenen Specs abgeleitet, ohne eigene
 Interviewrunde. Segmentmagnet im Entwurf schon auf `transform` umgestellt,
-im Bau ebenso halten. Naechster Schritt: `DESIGN.md`
-ueber den impeccable Documenter, dann 12.2 Shell.
+im Bau ebenso halten.
+
+`DESIGN.md` plus Sidecar `.impeccable/design.json` committet (`acc0baa`),
+ohne Werte aus den Fixtures. Befunde des Documenters fuer 12.4: `ink-3` als
+Text unter 4,5:1 (Datenbasis, inaktive Navigation), rote und gruene Kapsel
+knapp unter 4,5:1, Navigationsmagnet im Entwurf ueber `left` statt
+`transform`. Linke Leiste und Blatt stehen dort nur vorlaeufig aus der Spec.
+
+12.2 Shell erledigt 26.10.2026. `src/ui/router.ts` reine Funktion (Hash zu
+Ziel und Segment, `resolveRoute` weicht ohne Sheet auf Kueche aus und laesst
+den Hash stehen, mit den Daten kehrt das Ziel zurueck), `src/ui/shell.ts`
+(Navigation als Links auf Hashes, oben Titel, Datenalter, Aktualisieren und
+Einstellungen, Segmentleiste, Blatt als `dialog` mit `showModal`).
+`tabs.ts` entfernt. Planansicht kommt aus der Route (`setPlanView`), die
+interne Segmentwahl im Plan ist weg. Fehlen Zugangsdaten, oeffnet das Blatt
+beim Start wie frueher der Banner. Nutzungszaehler zaehlt jetzt Routen wie
+`verlauf/wellness` statt Reiternamen. Tests: Router, Navigation ohne Sheet,
+kein `innerHTML` in `src/`. 345 Tests. Bundle gzip: Haupt Chunk 108,84 kB
+(+0,79), CSS 5,62 kB (+0,39), `index.html` 3,38 kB (+0,30). Geprueft bei
+375 px auf allen zwoelf Routen ohne waagerechten Lauf und bei 1280 px mit
+linker Leiste. Naechster Schritt 12.3 Charts nachladen.
 
 ## Phase 11 Kochansicht
 

@@ -1,0 +1,117 @@
+/**
+ * Router als reine Funktion: Hash zu Ziel und Segment und zurueck.
+ *
+ * Kein DOM, kein `location`. Die Shell liest den Hash, fragt hier nach und
+ * zeichnet. Damit sind Zurueck Geste, Neuladen und Lesezeichen testbar, ohne
+ * einen Browser zu starten.
+ */
+
+export const DESTINATIONS = ['heute', 'verlauf', 'training', 'kueche'] as const;
+export type Destination = (typeof DESTINATIONS)[number];
+
+/** Segmente je Ziel, das erste ist die Vorgabe. Ziele ohne Segmente haben eine leere Liste. */
+export const SEGMENTS: Readonly<Record<Destination, readonly string[]>> = {
+  heute: [],
+  verlauf: ['gewicht', 'ernaehrung', 'wellness', 'wochen', 'analyse'],
+  training: [],
+  kueche: ['heute', 'woche', 'prep', 'vorschlag', 'einkauf'],
+};
+
+/** Ziele, deren Daten im Bundle liegen und die deshalb ohne Sheet funktionieren. */
+const STANDALONE_DESTINATIONS: readonly Destination[] = ['kueche'];
+
+const ONLINE_START: Destination = 'heute';
+const OFFLINE_START: Destination = 'kueche';
+
+export interface Route {
+  destination: Destination;
+  /** `null` bei Zielen ohne Segmente. */
+  segment: string | null;
+}
+
+/** Abschnitte im Markup, aus der Zeit der acht Reiter. Ein Ziel zeigt hoechstens einen davon. */
+export type SectionId = 'overview' | 'nutrition' | 'wellness' | 'weeks' | 'analysis' | 'training' | 'plan' | 'shopping';
+
+/** Ansichten innerhalb des Abschnitts Plan, gleiche Werte wie in `plan.ts`. */
+export type PlanView = 'today' | 'week' | 'prep' | 'proposal';
+
+const SECTION_BY_SEGMENT: Readonly<Record<string, SectionId>> = {
+  'verlauf/gewicht': 'overview',
+  'verlauf/ernaehrung': 'nutrition',
+  'verlauf/wellness': 'wellness',
+  'verlauf/wochen': 'weeks',
+  'verlauf/analyse': 'analysis',
+  'kueche/heute': 'plan',
+  'kueche/woche': 'plan',
+  'kueche/prep': 'plan',
+  'kueche/vorschlag': 'plan',
+  'kueche/einkauf': 'shopping',
+};
+
+const PLAN_VIEW_BY_SEGMENT: Readonly<Record<string, PlanView>> = {
+  heute: 'today',
+  woche: 'week',
+  prep: 'prep',
+  vorschlag: 'proposal',
+};
+
+function isDestination(value: string): value is Destination {
+  return (DESTINATIONS as readonly string[]).includes(value);
+}
+
+function defaultSegment(destination: Destination): string | null {
+  return SEGMENTS[destination][0] ?? null;
+}
+
+/**
+ * Liest einen Hash wie `#verlauf/wellness`. Ein unbekanntes Segment faellt auf
+ * das erste des Ziels zurueck. Leerer oder unbekannter Hash ergibt `null`, die
+ * Shell nimmt dann das Startziel.
+ */
+export function parseHash(hash: string): Route | null {
+  const [head = '', tail = ''] = hash.replace(/^#/, '').toLowerCase().split('/');
+  if (!isDestination(head)) return null;
+  const segment = SEGMENTS[head].includes(tail) ? tail : defaultSegment(head);
+  return { destination: head, segment };
+}
+
+export function formatHash(route: Route): string {
+  return route.segment === null ? `#${route.destination}` : `#${route.destination}/${route.segment}`;
+}
+
+export function visibleDestinations(hasSheet: boolean): readonly Destination[] {
+  return hasSheet ? DESTINATIONS : STANDALONE_DESTINATIONS;
+}
+
+export function startRoute(hasSheet: boolean): Route {
+  const destination = hasSheet ? ONLINE_START : OFFLINE_START;
+  return { destination, segment: defaultSegment(destination) };
+}
+
+/**
+ * Was tatsaechlich gezeigt wird. Ohne Sheet weicht ein Ziel, das Sheet Daten
+ * braucht, auf das Startziel aus. Der Hash bleibt dabei stehen, damit nach dem
+ * Laden der Daten wieder das gewuenschte Ziel erscheint.
+ */
+export function resolveRoute(requested: Route | null, hasSheet: boolean): Route {
+  if (requested && visibleDestinations(hasSheet).includes(requested.destination)) return requested;
+  return startRoute(hasSheet);
+}
+
+/** Abschnitt im Markup zu einer Route. `null` fuer `heute`, das nur die Kopfbloecke zeigt. */
+export function sectionFor(route: Route): SectionId | null {
+  if (route.destination === 'training') return 'training';
+  return SECTION_BY_SEGMENT[formatHash(route).slice(1)] ?? null;
+}
+
+/** Ansicht im Plan zu einer Route, `null` ausserhalb der Plan Segmente. */
+export function planViewFor(route: Route): PlanView | null {
+  if (route.destination !== 'kueche' || route.segment === null) return null;
+  return PLAN_VIEW_BY_SEGMENT[route.segment] ?? null;
+}
+
+/** Segment der Kueche zu einer Ansicht im Plan, fuer Wechsel, die der Plan selbst ausloest. */
+export function kuecheRouteFor(view: PlanView): Route {
+  const segment = Object.keys(PLAN_VIEW_BY_SEGMENT).find((key) => PLAN_VIEW_BY_SEGMENT[key] === view) ?? defaultSegment('kueche');
+  return { destination: 'kueche', segment };
+}
