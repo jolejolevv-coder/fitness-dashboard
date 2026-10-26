@@ -1,9 +1,9 @@
 import type { DailyEntry } from '../types';
 import type { Goals } from '../parse/goals';
 import { avg } from '../analytics/smoothing';
-import { sparkline } from '../charts/sparkline';
 import { byId } from './dom';
 import { decimal, EMPTY, integer, target as formatTarget } from './format';
+import type { Charts } from './charts';
 
 /**
  * Zwei Darstellungen, die keine gewoehnlichen Diagramme sind.
@@ -166,7 +166,7 @@ interface SparkSpec {
   color: string;
 }
 
-export function renderWellnessSparks(daily: readonly DailyEntry[]): void {
+export function renderWellnessSparks(charts: Charts, daily: readonly DailyEntry[]): void {
   const container = byId('wellness-sparks');
   if (!container) return;
 
@@ -205,5 +205,5 @@ export function renderWellnessSparks(daily: readonly DailyEntry[]): void {
   }));
 
   // Erst zeichnen, wenn die Canvas im Dokument haengen.
-  for (const spec of specs) sparkline(spec.id, spec.values, spec.color);
+  for (const spec of specs) charts.sparkline(spec.id, spec.values, spec.color);
 }

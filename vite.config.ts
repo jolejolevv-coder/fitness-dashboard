@@ -20,5 +20,15 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     sourcemap: true,
+    rollupOptions: {
+      output: {
+        // Der nachgeladene Einstieg `src/charts/index.ts` heisst sonst `index`. Nur
+        // umbenannt, nicht per `manualChunks`: das zoege gemeinsam genutzte Module
+        // wie `ui/format` mit hinein und der Haupt Chunk muesste ihn sofort laden.
+        chunkFileNames: (chunk) => (/[\\/]src[\\/]charts[\\/]index\.ts$/.test(chunk.facadeModuleId ?? '')
+          ? 'assets/charts-[hash].js'
+          : 'assets/[name]-[hash].js'),
+      },
+    },
   },
 });

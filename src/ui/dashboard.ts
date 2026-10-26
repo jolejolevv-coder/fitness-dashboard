@@ -1,19 +1,21 @@
 import type { DailyEntry, WeekBlock } from '../types';
 import { avg } from '../analytics/smoothing';
-import { barChart, lineChart, mutableOptions, upsert } from '../charts/base';
-import { renderWeightChart, type LegendEntry, type WeightMode } from '../charts/weight';
-import { renderDailyTargetChart } from '../charts/nutrition';
+import type { LegendEntry, WeightMode } from '../charts/weight';
 import { daysDiffer, targetRateKgPerWeek, type Goals } from '../parse/goals';
 import { byId, COLORS, setText } from './dom';
 import { renderCorrelation } from './correlation';
 import { renderNutritionRanges, renderWellnessSparks } from './panels';
 import { decimal, signed } from './format';
+import type { Charts } from './charts';
 
 /** Wird ausgeloest, wenn keine verwertbaren Gewichtsdaten vorliegen. */
 export type ErrorHandler = (message: string) => void;
 
-/** Renderfunktion je Abschnitt, damit nur der sichtbare Tab gezeichnet wird. */
-export type SectionRenderers = Record<string, () => void>;
+/**
+ * Renderfunktion je Abschnitt, damit nur der sichtbare Tab gezeichnet wird.
+ * Alle Abschnitte hier zeichnen Diagramme und bekommen den geladenen Chunk.
+ */
+export type SectionRenderers = Record<string, (charts: Charts) => void>;
 
 /** Referenzlinien, die nicht aus dem Sheet kommen, weil der Trainer sie nicht vorgibt. */
 const WELLNESS_REFERENCES = { sleepH: 7, energy: 3, stress: 3, digestion: 5 } as const;
@@ -60,35 +62,35 @@ export function renderDashboard(input: DashboardInput): SectionRenderers | null 
   const calorieTarget = goals.average.caloriesKcal;
 
   return {
-    overview: () => {
-      renderLegend(renderWeightChart('weightChart', daily, weightMode, targetWeightKg));
-      barChart('stepsChart', labels, rows.map((r) => r.steps), COLORS.blue);
-      weeklyChart('weeklyChart', weekLabels, weekAverages);
+    overview: (charts) => {
+      renderLegend(charts.renderWeightChart('weightChart', daily, weightMode, targetWeightKg));
+      charts.barChart('stepsChart', labels, rows.map((r) => r.steps), COLORS.blue);
+      weeklyChart(charts, 'weeklyChart', weekLabels, weekAverages);
     },
-    nutrition: () => {
+    nutrition: (charts) => {
       renderNutritionRanges(daily, goals);
-      renderDailyTargetChart({
+      charts.renderDailyTargetChart({
         canvasId: 'proteinChart', entries: daily, pick: (e) => e.protein,
         target: proteinTarget, direction: 'atLeast', unit: 'g',
       });
-      renderDailyTargetChart({
+      charts.renderDailyTargetChart({
         canvasId: 'caloriesChart', entries: daily, pick: (e) => e.calories,
         target: calorieTarget, direction: 'atMost', unit: 'kcal',
       });
-      barChart('fvChart', allLabels, daily.map((r) => r.fv), COLORS.data);
-      renderMacroChart(daily, goals);
+      charts.barChart('fvChart', allLabels, daily.map((r) => r.fv), COLORS.data);
+      renderMacroChart(charts, daily, goals);
     },
-    wellness: () => {
-      renderWellnessSparks(daily);
-      lineChart('sleepChart', allLabels, daily.map((r) => r.sleep), COLORS.data, true, WELLNESS_REFERENCES.sleepH);
-      lineChart('energyChart', allLabels, daily.map((r) => r.energy), COLORS.blue, true, WELLNESS_REFERENCES.energy);
-      lineChart('stressChart', allLabels, daily.map((r) => r.stress), COLORS.data, true, WELLNESS_REFERENCES.stress);
-      lineChart('digestionChart', allLabels, daily.map((r) => r.digestion), COLORS.data, true, WELLNESS_REFERENCES.digestion);
+    wellness: (charts) => {
+      renderWellnessSparks(charts, daily);
+      charts.lineChart('sleepChart', allLabels, daily.map((r) => r.sleep), COLORS.data, true, WELLNESS_REFERENCES.sleepH);
+      charts.lineChart('energyChart', allLabels, daily.map((r) => r.energy), COLORS.blue, true, WELLNESS_REFERENCES.energy);
+      charts.lineChart('stressChart', allLabels, daily.map((r) => r.stress), COLORS.data, true, WELLNESS_REFERENCES.stress);
+      charts.lineChart('digestionChart', allLabels, daily.map((r) => r.digestion), COLORS.data, true, WELLNESS_REFERENCES.digestion);
       renderCorrelation(daily);
     },
-    weeks: () => {
+    weeks: (charts) => {
       renderWeekCards(weekBlocks);
-      weeklyChart('weekBarChart', weekLabels, weekAverages);
+      weeklyChart(charts, 'weekBarChart', weekLabels, weekAverages);
       renderComments(daily);
     },
   };
@@ -101,12 +103,12 @@ export function renderDashboard(input: DashboardInput): SectionRenderers | null 
  * Flaeche unter dem Balken bedeutungslos und die Unterschiede verschwinden.
  * Eine Linie darf bei einem beliebigen Wert beginnen.
  */
-function weeklyChart(id: string, labels: string[], values: (number | null)[]): void {
-  const options = mutableOptions();
+function weeklyChart(charts: Charts, id: string, labels: string[], values: (number | null)[]): void {
+  const options = charts.mutableOptions();
   options.scales.y.beginAtZero = false;
   options.scales.y.grace = '15%';
 
-  upsert(id, {
+  charts.upsert(id, {
     type: 'line',
     data: {
       labels,
@@ -194,12 +196,12 @@ function renderGoalContext(goals: Goals, currentWeightKg: number | null): void {
   }
 }
 
-function renderMacroChart(daily: readonly DailyEntry[], goals: Goals): void {
-  const options = mutableOptions();
+function renderMacroChart(charts: Charts, daily: readonly DailyEntry[], goals: Goals): void {
+  const options = charts.mutableOptions();
   options.plugins = { legend: { labels: { color: COLORS.muted, font: { size: 11 }, boxWidth: 10, boxHeight: 10 } } };
   options.indexAxis = 'y';
 
-  upsert('macroChart', {
+  charts.upsert('macroChart', {
     type: 'bar',
     data: {
       labels: ['Protein', 'Kohlenhydrate', 'Fett'],

@@ -82,7 +82,28 @@ beim Start wie frueher der Banner. Nutzungszaehler zaehlt jetzt Routen wie
 kein `innerHTML` in `src/`. 345 Tests. Bundle gzip: Haupt Chunk 108,84 kB
 (+0,79), CSS 5,62 kB (+0,39), `index.html` 3,38 kB (+0,30). Geprueft bei
 375 px auf allen zwoelf Routen ohne waagerechten Lauf und bei 1280 px mit
-linker Leiste. Naechster Schritt 12.3 Charts nachladen.
+linker Leiste.
+
+12.3 Charts nachladen erledigt 26.10.2026. `src/charts/index.ts` ist der
+einzige Einstieg in den Chunk, `src/ui/charts.ts` laedt ihn (`loadCharts`,
+`loadedCharts`) nach dem Muster von `plan.ts`. Abschnitte mit Diagrammen
+(`overview`, `nutrition`, `wellness`, `weeks`, `training`) bekommen das Modul
+als Argument, `main.ts` wartet in `renderChartSection` darauf und zeichnet nur,
+wenn die Route waehrenddessen nicht gewechselt hat. Ein gescheiterter Abruf
+steht in der Datenalterzeile, der Abschnitt bleibt markiert und der naechste
+Aufruf versucht es neu. Name ueber `chunkFileNames` in `vite.config.ts`, nicht
+ueber `manualChunks`: das zog `ui/format` und `analytics` in den Chunk und
+`index.html` lud ihn per `modulepreload` sofort. Test `test/charts-chunk.test.ts`
+verbietet statische Importe aus `src/charts/` ausserhalb des Ordners. 347 Tests.
+Bundle gzip: Haupt Chunk 35,58 kB (Ziel 40), `charts` 74,32 kB (Ziel 78), alle
+JS Chunks zusammen 204,47 kB (Grenze 207,61), CSS 5,62 kB unveraendert.
+Geprueft im Dev Server bei 375 px und im gebauten Stand (`vite preview`,
+Eintrag `build-preview` in der lokalen `.claude/launch.json`) bei 1024 px:
+Heute und Kueche laden nur `index`, `charts` erst mit Verlauf, alle 19
+Diagramme auf allen Verlauf Segmenten und in Training gezeichnet,
+Gewichtsmodus und Uebungsauswahl zeichnen nach, Direktaufruf
+`#verlauf/gewicht` geht. Naechster Schritt 12.4 Oberflaeche, Reihenfolge
+Kueche, Heute, Training, Verlauf.
 
 ## Phase 11 Kochansicht
 

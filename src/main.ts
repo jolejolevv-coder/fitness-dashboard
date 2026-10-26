@@ -33,7 +33,7 @@ import { renderShopping } from './ui/shopping';
 import { onPlanSourceChange } from './ui/planSource';
 import { sheetDayGoals } from './nutrition/goals';
 import { attachChartExports, downloadCsv } from './ui/export';
-import { resizeVisibleCharts } from './charts/base';
+import { loadCharts, type Charts } from './ui/charts';
 
 /**
  * Ladepolitik.
@@ -215,25 +215,61 @@ function markAllDirty(): void {
   for (const name of SECTION_NAMES) dirty.add(name);
 }
 
+/** Abschnitte mit Diagrammen. Sie warten auf den Chunk `charts`, alle anderen zeichnen sofort. */
+const CHART_SECTIONS: ReadonlySet<string> = new Set(['overview', 'nutrition', 'wellness', 'weeks', 'training']);
+
+function chartRendererFor(name: string): ((charts: Charts) => void) | undefined {
+  if (name === 'training') return (charts) => renderTraining(training, charts);
+  return sections?.[name];
+}
+
 function rendererFor(name: string): (() => void) | undefined {
-  if (name === 'training') return () => renderTraining(training);
   if (name === 'analysis') return renderAnalysisTab;
   if (name === 'plan') return () => renderPlan(sheetDayGoals(goals));
   if (name === 'shopping') return () => renderShopping(sheetDayGoals(goals));
-  return sections?.[name];
+  return undefined;
+}
+
+function activeSection(): string | null {
+  const route = currentRoute();
+  return route ? sectionFor(route) : null;
 }
 
 /** Zeichnet den sichtbaren Abschnitt, falls seine Daten sich geaendert haben. */
 function renderActiveSection(): void {
-  const route = currentRoute();
-  const name = route ? sectionFor(route) : null;
+  const name = activeSection();
   if (!name) return;
+  if (CHART_SECTIONS.has(name)) {
+    void renderChartSection(name);
+    return;
+  }
   if (dirty.has(name)) {
     rendererFor(name)?.();
     dirty.delete(name);
   }
+}
+
+/**
+ * Wie `renderActiveSection`, nach dem Laden des Chunks `charts`. Scheitert der
+ * Abruf, bleibt der Abschnitt markiert und der naechste Aufruf versucht es neu.
+ */
+async function renderChartSection(name: string): Promise<void> {
+  let charts: Charts;
+  try {
+    charts = await loadCharts();
+  } catch (error) {
+    statusSuffix = ` · Diagramme nicht geladen: ${describe(error)}`;
+    updateDataAge();
+    return;
+  }
+  // Waehrend des Ladens kann die Route gewechselt haben.
+  if (activeSection() !== name) return;
+  if (dirty.has(name)) {
+    chartRendererFor(name)?.(charts);
+    dirty.delete(name);
+  }
   // Nach dem Einblenden nachmessen, siehe resizeVisibleCharts.
-  requestAnimationFrame(resizeVisibleCharts);
+  requestAnimationFrame(charts.resizeVisibleCharts);
 }
 
 /**
@@ -294,7 +330,8 @@ function setWeightMode(mode: WeightMode): void {
     targetWeightKg: getTargets().targetWeightKg,
     onError: showError,
   });
-  sections?.['overview']?.();
+  dirty.add('overview');
+  renderActiveSection();
 }
 
 function applyParsed(raw: SheetValues, rawTraining: SheetValues, timestamp: number, fromCache: boolean): void {

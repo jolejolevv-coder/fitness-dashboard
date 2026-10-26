@@ -1,5 +1,5 @@
 import type { DailyEntry } from '../types';
-import { getChart } from '../charts/base';
+import { loadedCharts } from './charts';
 
 /**
  * Ausgabe von Daten und Diagrammen.
@@ -99,7 +99,7 @@ export function attachChartExports(): void {
     button.setAttribute('aria-label', `Diagramm ${title.textContent ?? ''} als Bild speichern`);
 
     button.addEventListener('click', () => {
-      const chart = getChart(canvas.id);
+      const chart = loadedCharts()?.getChart(canvas.id);
       if (!chart) return;
       download(`${canvas.id}-${stamp()}.png`, chart.toBase64Image('image/png', 1));
     });

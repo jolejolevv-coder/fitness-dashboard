@@ -1,8 +1,8 @@
 import type { Exercise, ParsedTraining } from '../types';
 import { avgRepsFromStr, epley1RM } from '../analytics/strength';
-import { mutableOptions, upsert } from '../charts/base';
 import { baselineLoad, usableLoad } from '../parse/training';
 import { byId, COLORS, setText, show } from './dom';
+import type { Charts } from './charts';
 
 const MUSCLE_COLORS = [
   '#38bdf8', '#f59e0b', '#4ade80', '#f87171', '#c084fc', '#818cf8', '#fb923c',
@@ -24,6 +24,8 @@ interface State {
   exercises: Record<string, Exercise>;
   weekCount: number;
   currentWeek: number;
+  /** Geladener Chunk `charts`. Die Auswahlfelder zeichnen nach, ohne neu zu laden. */
+  charts: Charts;
 }
 
 let state: State | null = null;
@@ -41,7 +43,7 @@ function volumeOf(exercise: Exercise, weekIndex: number): number {
   return (week.sets || FALLBACK_SETS) * (avgRepsFromStr(week.repsActual) ?? FALLBACK_REPS) * load;
 }
 
-export function renderTraining(parsed: ParsedTraining | null): void {
+export function renderTraining(parsed: ParsedTraining | null, charts: Charts): void {
   if (!parsed || !Object.keys(parsed.exercises).length) {
     show('t-no-data', true);
     show('t-content', false);
@@ -51,7 +53,7 @@ export function renderTraining(parsed: ParsedTraining | null): void {
 
   show('t-no-data', false);
   show('t-content', true);
-  state = { exercises: parsed.exercises, weekCount: parsed.weekCount, currentWeek: parsed.currentWeek };
+  state = { exercises: parsed.exercises, weekCount: parsed.weekCount, currentWeek: parsed.currentWeek, charts };
 
   setText('t-current-week', String(state.currentWeek));
   setText('t-exercise-count', String(Object.keys(state.exercises).length));
@@ -118,6 +120,7 @@ function renderTopProgression(): void {
 
 function renderVolumeChart(): void {
   if (!state) return;
+  const { charts } = state;
   const weekLabels = Array.from({ length: state.currentWeek }, (_, i) => `W${i + 1}`);
   const groups = [...new Set(Object.values(state.exercises).map((e) => e.muscleGroup).filter(Boolean))].sort();
 
@@ -140,12 +143,12 @@ function renderVolumeChart(): void {
     };
   });
 
-  const options = mutableOptions();
+  const options = charts.mutableOptions();
   options.scales.x.stacked = true;
   options.scales.y.stacked = true;
   options.plugins.legend = { display: true, labels: { color: '#94a3b8', font: { size: 10 }, boxWidth: 10, padding: 8 } };
 
-  upsert('t-volume-chart', { type: 'bar', data: { labels: weekLabels, datasets }, options });
+  charts.upsert('t-volume-chart', { type: 'bar', data: { labels: weekLabels, datasets }, options });
 }
 
 function populateDaySelect(): void {
@@ -190,6 +193,7 @@ export function renderProgression(): void {
   if (!key) return;
   const exercise = state.exercises[key];
   if (!exercise) return;
+  const { charts } = state;
 
   setText('t-prog-title', exercise.name);
 
@@ -207,7 +211,7 @@ export function renderProgression(): void {
   }
 
   {
-    const options = mutableOptions();
+    const options = charts.mutableOptions();
     options.plugins = {
       legend: { display: false },
       tooltip: {
@@ -235,7 +239,7 @@ export function renderProgression(): void {
       },
     };
 
-    upsert('t-prog-chart', {
+    charts.upsert('t-prog-chart', {
       type: 'line',
       data: {
         labels,
@@ -257,7 +261,7 @@ export function renderProgression(): void {
   }
 
   {
-    upsert('t-1rm-chart', {
+    charts.upsert('t-1rm-chart', {
       type: 'line',
       data: {
         labels,
@@ -272,7 +276,7 @@ export function renderProgression(): void {
           spanGaps: true,
         }],
       },
-      options: mutableOptions(),
+      options: charts.mutableOptions(),
     });
   }
 }
