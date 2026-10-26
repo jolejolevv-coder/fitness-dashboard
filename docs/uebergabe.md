@@ -1,6 +1,6 @@
 # Uebergabe
 
-Stand 26.10.2026, Phase 11 abgeschlossen und live, Phase 12 in Arbeit.
+Stand 26.10.2026, Phase 11 abgeschlossen und live, Phase 12 in Arbeit (12.4 Kueche erledigt, Heute, Training, Verlauf offen).
 
 ## Wo wir stehen
 
@@ -105,32 +105,46 @@ Gewichtsmodus und Uebungsauswahl zeichnen nach, Direktaufruf
 `#verlauf/gewicht` geht. Naechster Schritt 12.4 Oberflaeche, Reihenfolge
 Kueche, Heute, Training, Verlauf.
 
+12.4 Kueche erledigt 26.10.2026 (`0cb300f`). Tokens aus `DESIGN.md` auf
+`:root`, dunkel ueber `prefers-color-scheme`. Alte Variablennamen
+(`--text-primary`, `--surface-primary` usw.) stehen als Aliase im Block
+"Uebergang" und fliegen raus, wenn Verlauf umgestellt ist. Ebenso der
+Uebergangsblock `.range-btns, .segmented` (Zeitraum und Gewichtsmodus im
+Verlauf werden Filterkapseln `.chip` in `.chips`). Befunde des Documenters
+behoben: `ink-3` hell `#636a6e`, dunkel `#959da1`, inaktive Navigation in
+`ink-2`, Spuren `red-wash #fbefed` und `green-wash #ecf6f0`, Magnet
+(`.nav-magnet`, im `index.html`) und Puck (`.segment-puck`) gleiten per
+`transform`, gesetzt in `src/ui/shell.ts`. `DESIGN.md` nennt noch die alten
+Werte und die Navigation in `ink-3`; beim Abschluss von 12.4 nachziehen.
+Neue Bausteine im CSS: `.card`, `.card-label`, `.card-value` (`.is-hero`,
+`.is-word`), `.card-basis`, `.refusal`, `.mark` mit `.is-off`/`.is-ok`,
+`.bar`, `.grid2`, `.stack` (ab 900 px zweispaltig), `.list`, `.group-title`,
+`.group-label`, `.btn`, `.btn-primary`, `.toolbar`, `.chips`/`.chip`.
+`checkRow` in `src/ui/build.ts` kennt `aside`, `icon()` baut SVG Symbole.
+Bundle gzip nach Kueche: Haupt Chunk 36,61 kB, CSS 6,98 kB (Grenze 8, beim
+Umbau der anderen Ziele alte Regeln loeschen, nicht nur ergaenzen),
+`charts` 74,32 kB. Geprueft bei 375 px hell und dunkel, 1280 px.
+Pruefung im Dev Server: Eintrag `dev` in `.claude/launch.json`, ohne
+Zugangsdaten oeffnet das Blatt beim Start (mit `#btn-close-settings`
+schliessen). Fuer Heute, Training, Verlauf die Fixtures aus
+`public/preview/*.json` nur in localStorage `fitness_cache_v1` legen.
+
+Startprompt Rest 12.4 (neue Sitzung, Ordner dieses Worktrees, Branch
+`claude/mobile-app-b71746`): Lies CLAUDE.md, specs/roadmap.md,
+docs/uebergabe.md (Abschnitt Phase 12), `DESIGN.md`. Stelle die Ziele
+Heute, Training, Verlauf in dieser Reihenfolge auf die Bausteine aus dem
+Commit `0cb300f` um, je Ziel ein Commit mit Pruefung bei 375 px und
+1280 px und Bundle Zahlen. Keine Tabelle, keine Zeilen Bezeichnung gegen
+Wert, Verweigerungen als `.refusal` an der Stelle der Zahl. Diagrammfarben
+in `COLORS` (`src/ui/dom.ts`) sind noch die alten dunklen, sie muessen hell
+und dunkel aus den Custom Properties lesen. Chunk `charts` nicht statisch
+importieren. Danach Aliase und Uebergangsregeln loeschen, `DESIGN.md`
+nachziehen, Budget pruefen (Haupt Chunk 40 kB, CSS 8 kB), Uebergabe und
+Roadmap, dann Phasenverkettung mit 12.5. Nicht pushen.
+
 ## Phase 11 Kochansicht
 
-Abgeschlossen und live seit 26.10.2026. Spec `specs/features/recipes.md`,
-Branch `recipes` (Worktree `.claude/worktrees/recipes-84af64`) per Fast
-Forward auf `origin/main` gepusht (`8aed12d..035f8e3`), Deploy gruen, Live
-Bundle gleich dem lokalen Build. 353 Tests, `npm run check` und Build sauber,
-Chunk `cook` 4,1 kB gzip, Haupt Bundle 108,05 kB gzip. Details zu 11.0 bis
-11.2 in `docs/uebergabe-archiv-2026-10-26.md`.
-
-Entscheidungen des Nutzers (26.10.2026): Handytest live statt lokal im WLAN,
-weil Wake Lock nur unter HTTPS laeuft. Handytest in echter Prep Session
-bestanden, Ton, Vibration und Wake Lock gehen. `data/recipes.json` bleibt
-unveraendert: OptiGrill 210 °C, 800 W Mikrowelle und Chili mit einem Halt
-stimmen.
-
-Offen:
-* Lokales `main` im Hauptordner (`9b3d319`, Phase 10 Spec) ist von
-  `origin/main` abgezweigt und noch nicht gepusht. Wer Phase 10 weiterfuehrt,
-  muss `origin/main` hineinmergen; Konflikte in `docs/historie.md` und
-  `specs/roadmap.md` sind erwartbar. Die untracked `specs/features/recipes.md`
-  im Hauptordner ist gleich der committeten und muss vor dem Merge weg
-* Retro Phase 11 und diese Uebergabe liegen uncommittet im Worktree `recipes`
-* Nicht umgesetzt: Stueckangaben neben Gramm (`gramsPerPiece`), steht in der
-  Mustertabelle der Spec ohne Akzeptanzkriterium. Nur auf Wunsch nachziehen
-* Laufende Timer melden sich nur bei offener Kochansicht, nach Neuladen
-  erst `Kochen` tippen
+Abgeschlossen und live, Notizen in `docs/uebergabe-archiv-2026-10-26.md`.
 
 ## Phase 9 Plangenerator
 
@@ -150,13 +164,4 @@ Tabellen unter `test/fixtures/daily-import/`. Vorher Open question 7 (Format von
 `Time` und `Sleep`) am Rohexport in `testdata/` klaeren, keine Werte daraus
 committen. Offen beim Nutzer: Open questions 3 bis 6, 8 und 9 der Spec.
 
-## Pruefung des Handoffs
-
-Rechnung aus `foods.json` bestaetigt die Gerichte bis auf Rundung und alle sieben
-Tage (2309 bis 2333 kcal, 202 bis 210 g Protein). Akzeptanztoleranz fuer Makros
-auf ±1 g gesetzt, weil die Handoff Tabelle ganzzahlig gerundet ist.
-
-## Nicht committet
-
-Aeltere Aenderungen an `CLAUDE.md` und `specs/roadmap.md` (Roadmap gekuerzt,
-Archiv nach `docs/historie.md`) lagen schon vor dieser Sitzung uncommittet vor.
+Pruefung des Handoffs aus Phase 8 und alte Notizen: `docs/uebergabe-archiv-2026-10-26.md`.

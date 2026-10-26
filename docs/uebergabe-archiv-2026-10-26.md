@@ -181,3 +181,44 @@ bringen geht nicht ohne Merge, also Test lokal per `npm run dev -- --host`
 im WLAN oder nach Merge von `plan-generator` und `recipes` auf `main`.
 Korrekturen an `data/recipes.json` (OptiGrill 210 °C, 800 W, Chili Halt),
 dann Merge, Retro Phase 11 in `specs/roadmap.md`.
+
+
+## Pruefung des Handoffs
+
+Rechnung aus `foods.json` bestaetigt die Gerichte bis auf Rundung und alle sieben
+Tage (2309 bis 2333 kcal, 202 bis 210 g Protein). Akzeptanztoleranz fuer Makros
+auf ±1 g gesetzt, weil die Handoff Tabelle ganzzahlig gerundet ist.
+
+## Nicht committet
+
+Aeltere Aenderungen an `CLAUDE.md` und `specs/roadmap.md` (Roadmap gekuerzt,
+Archiv nach `docs/historie.md`) lagen schon vor dieser Sitzung uncommittet vor.
+
+
+## Phase 11 Kochansicht
+
+Abgeschlossen und live seit 26.10.2026. Spec `specs/features/recipes.md`,
+Branch `recipes` (Worktree `.claude/worktrees/recipes-84af64`) per Fast
+Forward auf `origin/main` gepusht (`8aed12d..035f8e3`), Deploy gruen, Live
+Bundle gleich dem lokalen Build. 353 Tests, `npm run check` und Build sauber,
+Chunk `cook` 4,1 kB gzip, Haupt Bundle 108,05 kB gzip. Details zu 11.0 bis
+11.2 in `docs/uebergabe-archiv-2026-10-26.md`.
+
+Entscheidungen des Nutzers (26.10.2026): Handytest live statt lokal im WLAN,
+weil Wake Lock nur unter HTTPS laeuft. Handytest in echter Prep Session
+bestanden, Ton, Vibration und Wake Lock gehen. `data/recipes.json` bleibt
+unveraendert: OptiGrill 210 °C, 800 W Mikrowelle und Chili mit einem Halt
+stimmen.
+
+Offen:
+* Lokales `main` im Hauptordner (`9b3d319`, Phase 10 Spec) ist von
+  `origin/main` abgezweigt und noch nicht gepusht. Wer Phase 10 weiterfuehrt,
+  muss `origin/main` hineinmergen; Konflikte in `docs/historie.md` und
+  `specs/roadmap.md` sind erwartbar. Die untracked `specs/features/recipes.md`
+  im Hauptordner ist gleich der committeten und muss vor dem Merge weg
+* Retro Phase 11 und diese Uebergabe liegen uncommittet im Worktree `recipes`
+* Nicht umgesetzt: Stueckangaben neben Gramm (`gramsPerPiece`), steht in der
+  Mustertabelle der Spec ohne Akzeptanzkriterium. Nur auf Wunsch nachziehen
+* Laufende Timer melden sich nur bei offener Kochansicht, nach Neuladen
+  erst `Kochen` tippen
+
