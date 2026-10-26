@@ -58,11 +58,36 @@ Haupt Bundle unveraendert 107,8 kB gzip):
   210 °C (Stufe des Modells unbekannt), 800 W Mikrowelle geschaetzt, Chili
   (rund 3,4 kg) mit nur einem Halt
 
-Naechster Schritt 11.1 laut Spec: reine Funktionen mit Tests, Mise en place
-aus `PrepSessionResult`, Zuordnung Schritt zu Rezept mit Zaehlung fehlender
-Eintraege, Timer Zustand ueber Endzeitpunkt, Parsen und Serialisieren von
-`fitness_cook_v1`. Dafuer muss `PrepStepResult` die Schritt `id` mitfuehren
-(`src/nutrition/prep.ts`, `buildStep`).
+Phase 11.1 erledigt (26.10.2026, 353 Tests, `npm run check` und Build
+sauber, Haupt Bundle unveraendert 107,8 kB gzip, weil `cook.ts` noch nirgends
+importiert wird):
+* `PrepStepResult.id` optional, `buildStep` reicht die Schritt `id` durch
+* `src/config/cook.ts`: `COOK_STATE_KEY` (`fitness_cook_v1`),
+  `MS_PER_SECOND`, `SECONDS_PER_MINUTE`, `MS_PER_MINUTE`,
+  `MISE_EN_PLACE_POSITION` (0, Schritt N liegt auf Position N)
+* `src/nutrition/cook.ts`, reine Funktionen, Zeit immer als `now` Parameter:
+  `buildMiseEnPlace` (jede Zutat einmal, Summe, Gewuerze `null`),
+  `attachRecipes` (Zuordnung ueber `step.id`, Feld `instructed` fuer
+  `Anweisungen N von M Schritten`), Timer `startTimer`, `remainingMs`,
+  `isFinished`, `dueEvents` (Halt vor Ende, bereits gemeldete stehen in
+  `reported`, damit nach Neuladen nichts doppelt klingelt), `withReported`,
+  `formatRemaining` (`m:ss`, aufgerundet). Zustand: `CookState` ist ein
+  Objekt je Session `id` mit `checked`, `position`, `timers`;
+  `parseCookState` verwirft einen Session Eintrag, sobald ein Feld
+  unbrauchbar ist; `serializeCookState`, `sessionState`, `withSessionState`,
+  `withoutSession` (Knopf Zuruecksetzen), `toggleChecked`, `withPosition`,
+  `clampPosition`, `withTimer` (ein Timer je Schritt), `withoutTimer`
+* Tests in `test/cook.test.ts`, darunter Mise en place gegen die Prep
+  Checkliste mit und ohne Riegel Tag
+
+Naechster Schritt 11.2 laut Spec: Oberflaeche. Knopf `Kochen` je Session im
+Reiter Plan (`src/ui/plan.ts`, Prep Bereich um Zeile 293), Kochansicht als
+eigener Chunk per dynamischem Import, der erst dort `data/recipes.json` laedt.
+Mise en place, Schritt Ansicht mit vor und zurueck, Timerleiste, Ton ueber
+Web Audio, Vibration, Wake Lock. Zugriff auf localStorage ueber
+`readStorage`/`writeStorage` aus `src/nutrition/state.ts`. Neue Konstanten
+(Tonlaenge, Vibrationsmuster, Mindestgroesse der Bedienelemente) in
+`src/config/cook.ts`. Pruefung bei 375 px.
 
 ## Phase 9 Plangenerator
 

@@ -18,6 +18,8 @@ export interface PrepLine {
 }
 
 export interface PrepStepResult {
+  /** Aus `prep.json`, fehlt bei generierten Plaenen. */
+  id?: string;
   title: string;
   device: PrepDevice;
   lines: PrepLine[];
@@ -62,7 +64,7 @@ function buildStep(step: PrepSession['steps'][number], plan: EffectivePlan, food
       lines.set(foodId, line);
     }
   }
-  return { title: step.title, device: step.device, lines: [...lines.values()] };
+  return { ...(step.id ? { id: step.id } : {}), title: step.title, device: step.device, lines: [...lines.values()] };
 }
 
 /**
