@@ -1,0 +1,89 @@
+[
+  {
+    "stepId": "sunday-rice",
+    "device": "Mikrowelle",
+    "instruction": "Reis mit doppelter Menge Wasser abgedeckt bei 800 W garen.",
+    "minutes": 18,
+    "hold": {
+      "afterMinutes": 10,
+      "action": "Umrühren"
+    }
+  },
+  {
+    "stepId": "sunday-egg-muffins",
+    "device": "Airfryer",
+    "instruction": "Alle Zutaten verquirlen, in Silikonformen füllen und backen.",
+    "temperatureC": 160,
+    "minutes": 15
+  },
+  {
+    "stepId": "sunday-chicken",
+    "device": "OptiGrill",
+    "instruction": "Filets mit Sojasauce und Gewürzen einreiben und in zwei Durchgängen grillen.",
+    "temperatureC": 210,
+    "minutes": 8
+  },
+  {
+    "stepId": "sunday-turkey",
+    "device": "OptiGrill",
+    "instruction": "Filets würzen und grillen.",
+    "temperatureC": 210,
+    "minutes": 7
+  },
+  {
+    "stepId": "sunday-wedges",
+    "device": "Airfryer",
+    "instruction": "Kartoffelspalten mit Öl und Rosmarin backen, Gemüse beim Halt dazugeben.",
+    "temperatureC": 200,
+    "minutes": 22,
+    "hold": {
+      "afterMinutes": 11,
+      "action": "Gemüse zugeben, schütteln"
+    }
+  },
+  {
+    "stepId": "wednesday-chili",
+    "device": "Mikrowelle",
+    "instruction": "Hack in großer Schüssel garen, dann alle Zutaten unterrühren und abgedeckt bei 800 W fertig garen.",
+    "minutes": 25,
+    "hold": {
+      "afterMinutes": 8,
+      "action": "Hack zerteilen, Rest zugeben"
+    }
+  },
+  {
+    "stepId": "wednesday-rice",
+    "device": "Mikrowelle",
+    "instruction": "Reis mit doppelter Menge Wasser abgedeckt bei 800 W garen.",
+    "minutes": 15,
+    "hold": {
+      "afterMinutes": 8,
+      "action": "Umrühren"
+    }
+  },
+  {
+    "stepId": "wednesday-chicken",
+    "device": "OptiGrill",
+    "instruction": "Filets mit Knoblauch und Kräutern würzen und grillen.",
+    "temperatureC": 210,
+    "minutes": 7
+  },
+  {
+    "stepId": "wednesday-turkey",
+    "device": "OptiGrill",
+    "instruction": "Filets würzen und grillen.",
+    "temperatureC": 210,
+    "minutes": 7
+  },
+  {
+    "stepId": "wednesday-wedges",
+    "device": "Airfryer",
+    "instruction": "Kartoffelspalten mit Öl und Rosmarin backen, Gemüse beim Halt dazugeben.",
+    "temperatureC": 200,
+    "minutes": 22,
+    "hold": {
+      "afterMinutes": 11,
+      "action": "Gemüse zugeben, schütteln"
+    }
+  }
+]

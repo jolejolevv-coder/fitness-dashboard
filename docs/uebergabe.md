@@ -1,6 +1,6 @@
 # Uebergabe
 
-Stand 25.10.2026.
+Stand 26.10.2026.
 
 ## Wo wir stehen
 
@@ -27,6 +27,42 @@ Offen beim Nutzer:
 2. Dauerpreis Startwerte in `public/data/regular_prices.json` mit
    `source: "manual"` eintragen
 3. Nachzuholen aus Phase 6: Lighthouse Messung
+
+## Phase 11 Kochansicht
+
+Spec `specs/features/recipes.md`, freigegeben 26.10.2026. Branch `recipes`,
+abgezweigt von `plan-generator`, Worktree
+`.claude/worktrees/recipes-84af64`. Merge auf `main` erst nach
+`plan-generator`. `test/fixtures/` und `test/golden/` sind lokal
+hineinkopiert.
+
+Phase 11.0 erledigt (26.10.2026, 337 Tests, `npm run check` und Build sauber,
+Haupt Bundle unveraendert 107,8 kB gzip):
+* Jeder Seed Schritt in `data/prep.json` hat eine `id`, Muster Session plus
+  Gericht: `sunday-rice`, `sunday-egg-muffins`, `sunday-chicken`,
+  `sunday-turkey`, `sunday-wedges`, `wednesday-chili`, `wednesday-rice`,
+  `wednesday-chicken`, `wednesday-turkey`, `wednesday-wedges`
+* `src/nutrition/types.ts`: `PrepStep.id` optional, neu `Recipe`
+  (`stepId`, `device`, `instruction`, `temperatureC?`, `minutes`, `hold?`),
+  `RecipeHold` (`afterMinutes`, `action`), `TEMPERATURE_DEVICES`
+  (Airfryer, OptiGrill; Mikrowelle ohne Temperatur, Watt steht im Satz)
+* `src/nutrition/recipes.ts`: `validateStepIds`, `validateRecipes` (Schritt
+  existiert, ein Rezept je Schritt, Geraet aus `PREP_DEVICES` und gleich dem
+  Schrittgeraet, Temperatur je Geraet, Halt vor Ende). Tests in
+  `test/recipes.test.ts`. `recipes.json` wird bewusst nicht in `plan.ts`
+  geladen, damit sie erst mit der Kochansicht im eigenen Chunk landet
+* `src/generator/export.ts` gibt die `id` mit aus, sonst bricht der
+  Vergleich mit dem Seed. Generierte Plaene haben weiter keine `id`
+* `data/recipes.json`: zehn Eintraege, vom Nutzer am 26.10.2026 ohne
+  Korrektur uebernommen. Unsicher und in 11.3 am Herd zu pruefen: OptiGrill
+  210 °C (Stufe des Modells unbekannt), 800 W Mikrowelle geschaetzt, Chili
+  (rund 3,4 kg) mit nur einem Halt
+
+Naechster Schritt 11.1 laut Spec: reine Funktionen mit Tests, Mise en place
+aus `PrepSessionResult`, Zuordnung Schritt zu Rezept mit Zaehlung fehlender
+Eintraege, Timer Zustand ueber Endzeitpunkt, Parsen und Serialisieren von
+`fitness_cook_v1`. Dafuer muss `PrepStepResult` die Schritt `id` mitfuehren
+(`src/nutrition/prep.ts`, `buildStep`).
 
 ## Phase 9 Plangenerator
 

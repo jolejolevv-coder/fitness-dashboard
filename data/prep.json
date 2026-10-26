@@ -4,6 +4,7 @@
     "title": "Sonntag",
     "steps": [
       {
+        "id": "sunday-rice",
         "title": "Reis kochen",
         "device": "Mikrowelle",
         "covers": [
@@ -24,6 +25,7 @@
         ]
       },
       {
+        "id": "sunday-egg-muffins",
         "title": "Egg-Muffins backen",
         "device": "Airfryer",
         "covers": [
@@ -56,6 +58,7 @@
         ]
       },
       {
+        "id": "sunday-chicken",
         "title": "Hähnchen grillen",
         "device": "OptiGrill",
         "covers": [
@@ -97,6 +100,7 @@
         ]
       },
       {
+        "id": "sunday-turkey",
         "title": "Pute grillen",
         "device": "OptiGrill",
         "covers": [
@@ -120,6 +124,7 @@
         ]
       },
       {
+        "id": "sunday-wedges",
         "title": "Wedges backen",
         "device": "Airfryer",
         "covers": [
@@ -150,6 +155,7 @@
     "title": "Mittwoch",
     "steps": [
       {
+        "id": "wednesday-chili",
         "title": "Chili kochen",
         "device": "Mikrowelle",
         "covers": [
@@ -180,6 +186,7 @@
         ]
       },
       {
+        "id": "wednesday-rice",
         "title": "Reis kochen",
         "device": "Mikrowelle",
         "covers": [
@@ -201,6 +208,7 @@
         ]
       },
       {
+        "id": "wednesday-chicken",
         "title": "Hähnchen grillen",
         "device": "OptiGrill",
         "covers": [
@@ -224,6 +232,7 @@
         ]
       },
       {
+        "id": "wednesday-turkey",
         "title": "Pute grillen",
         "device": "OptiGrill",
         "covers": [
@@ -248,6 +257,7 @@
         ]
       },
       {
+        "id": "wednesday-wedges",
         "title": "Wedges backen",
         "device": "Airfryer",
         "covers": [

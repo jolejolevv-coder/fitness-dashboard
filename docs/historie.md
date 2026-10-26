@@ -521,3 +521,9 @@ Export, CSP im Build), Live Lauf durch den Nutzer.
 
 Vor dem Live Lauf beim Nutzer: eigenen Anthropic Workspace mit Ausgabelimit
 anlegen und Key erzeugen.
+
+## Retro Phase 6
+
+1. Gut: Die Umstellung spaet zu machen war richtig. Zwischen Push und Umschalten der Pages Quelle lieferte die Seite kurz die Vite Quelldatei aus, ein Fehler, der in Phase 1 Wochen gekostet haette.
+2. Falsche Annahme: Fixtures gegen echte Daten waeren unkritisch. Sie haetten 80 Tage Gesundheitsdaten in ein oeffentliches Repo getragen, aufgefallen erst unmittelbar vor dem Push.
+3. Besser spezifizieren: Bei jeder committeten Datei die Frage "wer kann sie am Ende lesen" schon in der Spec stellen, nicht erst beim Deploy.

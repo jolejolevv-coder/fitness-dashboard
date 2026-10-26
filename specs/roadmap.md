@@ -21,6 +21,7 @@ Stand der Qualitaet: 88 Tests, Lint, Typpruefung und Build sauber. Geprueft bei 
 * Phase 7 Blockuebergreifende Trainingshistorie: nicht gestartet
 * Phase 8 Ernaehrung und Einkauf (Reiter Plan und Einkauf, Wuerzen und Soßen, Preis Pipeline): 8.0 Recherche erledigt 25.10.2026: Selektoren in `specs/features/muskelmarkt-parser.md`, ADR 0003 Dauerpreise angenommen 25.10.2026 (Normalpreis aus Muskelmarkt sammeln plus handgepflegte Startwerte). abgeschlossen und live seit 25.10.2026 (228 Tests), erster Preislauf erfolgreich, Cron aktiv. Spec `specs/features/nutrition-shopping.md`, Quelle `docs/HANDOFF.md`, ADR 0002 angenommen
 * Phase 9 Plangenerator ueber die Anthropic API: Spec `specs/features/plan-generator.md` freigegeben 25.10.2026. 9.0 bis 9.3 erledigt 25.10.2026 (ADR 0004, reine Funktionen, Planquelle, API Aufruf). 9.4 Oberflaeche, Export und CSP umgesetzt, gemergt und live 25.10.2026, 326 Tests. Offen beim Nutzer: erster Live Lauf mit eigenem Key, Netzwerkpruefung, dann Retro. Bundle Grenze 5 kB gilt gzip gegen `main` (eingehalten, +3,7 kB)
+* Phase 11 Kochansicht: Spec `specs/features/recipes.md` freigegeben 26.10.2026, Branch `recipes` ab `plan-generator`. 11.0 Daten erledigt 26.10.2026 (Schritt `id`s, `data/recipes.json`, 337 Tests). Naechster Schritt 11.1 reine Funktionen
 
 ## Naechste Schritte
 
@@ -51,9 +52,3 @@ Die harten Regeln stehen in `CLAUDE.md` (kein Schreibzugriff aufs Sheet, keine Z
 1. Gut: Die Recherche vor dem Code (ein Abruf, Belege fuer jeden Selektor) hat den Parser ohne Raten moeglich gemacht. Rechenkern und Pipeline liefen parallel, weil die Schnittstelle `shopping_items.json` vorher festgelegt war.
 2. Falsche Annahme: "Soßen kosten hoechstens rund 20 kcal" stimmte fuer den Sonntag nicht, zwei Soßen an einem Tag rissen das Band. Ebenso war die Packungsrundung zu streng, das Plan Dokument hatte bewusst leicht abgerundet. Und der Handoff haette Klarname, Sheet ID und Filialadressen ins oeffentliche Repo getragen.
 3. Besser spezifizieren: Toleranzen (Packungen, kcal Band) als Zahl in die Spec schreiben, nicht implizit aus einem Beispiel ableiten. Bei uebernommenen Dokumenten die Frage "wer kann das lesen" vor dem ersten Commit stellen.
-
-## Retro Phase 6
-
-1. Gut: Die Umstellung spaet zu machen war richtig. Zwischen Push und Umschalten der Pages Quelle lieferte die Seite kurz die Vite Quelldatei aus, ein Fehler, der in Phase 1 Wochen gekostet haette.
-2. Falsche Annahme: Fixtures gegen echte Daten waeren unkritisch. Sie haetten 80 Tage Gesundheitsdaten in ein oeffentliches Repo getragen, aufgefallen erst unmittelbar vor dem Push.
-3. Besser spezifizieren: Bei jeder committeten Datei die Frage "wer kann sie am Ende lesen" schon in der Spec stellen, nicht erst beim Deploy.

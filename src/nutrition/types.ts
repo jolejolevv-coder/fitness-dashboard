@@ -78,6 +78,8 @@ export interface ShoppingItem {
 
 export const PREP_DEVICES = ['Mikrowelle', 'Airfryer', 'OptiGrill'] as const;
 export type PrepDevice = (typeof PREP_DEVICES)[number];
+/** Geraete mit Temperaturregler. Die Mikrowelle hat keinen. */
+export const TEMPERATURE_DEVICES: readonly PrepDevice[] = ['Airfryer', 'OptiGrill'];
 
 /**
  * Welche Gerichte ein Schritt abdeckt. `foods` schraenkt auf einzelne Zutaten
@@ -91,6 +93,8 @@ export interface PrepCover {
 }
 
 export interface PrepStep {
+  /** Stabil, `recipes.json` verweist darauf. Im Seed Pflicht, generierte Plaene haben keine. */
+  id?: string;
   title: string;
   device: PrepDevice;
   covers: PrepCover[];
@@ -100,4 +104,23 @@ export interface PrepSession {
   id: string;
   title: string;
   steps: PrepStep[];
+}
+
+/** Halt waehrend eines Schritts, etwa Wenden nach N Minuten. */
+export interface RecipeHold {
+  afterMinutes: number;
+  action: string;
+}
+
+/**
+ * Kochanweisung zu einem Prep Schritt aus `data/recipes.json`. Mengen stehen
+ * nie hier, sie kommen aus `buildPrep`. Temperatur nur bei Geraeten mit Regler.
+ */
+export interface Recipe {
+  stepId: string;
+  device: PrepDevice;
+  instruction: string;
+  temperatureC?: number;
+  minutes: number;
+  hold?: RecipeHold;
 }

@@ -43,6 +43,7 @@ function exportPrep(prep: readonly PrepSession[]): PrepSession[] {
     id: session.id,
     title: session.title,
     steps: session.steps.map((step) => ({
+      ...(step.id ? { id: step.id } : {}),
       title: step.title,
       device: step.device,
       covers: step.covers.map((cover) => ({
