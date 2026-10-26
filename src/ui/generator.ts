@@ -189,12 +189,12 @@ function wishField(): HTMLTextAreaElement {
 }
 
 function runControls(goals: DayGoals | null): HTMLElement {
-  const box = el('div', { class: 'pl-toolbar' });
+  const box = el('div', { class: 'toolbar' });
   if (run) {
     const current = run;
     const cancel = el('button', { class: 'btn btn-tap', text: 'Abbrechen', attrs: { type: 'button', [FOCUS_ATTR]: 'gen-run' } });
     cancel.addEventListener('click', () => current.controller.abort());
-    liveLine = span('section-sub num', liveText(current));
+    liveLine = span('toolbar-note', liveText(current));
     box.append(cancel, liveLine);
     return box;
   }
@@ -205,7 +205,7 @@ function runControls(goals: DayGoals | null): HTMLElement {
   button.disabled = !readiness.enabled;
   if (readiness.enabled && goals) button.addEventListener('click', () => void startRun(goals));
   box.appendChild(button);
-  for (const reason of readiness.reasons) box.appendChild(span('section-sub num', reason));
+  for (const reason of readiness.reasons) box.appendChild(span('toolbar-note', reason));
   return box;
 }
 
@@ -219,7 +219,7 @@ function costLine(cost: RunCost): string {
 function servedLines(status: ProposalStatus): HTMLElement[] {
   if (!('cost' in status)) return [];
   const model = status.fallback ? `${status.model}, Fallback` : status.model;
-  return [el('p', { class: 'section-sub num', text: model }), el('p', { class: 'section-sub num', text: costLine(status.cost) })];
+  return [el('p', { class: 'card-basis', text: model }), el('p', { class: 'card-basis', text: costLine(status.cost) })];
 }
 
 function dayValues(day: DayCheck): string {
@@ -236,7 +236,7 @@ function dayComparison(days: readonly DayCheck[], active: readonly DayCheck[]): 
       span('gen-day-name', day.day),
       el('div', {}, [
         el('div', { class: 'num', text: dayValues(day) }),
-        current ? el('div', { class: 'section-sub num', text: `Aktiv ${dayValues(current)}` }) : null,
+        current ? el('div', { class: 'card-basis', text: `Aktiv ${dayValues(current)}` }) : null,
       ]),
     ]));
   }
@@ -248,7 +248,7 @@ function mealDays(meal: Meal, proposal: Proposal): Weekday[] {
 }
 
 function mealList(proposal: Proposal): HTMLElement {
-  const root = el('div');
+  const root = el('div', { class: 'card stack' });
   for (const meal of proposal.meals) {
     const ingredients = meal.ingredients
       .map((ing) => {
@@ -256,20 +256,21 @@ function mealList(proposal: Proposal): HTMLElement {
         return ing.grams > 0 ? `${name} ${integer(ing.grams)} g` : name;
       })
       .join(', ');
-    root.appendChild(el('section', { class: 'pl-meal' }, [
-      el('div', { class: 'pl-meal-head' }, [span('pl-slot', meal.slot), span('pl-step-title', meal.name), span('pl-kcal num', mealDays(meal, proposal).join(' '))]),
-      el('div', { class: 'pl-season', text: ingredients }),
+    root.appendChild(el('section', { class: 'gen-meal' }, [
+      span('slot', meal.slot),
+      el('div', {}, [span('meal-name', meal.name), span('meal-sub', mealDays(meal, proposal).join(' '))]),
+      el('p', { text: ingredients }),
     ]));
   }
   return root;
 }
 
 function prepList(proposal: Proposal): HTMLElement {
-  const root = el('div');
+  const root = el('div', { class: 'card stack' });
   for (const session of proposal.prep) {
     root.appendChild(el('h4', { class: 'gen-subtitle', text: session.title }));
     for (const step of session.steps) {
-      root.appendChild(el('div', { class: 'pl-step-head' }, [span('pl-step-title', step.title), span('pl-device', step.device)]));
+      root.appendChild(el('div', { class: 'step-title' }, [el('b', { text: step.title }), span('', step.device)]));
     }
   }
   return root;
@@ -286,18 +287,18 @@ function checkedView(status: Extract<ProposalStatus, { kind: 'checked' }>, activ
     adoptButton.addEventListener('click', () => adopt(status));
     const exportButton = el('button', { class: 'btn btn-tap', text: 'Export', attrs: { type: 'button', [FOCUS_ATTR]: 'gen-export' } });
     exportButton.addEventListener('click', () => downloadPlanFiles(status.proposal));
-    root.appendChild(el('div', { class: 'pl-toolbar' }, [adoptButton, exportButton]));
+    root.appendChild(el('div', { class: 'toolbar' }, [adoptButton, exportButton]));
   }
   root.append(...issueList(status.check.issues));
   if (status.check.days.length > 0) root.appendChild(dayComparison(status.check.days, active));
 
-  root.appendChild(el('h3', { class: 'panel-title pl-total-title', text: 'Gerichte' }));
+  root.appendChild(el('h3', { class: 'group-title', text: 'Gerichte' }));
   root.appendChild(mealList(status.proposal));
-  root.appendChild(el('h3', { class: 'panel-title pl-total-title', text: 'Prep' }));
+  root.appendChild(el('h3', { class: 'group-title', text: 'Prep' }));
   root.appendChild(prepList(status.proposal));
   if (status.proposal.wishlist.length > 0) {
-    root.appendChild(el('h3', { class: 'panel-title pl-total-title', text: 'Wunschliste' }));
-    const list = el('ul', { class: 'pl-ing' });
+    root.appendChild(el('h3', { class: 'group-title', text: 'Wunschliste' }));
+    const list = el('ul', { class: 'card gen-list stack' });
     for (const entry of status.proposal.wishlist) list.appendChild(el('li', { text: entry }));
     root.appendChild(list);
   }
@@ -307,7 +308,7 @@ function checkedView(status: Extract<ProposalStatus, { kind: 'checked' }>, activ
 function resultView(current: Result, active: readonly DayCheck[]): HTMLElement {
   const status = current.status;
   const passed = status.kind === 'checked' && status.check.passed;
-  const root = el('section', { class: 'panel' }, [
+  const root = el('section', { class: 'gen-result' }, [
     el('p', { class: passed ? 'gen-status num' : 'gen-status err num', text: current.line }),
     ...servedLines(status),
   ]);
@@ -320,7 +321,7 @@ function resultView(current: Result, active: readonly DayCheck[]): HTMLElement {
 
 export function generatorView(ctx: GeneratorContext): HTMLElement {
   context = ctx;
-  const form = el('section', { class: 'panel gen-form' }, [exclusionPicker(), wishField(), runControls(ctx.goals)]);
+  const form = el('section', { class: 'card gen-form' }, [exclusionPicker(), wishField(), runControls(ctx.goals)]);
   const root = el('div', {}, [form]);
   if (result) root.appendChild(resultView(result, ctx.activeDays));
   return root;

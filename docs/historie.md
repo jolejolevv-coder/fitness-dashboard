@@ -533,3 +533,9 @@ anlegen und Key erzeugen.
 1. Gut: Die Recherche vor dem Code (ein Abruf, Belege fuer jeden Selektor) hat den Parser ohne Raten moeglich gemacht. Rechenkern und Pipeline liefen parallel, weil die Schnittstelle `shopping_items.json` vorher festgelegt war.
 2. Falsche Annahme: "Soßen kosten hoechstens rund 20 kcal" stimmte fuer den Sonntag nicht, zwei Soßen an einem Tag rissen das Band. Ebenso war die Packungsrundung zu streng, das Plan Dokument hatte bewusst leicht abgerundet. Und der Handoff haette Klarname, Sheet ID und Filialadressen ins oeffentliche Repo getragen.
 3. Besser spezifizieren: Toleranzen (Packungen, kcal Band) als Zahl in die Spec schreiben, nicht implizit aus einem Beispiel ableiten. Bei uebernommenen Dokumenten die Frage "wer kann das lesen" vor dem ersten Commit stellen.
+
+## Retro Phase 11 (aus der Roadmap verschoben 26.10.2026)
+
+1. Gut: Daten, reine Funktionen und Oberflaeche in getrennten Schritten. Zeit als `now` Parameter machte Timer, Halte und Neuladen ohne Geraet testbar, der eigene Chunk hielt das Haupt Bundle bei +0,25 kB. Der Handytest lief ohne eine Korrektur an den Rezeptdaten.
+2. Falsche Annahme: Der Auftrag fuer 11.3 ging davon aus, `plan-generator` sei noch nicht auf `main` und lokales `main` sei die Basis. Tatsaechlich lag `plan-generator` schon auf `origin/main`, lokales `main` war mit einem ungepushten Phase 10 Commit davon abgezweigt. Aufgefallen erst an Konflikten im Probemerge. Ausserdem stand der lokale Test im WLAN als gleichwertige Option da, obwohl Wake Lock dort ohne HTTPS gar nicht laeuft.
+3. Besser spezifizieren: Merge Ziele immer gegen `origin/main` pruefen (`git merge-base`), nicht gegen das lokale `main`. Browser APIs mit Secure Context Pflicht (Wake Lock) in der Spec als Testbedingung nennen. Jede Spalte einer Mustertabelle braucht ein Akzeptanzkriterium oder den Vermerk spaeter, wie bei den Stueckangaben.

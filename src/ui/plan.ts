@@ -24,7 +24,7 @@ import type { PlanSource } from '../generator/source';
 import { roundedDayValues } from '../generator/check';
 import { byId } from './dom';
 import { decimal, integer, signed, target } from './format';
-import { FOCUS_ATTR, checkRow, el, focusedKey, restoreFocus, span } from './build';
+import { FOCUS_ATTR, checkRow, el, focusedKey, icon, restoreFocus, span } from './build';
 import type { PlanView } from './router';
 import { getPlanSource, hasStoredPlan, onPlanSourceChange, returnToSeed } from './planSource';
 
@@ -79,6 +79,8 @@ let viewListener: (next: PlanView) => void = () => undefined;
 let overrides: Overrides = loadOverrides();
 let prepDone: Set<string> = loadChecked(PREP_DONE_KEY);
 let lastGoals: DayGoals | null = null;
+/** Offene Mahlzeiten, damit ein Tausch das Aufgeklappte nicht schliesst. */
+const openMeals = new Set<string>();
 /** Session `id` der offenen Kochansicht, `null` zeigt die Prep Checkliste. */
 let cooking: string | null = null;
 /** Nur direkt nach dem Knopf `Kochen`, nicht bei jedem Neuzeichnen. */
@@ -153,18 +155,21 @@ function groupIngredients(ingredients: readonly Ingredient[]): Grouped {
   return { items: [...items.values()], spices: [...spices.values()] };
 }
 
-function seasoningLine(grouped: Grouped): HTMLElement | null {
+function seasoningText(grouped: Grouped): string | null {
   const sauces = grouped.items.filter((i) => i.food.kind === 'sauce');
   if (sauces.length === 0 && grouped.spices.length === 0) return null;
   const parts: string[] = [];
   for (const s of sauces) parts.push(`Soße ${s.food.name} ${grams(s.grams)}`);
   if (grouped.spices.length > 0) parts.push(`Gewürze ${grouped.spices.map((f) => f.name).join(', ')}`);
-  return el('div', { class: 'pl-season', text: parts.join(', ') });
+  return parts.join(', ');
 }
 
-function mealSelect(day: Weekday, planned: PlannedSlot): HTMLSelectElement {
+const CHEVRON = ['M6 9l6 6 6-6'];
+const UP_DOWN = ['M8 10l4-4 4 4', 'M8 14l4 4 4-4'];
+
+/** Das Gericht bleibt ein `select`, gesetzt als Auswahlzeile mit voller Tippflaeche. */
+function mealSelect(day: Weekday, planned: PlannedSlot): HTMLElement {
   const select = el('select', {
-    class: 'pl-select',
     attrs: { 'aria-label': `Gericht ${planned.slot} ${WEEKDAY_NAMES[day]}`, [FOCUS_ATTR]: `swap-${day}-${planned.slot}` },
   });
   for (const meal of context.plan.meals.filter((m) => m.slot === planned.slot)) {
@@ -173,7 +178,7 @@ function mealSelect(day: Weekday, planned: PlannedSlot): HTMLSelectElement {
     select.appendChild(option);
   }
   select.addEventListener('change', () => setSwap(day, planned.slot, select.value));
-  return select;
+  return el('div', { class: 'pick' }, [select, icon(UP_DOWN)]);
 }
 
 function barToggle(day: PlannedDay, planned: PlannedSlot): HTMLElement | null {
@@ -191,56 +196,80 @@ function barToggle(day: PlannedDay, planned: PlannedSlot): HTMLElement | null {
   });
 }
 
-function mealBlock(day: PlannedDay, planned: PlannedSlot, compact: boolean): HTMLElement {
+function mealName(planned: PlannedSlot): string {
+  return context.mealsById.get(planned.mealId)?.name ?? planned.mealId;
+}
+
+/** Mahlzeit zum Aufklappen: geschlossen Name, Protein und Kalorien, offen Zutaten und Auswahl. */
+function mealCard(day: PlannedDay, planned: PlannedSlot): HTMLElement {
   const macros = sumIngredients(planned.ingredients, FOODS_BY_ID);
   const grouped = groupIngredients(planned.ingredients);
+  const key = `${day.day}-${planned.slot}`;
 
-  const head = el('div', { class: 'pl-meal-head' }, [
-    span('pl-slot', planned.slot),
-    mealSelect(day.day, planned),
-    span('pl-kcal num', `${integer(macros.kcal)} kcal`),
+  const kcal = el('span', { class: 'meal-kcal', text: integer(macros.kcal) }, [el('small', { text: 'kcal' })]);
+  const summary = el('summary', { class: 'meal-head', attrs: { [FOCUS_ATTR]: `meal-${key}` } }, [
+    span('slot', planned.slot),
+    el('span', {}, [span('meal-name', mealName(planned)), span('meal-sub', `${integer(macros.protein)} g Protein`)]),
+    kcal,
+    icon(CHEVRON, 'icon chev'),
   ]);
-  const block = el('section', { class: 'pl-meal' }, [head]);
 
-  if (compact) {
-    const seasoning = seasoningLine(grouped);
-    if (seasoning) block.appendChild(seasoning);
-  } else {
-    block.appendChild(el('div', { class: 'pl-macros num', text: macroLine(macros) }));
-    const list = el('ul', { class: 'pl-ing' });
-    for (const item of grouped.items) {
-      const name = item.food.kind === 'sauce' ? `${item.food.name} (Soße)` : item.food.name;
-      list.appendChild(el('li', {}, [span('pl-ing-name', name), span('pl-ing-qty num', grams(item.grams))]));
-    }
-    block.appendChild(list);
-    if (grouped.spices.length > 0) {
-      block.appendChild(el('div', { class: 'pl-season', text: `Gewürze ${grouped.spices.map((f) => f.name).join(', ')}` }));
-    }
+  const body = el('div', { class: 'meal-body' }, [el('div', { class: 'ing-note', text: macroLine(macros) })]);
+  for (const item of grouped.items) {
+    const name = item.food.kind === 'sauce' ? `${item.food.name} (Soße)` : item.food.name;
+    body.appendChild(el('div', { class: 'ing' }, [span('', name), span('', grams(item.grams))]));
   }
+  if (grouped.spices.length > 0) {
+    body.appendChild(el('div', { class: 'ing-note', text: `Gewürze ${grouped.spices.map((f) => f.name).join(', ')}` }));
+  }
+  body.appendChild(mealSelect(day.day, planned));
   const bar = barToggle(day, planned);
-  if (bar) block.appendChild(bar);
-  return block;
+  if (bar) body.appendChild(bar);
+
+  const card = el('details', { class: 'card meal' }, [summary, body]);
+  card.open = openMeals.has(key);
+  card.addEventListener('toggle', () => {
+    if (card.open) openMeals.add(key);
+    else openMeals.delete(key);
+  });
+  return card;
 }
 
-function metricRow(label: string, actual: number, unit: string, goalText: string | null): HTMLElement {
-  return el('div', { class: 'metric' }, [
-    span('metric-label', label),
-    span('metric-value num', `${integer(actual)} ${unit}`),
-    goalText ? span('metric-sub num', goalText) : null,
-  ]);
+/** Kompakte Mahlzeit im Wochenplan: Nummer, Auswahl und Kalorien in einer Zeile. */
+function mealRow(day: PlannedDay, planned: PlannedSlot): HTMLElement[] {
+  const macros = sumIngredients(planned.ingredients, FOODS_BY_ID);
+  const nodes: HTMLElement[] = [el('div', { class: 'meal-row' }, [
+    span('slot', planned.slot),
+    mealSelect(day.day, planned),
+    el('span', { class: 'meal-kcal', text: integer(macros.kcal) }, [el('small', { text: 'kcal' })]),
+  ])];
+  const seasoning = seasoningText(groupIngredients(planned.ingredients));
+  if (seasoning) nodes.push(el('div', { class: 'meal-row-note', text: seasoning }));
+  const bar = barToggle(day, planned);
+  if (bar) nodes.push(bar);
+  return nodes;
 }
 
-/** Tagessumme. Ohne Ziel aus dem Sheet steht nur die Summe da, nie ein Ersatzwert. */
-function totalsBlock(totals: Macros, goals: DayGoals | null): HTMLElement {
+function goalText(c: { goal: number; diff: number } | null | undefined, unit: string): string {
+  return c ? `Ziel ${target(c.goal)}${unit ? ` ${unit}` : ''}, ${signed(Math.round(c.diff), 0)}` : '';
+}
+
+/** Tageszahl gross, die Makros klein darunter. Ohne Ziel aus dem Sheet nur die Summe, nie ein Ersatzwert. */
+function totalsCard(label: string, totals: Macros, goals: DayGoals | null, hero: boolean): HTMLElement {
   const cmp = goals ? compareToGoals(totals, goals) : null;
-  const sub = (c: { goal: number; diff: number } | null | undefined, unit: string): string | null =>
-    c ? `Ziel ${target(c.goal)} ${unit}, ${signed(Math.round(c.diff), 0)}` : null;
-  return el('div', { class: 'pl-totals' }, [
-    metricRow('Kalorien', totals.kcal, 'kcal', sub(cmp?.caloriesKcal, 'kcal')),
-    metricRow('Protein', totals.protein, 'g', sub(cmp?.proteinG, 'g')),
-    metricRow('Kohlenhydrate', totals.carbs, 'g', sub(cmp?.carbsG, 'g')),
-    metricRow('Fett', totals.fat, 'g', sub(cmp?.fatG, 'g')),
-    metricRow('Ballaststoffe', totals.fiber, 'g', sub(cmp?.fiberG, 'g')),
+  const macro = (value: number, name: string, c: { goal: number } | null | undefined): HTMLElement =>
+    el('div', { class: 'macro' }, [el('b', { text: grams(value) }), document.createTextNode(c ? `${name}, Ziel ${target(c.goal)}` : name)]);
+  const kcalGoal = goalText(cmp?.caloriesKcal, '');
+  return el('div', { class: 'card' }, [
+    span('card-label', label),
+    el('div', { class: hero ? 'card-value is-hero' : 'card-value', text: integer(totals.kcal) }, [el('small', { text: 'kcal' })]),
+    kcalGoal ? el('div', { class: 'card-basis', text: kcalGoal }) : null,
+    el('div', { class: 'macros' }, [
+      macro(totals.protein, 'Protein', cmp?.proteinG),
+      macro(totals.carbs, 'KH', cmp?.carbsG),
+      macro(totals.fat, 'Fett', cmp?.fatG),
+      macro(totals.fiber, 'Ballaststoffe', cmp?.fiberG),
+    ]),
   ]);
 }
 
@@ -250,49 +279,41 @@ function todayView(days: readonly PlannedDay[], goals: DayGoals | null): HTMLEle
   const now = new Date();
   const today = berlinWeekday(now);
   const day = days.find((d) => d.day === today);
-  const root = el('div');
+  const root = el('div', { class: 'stack' });
   if (!day) return root;
 
-  root.appendChild(el('div', { class: 'pl-head' }, [
-    el('h3', { class: 'panel-title', text: `Heute, ${WEEKDAY_NAMES[today]}` }),
-    span('section-sub', longDate(berlinDay(now))),
-  ]));
-  for (const slot of day.slots) root.appendChild(mealBlock(day, slot, false));
-  root.appendChild(el('h3', { class: 'panel-title pl-total-title', text: 'Tagessumme' }));
-  root.appendChild(totalsBlock(dayMacros(day, FOODS), goals));
+  root.appendChild(totalsCard(`${WEEKDAY_NAMES[today]}, ${longDate(berlinDay(now))}`, dayMacros(day, FOODS), goals, true));
+  for (const slot of day.slots) root.appendChild(mealCard(day, slot));
   return root;
 }
 
 function weekView(days: readonly PlannedDay[], goals: DayGoals | null): HTMLElement {
   const today = berlinWeekday(new Date());
-  const root = el('div');
+  const root = el('div', { class: 'stack' });
   let week = ZERO_MACROS;
+
+  const dayCount = days.length;
+  for (const day of days) week = addMacros(week, dayMacros(day, FOODS));
+  if (dayCount > 0) {
+    root.appendChild(totalsCard('Tagesmittel der Woche', {
+      kcal: week.kcal / dayCount, protein: week.protein / dayCount, carbs: week.carbs / dayCount, fat: week.fat / dayCount, fiber: week.fiber / dayCount,
+    }, goals, false));
+  }
 
   for (const day of days) {
     const totals = dayMacros(day, FOODS);
-    week = addMacros(week, totals);
     const cmp = goals ? compareToGoals(totals, goals) : null;
-    const goalText = cmp?.caloriesKcal ? `, Ziel ${target(cmp.caloriesKcal.goal)}` : '';
-    const proteinText = cmp?.proteinG ? `, Ziel ${target(cmp.proteinG.goal)}` : '';
-
+    const basis = [goalText(cmp?.caloriesKcal, ''), `${integer(totals.protein)} g Protein${cmp?.proteinG ? `, Ziel ${target(cmp.proteinG.goal)}` : ''}`]
+      .filter(Boolean)
+      .join(', ');
     const title = day.day === today ? `${WEEKDAY_NAMES[day.day]}, heute` : WEEKDAY_NAMES[day.day];
-    const block = el('section', { class: day.day === today ? 'pl-day is-today' : 'pl-day' }, [
-      el('div', { class: 'pl-head' }, [
-        el('h3', { class: 'panel-title', text: title }),
-        span('section-sub num', `${integer(totals.kcal)} kcal${goalText}, ${integer(totals.protein)} g Protein${proteinText}`),
-      ]),
+    const card = el('section', { class: 'card' }, [
+      span('card-label', title),
+      el('div', { class: 'card-value', text: integer(totals.kcal) }, [el('small', { text: 'kcal' })]),
+      el('div', { class: 'card-basis', text: basis }),
     ]);
-    for (const slot of day.slots) block.appendChild(mealBlock(day, slot, true));
-    root.appendChild(block);
-  }
-
-  const dayCount = days.length;
-  if (dayCount > 0) {
-    root.appendChild(el('h3', { class: 'panel-title pl-total-title', text: 'Tagesmittel der Woche' }));
-    root.appendChild(totalsBlock(
-      { kcal: week.kcal / dayCount, protein: week.protein / dayCount, carbs: week.carbs / dayCount, fat: week.fat / dayCount, fiber: week.fiber / dayCount },
-      goals,
-    ));
+    for (const slot of day.slots) card.append(...mealRow(day, slot));
+    root.appendChild(card);
   }
   return root;
 }
@@ -322,10 +343,9 @@ function cookSlot(session: PrepSessionResult, focus: string | null): HTMLElement
 
 function cookButton(session: PrepSessionResult): HTMLButtonElement {
   const button = el('button', {
-    class: 'btn btn-tap',
-    text: 'Kochen',
+    class: 'btn-primary',
     attrs: { type: 'button', [FOCUS_ATTR]: `cook-${session.id}` },
-  });
+  }, [icon(['M12 5.5a7.5 7.5 0 1 0 0 15 7.5 7.5 0 0 0 0-15z', 'M12 9.5V13l2.5 1.5M10 2.5h4']), document.createTextNode('Kochen')]);
   button.addEventListener('click', () => {
     cooking = session.id;
     scrollToCook = true;
@@ -342,32 +362,35 @@ function prepView(plan: ReturnType<typeof effectivePlan>, focus: string | null):
 
   const root = el('div');
   for (const session of sessions) {
-    const panel = el('section', { class: 'panel' }, [
-      el('div', { class: 'pl-head' }, [el('h3', { class: 'panel-title', text: session.title }), cookButton(session)]),
-    ]);
+    const done = session.steps.flatMap((step, stepIndex) => step.lines.map((line) => `${session.id}|${stepIndex}|${line.foodId}`))
+      .filter((key) => prepDone.has(key)).length;
+    const total = session.steps.reduce((sum, step) => sum + step.lines.length, 0);
+    const list = el('div', { class: 'list' });
     session.steps.forEach((step, stepIndex) => {
-      const stepBlock = el('div', { class: 'pl-step' }, [
-        el('div', { class: 'pl-step-head' }, [span('pl-step-title', step.title), span('pl-device', step.device)]),
-      ]);
-      if (step.lines.length === 0) stepBlock.appendChild(el('div', { class: 'pl-season', text: 'Keine Mengen in dieser Rotation' }));
+      const block = el('div', {}, [el('div', { class: 'step-title' }, [el('b', { text: step.title }), span('', step.device)])]);
+      if (step.lines.length === 0) block.appendChild(el('div', { class: 'step-empty', text: 'Keine Mengen in dieser Rotation' }));
       for (const line of step.lines) {
         const key = `${session.id}|${stepIndex}|${line.foodId}`;
         const uses = line.uses
           .map((u) => `${context.mealsById.get(u.mealId)?.name ?? u.mealId}: ${[...new Set(u.days)].join(' ')}`)
           .join(', ');
-        const quantity = line.grams === null ? '' : grams(line.grams);
-        stepBlock.appendChild(checkRow({
+        block.appendChild(checkRow({
           key,
           label: line.name,
           detail: span('check-sub', uses),
-          quantity,
+          quantity: line.grams === null ? '' : grams(line.grams),
           checked: prepDone.has(key),
           onChange: () => setPrepDone(key),
         }));
       }
-      panel.appendChild(stepBlock);
+      list.appendChild(block);
     });
-    root.appendChild(panel);
+    root.append(
+      el('h3', { class: 'group-title', text: session.title }),
+      el('div', { class: 'group-sub', text: `${integer(done)} von ${integer(total)} abgehakt` }),
+      cookButton(session),
+      list,
+    );
   }
   return root;
 }
@@ -376,7 +399,7 @@ function prepView(plan: ReturnType<typeof effectivePlan>, focus: string | null):
 
 function toolbar(): HTMLElement | null {
   // Die Wahl der Ansicht sitzt in der Segmentleiste der Shell.
-  const bar = el('div', { class: 'pl-toolbar' });
+  const bar = el('div', { class: 'toolbar' });
 
   if (view === 'proposal') return null;
   if (view === 'prep' && cooking !== null) return null;
@@ -419,7 +442,7 @@ function sourceBar(): HTMLElement | null {
     returnToSeed();
     rerender();
   });
-  const bar = el('div', { class: 'pl-toolbar' }, [span('section-sub num', label), button]);
+  const bar = el('div', { class: 'toolbar' }, [span('toolbar-note', label), button]);
   if (source.kind === 'active') {
     const active = source.active;
     const exportButton = el('button', { class: 'btn btn-tap', text: 'Export', attrs: { type: 'button', [FOCUS_ATTR]: 'export' } });

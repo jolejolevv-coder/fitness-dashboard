@@ -36,39 +36,52 @@ function quantityText(line: ShoppingLine): string {
   return line.buyG === null ? '' : grams(line.buyG);
 }
 
-function priceNode(choice: PriceChoice): HTMLElement | null {
+/** Unterzeile mit Herkunft des Preises. Angebote stehen gruen, Dauerpreise neutral. */
+function priceSub(choice: PriceChoice): HTMLElement | null {
   if (choice.kind === 'none') return null;
 
   if (choice.kind === 'offer') {
     const o = choice.offer;
-    const parts = [`Angebot ${o.store} ${euro(o.price_eur)}`];
+    const parts = [`Angebot ${o.store}`];
     if (o.size_g !== null) parts[0] += ` für ${grams(o.size_g)}`;
     if (o.price_per_kg !== null) parts.push(`${euro(o.price_per_kg)} je kg`);
     parts.push(`${shortDate(o.valid_from)} bis ${shortDate(o.valid_to)}`);
-    if (o.regular_price_eur !== null) parts.push(`statt ${euro(o.regular_price_eur)}`);
-    return el('span', { class: 'check-sub price-line' }, [
+    return el('span', { class: 'check-sub is-ok' }, [
       span('', parts.join(', ')),
       ...choice.notes.map((note) => span('tag', note)),
     ]);
   }
 
   const e = choice.entry;
-  const parts = [`Dauerpreis ${e.store} ${euro(e.regular_price_eur)}`];
+  const parts = [`Dauerpreis ${e.store}`];
   if (e.price_per_kg !== null) parts.push(`${euro(e.price_per_kg)} je kg`);
   parts.push(`Stand ${longDate(e.seen_at)}`);
-  return el('span', { class: 'check-sub price-line' }, [
+  return el('span', { class: 'check-sub' }, [
     span('', parts.join(', ')),
-    choice.stale ? span('tag tag-warn', `älter als ${REGULAR_PRICE_STALE_DAYS} Tage`) : null,
+    choice.stale ? span('tag', `älter als ${REGULAR_PRICE_STALE_DAYS} Tage`) : null,
   ]);
+}
+
+/** Preis rechts, bei Angeboten mit Streichpreis darunter. */
+function priceAside(choice: PriceChoice): HTMLElement | null {
+  if (choice.kind === 'none') return null;
+  if (choice.kind === 'offer') {
+    const regular = choice.offer.regular_price_eur;
+    return el('span', { class: 'check-qty', text: euro(choice.offer.price_eur) }, [
+      regular === null ? null : el('small', { text: euro(regular) }),
+    ]);
+  }
+  return span('check-qty', euro(choice.entry.regular_price_eur));
 }
 
 function lineDetail(line: ShoppingLine, choice: PriceChoice): HTMLElement | null {
   const rows: HTMLElement[] = [];
-  const pieces = line.pieces !== null;
-  const packed = line.packs !== null;
-  if ((pieces || packed) && line.neededG > 0) rows.push(span('check-sub', `Bedarf ${grams(line.neededG)}`));
+  const quantity = quantityText(line);
+  const needed = (line.pieces !== null || line.packs !== null) && line.neededG > 0 ? `Bedarf ${grams(line.neededG)}` : '';
+  const amount = [quantity, needed].filter(Boolean).join(', ');
+  if (amount) rows.push(span('check-sub', amount));
   if (line.pantry) rows.push(span('check-sub', 'Vorrat'));
-  const price = priceNode(choice);
+  const price = priceSub(choice);
   if (price) rows.push(price);
   return rows.length > 0 ? el('span', { class: 'check-details' }, rows) : null;
 }
@@ -117,46 +130,56 @@ export function renderShopping(goals: DayGoals | null): void {
   const doneCount = allLines.filter((l) => done.has(l.foodId)).length;
 
   const content = el('div');
-  const head = el('div', { class: 'pl-toolbar' }, [
-    span('section-sub num', `${doneCount} von ${allLines.length} abgehakt`),
+  const progress = allLines.length > 0 ? (doneCount / allLines.length) * 100 : 0;
+  const fill = el('span');
+  fill.style.width = `${progress.toFixed(1)}%`;
+  const doneCard = el('div', { class: 'card' }, [
+    span('card-label', 'Abgehakt'),
+    el('div', { class: 'card-value', text: integer(doneCount) }, [el('small', { text: `von ${integer(allLines.length)}` })]),
+    el('div', { class: 'bar' }, [fill]),
   ]);
+  const summary = el('div', { class: 'grid2' }, [doneCard]);
+
+  const prices = priceData?.prices ?? null;
+  if (prices) {
+    const savings = summarizeSavings(priced.flatMap((p) => p.rows.map((r) => r.choice)));
+    const stand = `Stand ${shortDate(prices.fetched_at.slice(0, 10))}`;
+    summary.appendChild(el('div', { class: 'card' }, [
+      span('card-label', 'Ersparnis'),
+      savings.withOffer > 0
+        ? el('div', { class: 'card-value is-ok', text: decimal(savings.eur, 2) }, [el('small', { text: '€' })])
+        : el('div', { class: 'card-value is-word', text: 'Keine' }),
+      el('div', { class: 'card-basis', text: savings.withOffer > 0 ? `${savings.counted} von ${savings.withOffer} Angeboten, ${stand}` : stand }),
+    ]));
+  }
+  content.appendChild(summary);
+
   if (done.size > 0) {
-    const reset = el('button', { class: 'btn btn-tap', text: 'Abhaken zurücksetzen', attrs: { type: 'button', [FOCUS_ATTR]: 'reset' } });
+    const reset = el('button', { class: 'btn', text: 'Abhaken zurücksetzen', attrs: { type: 'button', [FOCUS_ATTR]: 'reset' } });
     reset.addEventListener('click', () => {
       done = new Set();
       saveChecked(SHOPPING_DONE_KEY, done);
       rerender();
     });
-    head.appendChild(reset);
+    content.appendChild(el('div', { class: 'toolbar' }, [reset]));
   }
-  content.appendChild(head);
 
   for (const issue of source.issues) content.appendChild(el('p', { class: 'err', text: issue }));
   for (const id of list.missingItems) content.appendChild(el('p', { class: 'err', text: `Einkauf: kein Eintrag für ${id}` }));
 
-  const prices = priceData?.prices ?? null;
-  if (prices) {
-    const savings = summarizeSavings(priced.flatMap((p) => p.rows.map((r) => r.choice)));
-    const lines = [`Angebote vom ${longDate(prices.fetched_at.slice(0, 10))}`];
-    if (savings.withOffer > 0) {
-      lines.push(`Ersparnis ${euro(savings.eur)}, Basis ${savings.counted} von ${savings.withOffer} Angeboten`);
-    }
-    content.appendChild(el('div', { class: 'pl-pricehead num', text: lines.join(', ') }));
-  }
-
   for (const { group, rows } of priced) {
-    const block = el('section', { class: 'sh-group' }, [el('h3', { class: 'metric-group-title', text: group.label })]);
+    const block = el('div', { class: 'list' });
     for (const { line, choice } of rows) {
       block.appendChild(checkRow({
         key: `item-${line.foodId}`,
         label: line.name,
         detail: lineDetail(line, choice),
-        quantity: quantityText(line),
+        aside: priceAside(choice),
         checked: done.has(line.foodId),
         onChange: () => setDone(line.foodId),
       }));
     }
-    content.appendChild(block);
+    content.append(el('h3', { class: 'group-label', text: group.label }), block);
   }
 
   root.replaceChildren(content);

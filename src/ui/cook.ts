@@ -315,7 +315,7 @@ function miseView(view: Mounted, session: CookSessionState): HTMLElement {
   const lines = buildMiseEnPlace(view.ctx.session);
   const done = lines.filter((line) => session.checked.includes(line.foodId)).length;
   const box = el('section', { class: 'ck-screen' }, [
-    span('section-sub num', `Zutaten ${done} von ${lines.length}`),
+    span('card-label num', `Zutaten ${done} von ${lines.length}`),
     el('h4', { class: 'ck-title', text: 'Mise en place' }),
   ]);
   if (lines.length === 0) box.appendChild(el('div', { class: 'pl-season', text: 'Keine Mengen in dieser Rotation' }));
@@ -359,7 +359,7 @@ function stepView(view: Mounted, session: CookSessionState, position: number): H
   const cookStep = view.cook.steps[position - 1]!;
   const { step, recipe } = cookStep;
   const box = el('section', { class: 'ck-screen' }, [
-    span('section-sub num', `Schritt ${position} von ${view.cook.steps.length}`),
+    span('card-label num', `Schritt ${position} von ${view.cook.steps.length}`),
     el('h4', { class: 'ck-title', text: step.title }),
     el('div', { class: 'ck-facts num', text: factLine(cookStep) }),
   ]);

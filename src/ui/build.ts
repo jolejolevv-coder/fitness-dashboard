@@ -49,6 +49,8 @@ export interface CheckOptions {
   detail?: Node | null;
   /** Rechts stehende Menge. */
   quantity?: string;
+  /** Rechts stehender Baustein statt einer Menge, etwa Preis mit Streichpreis. */
+  aside?: Node | null;
   checked: boolean;
   onChange: (checked: boolean) => void;
 }
@@ -64,8 +66,25 @@ export function checkRow(options: CheckOptions): HTMLLabelElement {
     options.detail ?? null,
   ]);
   const row = el('label', { class: options.checked ? 'check is-done' : 'check' }, [input, body]);
-  if (options.quantity) row.appendChild(span('check-qty num', options.quantity));
+  if (options.aside) row.appendChild(options.aside);
+  else if (options.quantity) row.appendChild(span('check-qty num', options.quantity));
   return row;
+}
+
+/** SVG Linienzeichnung im Stil der Symbole. `paths` sind `d` Attribute. */
+export function icon(paths: readonly string[], className = 'icon'): SVGSVGElement {
+  const ns = 'http://www.w3.org/2000/svg';
+  const svg = document.createElementNS(ns, 'svg');
+  svg.setAttribute('class', className);
+  svg.setAttribute('viewBox', '0 0 24 24');
+  svg.setAttribute('aria-hidden', 'true');
+  svg.setAttribute('focusable', 'false');
+  for (const d of paths) {
+    const path = document.createElementNS(ns, 'path');
+    path.setAttribute('d', d);
+    svg.appendChild(path);
+  }
+  return svg;
 }
 
 /** Segmentierte Umschaltung wie bei den Darstellungen im Gewichtsverlauf. */
