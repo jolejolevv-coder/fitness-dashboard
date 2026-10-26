@@ -1,7 +1,7 @@
 # Mobile App (Phase 12)
 
 Status: freigegeben 26.10.2026, mit ADR 0006 Variante A (`vite-plugin-pwa`).
-Icon und hell oder dunkel entscheidet der Vorschlag in 12.1. Entscheidungen des Nutzers vom
+Designrichtung Trainerboard, Icon B, hell und dunkel nach System am 26.10.2026 freigegeben. Entscheidungen des Nutzers vom
 26.10.2026 sind eingearbeitet (PWA mit Service Worker, rein lesend, eine
 Oberflaeche mobile first, Chart.js bleibt und wird nachgeladen). Architektur in
 `docs/adr/0006-pwa-und-mobile-shell.md`.
@@ -238,8 +238,7 @@ Zahlen, Uebergabe und Retro.
 
 ## Open questions
 
-1. Icon: Wortmarke `BR`, ein schlichtes Symbol oder etwas anderes? Ohne
-   Vorgabe schlage ich in 12.1 zwei Entwuerfe vor
-2. Hell, dunkel oder beides? Heute ist die Seite dunkel. Ohne Vorgabe bleibt
-   dunkel, hell folgt der Systemeinstellung, wenn es im Entwurf ohne
-   Mehraufwand geht
+1. Icon: entschieden 26.10.2026, Entwurf B (fallende Gewichtslinie mit
+   blauem Magnet auf Schiefer)
+2. Hell, dunkel oder beides: entschieden 26.10.2026, beides nach
+   Systemeinstellung, hell (Emaille) als Grundform, dunkel als Schiefer
