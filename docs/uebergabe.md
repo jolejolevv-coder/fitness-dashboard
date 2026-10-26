@@ -1,6 +1,6 @@
 # Uebergabe
 
-Stand 26.10.2026.
+Stand 26.10.2026, Phase 11.2 fertig.
 
 ## Wo wir stehen
 
@@ -80,93 +80,60 @@ importiert wird):
 * Tests in `test/cook.test.ts`, darunter Mise en place gegen die Prep
   Checkliste mit und ohne Riegel Tag
 
-Naechster Schritt 11.2 laut Spec: Oberflaeche. Knopf `Kochen` je Session im
-Reiter Plan (`src/ui/plan.ts`, Prep Bereich um Zeile 293), Kochansicht als
-eigener Chunk per dynamischem Import, der erst dort `data/recipes.json` laedt.
-Mise en place, Schritt Ansicht mit vor und zurueck, Timerleiste, Ton ueber
-Web Audio, Vibration, Wake Lock. Zugriff auf localStorage ueber
-`readStorage`/`writeStorage` aus `src/nutrition/state.ts`. Neue Konstanten
-(Tonlaenge, Vibrationsmuster, Mindestgroesse der Bedienelemente) in
-`src/config/cook.ts`. Pruefung bei 375 px.
+Phase 11.2 erledigt (26.10.2026, 353 Tests, `npm run check` und Build
+sauber). Haupt Bundle 108,05 kB gzip (+0,25 kB), Kochansicht eigener Chunk
+`cook` 4,1 kB gzip mit `recipes.json`:
+* `src/ui/plan.ts`: Knopf `Kochen` im Kopf jeder Prep Session, Zustand
+  `cooking` (Session `id`, nur im Speicher, nach Neuladen wieder per Knopf).
+  Die Kochansicht ersetzt in der Ansicht Prep die Checkliste, der Knopf
+  `Abhaken zurücksetzen` ist dann ausgeblendet. Beim Oeffnen einmal nach oben
+  gescrollt (`scrollToCook`)
+* `src/ui/cook.ts`: zeichnet sich selbst neu, nicht den Reiter. Kopf mit
+  `Zurücksetzen` (`withoutSession`) und `Schließen`, Zeilen
+  `Anweisungen N von M Schritten` und `Wake Lock nicht verfügbar`. Timerleiste
+  oben klebend, je Timer Name, Halt Handlung (orange) oder `Fertig` (gruen),
+  Restzeit, `Stopp`. Mise en place mit `Zutaten N von M` und Haken. Schritt mit
+  `Schritt N von M`, Geraet, °C, Minuten, Halt, Anweisung, Knopf
+  `Timer 15 min` bzw. `Timer neu starten`, Zutaten mit Mengen je Gericht.
+  `Zurück` und `Weiter` unten klebend
+* Takt alle `TIMER_TICK_MS`: meldet faellige Ereignisse einmal (Ton,
+  Vibration, `reported` gespeichert), haelt den Wake Lock nur bei sichtbarer
+  Ansicht und sichtbarem Tab, raeumt auf, sobald die Ansicht nicht mehr im
+  Dokument haengt. Nach Rueckkehr aus dem Hintergrund neuer Versuch
+* Ton ueber Web Audio, freigeschaltet bei jeder Beruehrung der Ansicht
+* Neue Konstanten in `src/config/cook.ts`: `TIMER_TICK_MS`, `TONE_MS`,
+  `TONE_GAP_MS`, `TONE_FREQUENCY_HZ`, `TONE_GAIN`, `HOLD_TONE_COUNT`,
+  `END_TONE_COUNT`, `HOLD_VIBRATION_PATTERN`, `END_VIBRATION_PATTERN`,
+  `MIN_CONTROL_PX` (56, als `--ck-control` gesetzt)
+
+Geprueft im Build (`vite preview`, `.claude/launch.json` untracked) bei 375 px:
+kein waagerechter Lauf, kleinste Bedienflaeche 56 px, zwei Timer parallel,
+Neuladen mit Restzeit, Halt und Ende getrennt gemeldet und als `reported`
+gespeichert, Zuruecksetzen leert den Schluessel, Schliessen zurueck zur
+Checkliste. Wake Lock im eingebetteten Browser nicht verfuegbar, Status
+erscheint. Nicht geprueft: echter Ton und Vibration (brauchen echte
+Beruehrung), Wake Lock am Handy, Kochansicht mit generiertem Plan (Pfad
+`instructed` 0 ist durch Tests von `attachRecipes` abgedeckt).
+
+Bewusst nicht umgesetzt: Stueckangaben neben Gramm (`gramsPerPiece`). Steht in
+der Mustertabelle der Spec, aber in keinem Akzeptanzkriterium und nicht im
+Auftrag fuer 11.2. Bei Bedarf in 11.3 nachziehen.
+
+Laufende Timer melden sich nur bei offener Kochansicht. Nach Neuladen also
+erst `Kochen` tippen, dann klingelt ein inzwischen abgelaufener Timer.
+
+Naechster Schritt 11.3 laut Spec: Test am Handy in einer echten Prep Session
+durch den Nutzer (Sonntag oder Mittwoch). Vorher Branch `recipes` auf Pages
+bringen geht nicht ohne Merge, also Test lokal per `npm run dev -- --host`
+im WLAN oder nach Merge von `plan-generator` und `recipes` auf `main`.
+Korrekturen an `data/recipes.json` (OptiGrill 210 °C, 800 W, Chili Halt),
+dann Merge, Retro Phase 11 in `specs/roadmap.md`.
 
 ## Phase 9 Plangenerator
 
-Spec `specs/features/plan-generator.md` am 25.10.2026 freigegeben. Phase 9.0
-erledigt: ADR 0004 angenommen, `@anthropic-ai/sdk` 1.3.0 exakt gepinnt (Version
-erst zwei Tage alt, Major 1.0 vom 21.10.2026, vor Updates Changelog lesen).
-
-Gearbeitet wird im Worktree `/Users/jole/Downloads/fitness-dashboard-plan-generator`
-auf Branch `plan-generator`, nicht im Projektordner. Sitzungen fuer Phase 9 dort
-oeffnen. `test/fixtures/` und `test/golden/` sind lokal hineinkopiert, weil sie
-nicht im Repo liegen.
-
-Phasen 9.1 bis 9.3 erledigt (reine Funktionen in `src/generator/`, Planquelle
-`src/ui/planSource.ts`, API Aufruf `src/generator/request.ts`). Details stehen
-in `docs/historie.md` unter "Phase 9.1 bis 9.3".
-
-Phase 9.4 umgesetzt (Stand 25.10.2026, 326 Tests, `npm run check` und Build
-sauber). Auf Wunsch des Nutzers am 25.10.2026 vor dem Live Lauf nach `main`
-gemergt und live (Commit `b436847`, Deploy gruen, CSP und Key Feld live). Neu:
-* Konfigurationsdialog: Feld `input-anthropic-key`, gespeichert ueber
-  `saveApiKey` beim Speichern, leer entfernt den Key
-* Reiter Plan, vierte Ansicht `Vorschlag` (`src/ui/generator.ts`, eigener
-  Chunk, erst beim Oeffnen geladen, `request.ts` und SDK erst beim Knopf):
-  Ausschluesse als aufklappbare Liste `Ausschlüsse n von 49`, Wunschfeld, Knopf
-  `Vorschlag erzeugen`, gesperrt mit Zahlenzeilen `API Key 0 von 1`,
-  `Ziele 2 von 3`, `Lebensmittel 0 von 49`. Waehrend des Laufs `Abbrechen` und
-  `Läuft 42 s, n Eingabe, m Ausgabe Tokens` (in place, ohne Neuzeichnen).
-  Danach Statuszeile aus `statusLine`, Modell (mit `Fallback`), Kosten aus
-  `usage` mit Preisstand, Fundliste, Tageswerte je Tag mit Zeile `Aktiv ...`
-  des aktiven Plans darunter, Gerichte mit Tagen, Prep, Wunschliste.
-  `Übernehmen` und `Export` nur bei bestandener Pruefung, Uebernahme ueber
-  `adoptPlan`, danach Ansicht Woche
-* `Export` auch in der Herkunftszeile des aktiven Plans. Drei Downloads
-  `meals.json`, `rotation.json`, `prep.json` aus `src/generator/export.ts`,
-  zeichengleich formatiert wie `data/` (Test gegen den Seed)
-* `src/generator/input.ts`: `generateReadiness`, `buildGeneratorInput`,
-  `currentOffers` (guenstigstes gueltiges Angebot mit Grundpreis)
-* `src/config/csp.ts` und Plugin in `vite.config.ts`: CSP als `meta` nur im
-  Build. `connect-src 'self' https://sheets.googleapis.com
-  https://api.anthropic.com`, `script-src 'self'`, `style-src 'self'
-  'unsafe-inline'`, `img-src 'self' data: blob:`, `object-src 'none'`,
-  `base-uri 'self'`, `form-action 'none'`
-* `roundedDayValues` aus `checkProposal` herausgezogen, auch fuer die Vorschau
-
-Geprueft im Build (`vite preview`) bei 375 px mit lokalen Fixtures und einem im
-Browser ersetzten `fetch` fuer `api.anthropic.com` (kein echter Aufruf): Lauf
-mit Tokenzeile, verworfener und bestandener Vorschlag, Uebernahme, Einkauf
-folgt, Ausschluss gespeichert, Verbindungsfehler als Status. Kein waagerechter
-Seitenlauf im Reiter Plan, keine CSP Verstoesse in der Konsole. Chunks werden
-erst beim Oeffnen der Ansicht bzw. beim Knopf geladen.
-
-Bundle: Haupt Bundle 323,5 kB roh, 107,8 kB gzip. Gegen `main` +10,9 kB roh,
-+3,7 kB gzip, davon 9.4 selbst +3,4 kB roh, +1,5 kB gzip (Rest aus 9.1 und 9.2,
-Planquelle und Pruefung muessen beim Laden laufen). SDK 366 kB im eigenen
-Chunk, `generator` 8,6 kB, `request` 7,0 kB. Die 5 kB Grenze gilt gzip gegen
-`main` (Nutzerentscheidung 25.10.2026), damit eingehalten.
-
-Bekannt: SDK 1.3.0 schickt den Key als `Authorization: Bearer`, nicht als
-`x-api-key`. Bei der Netzwerkpruefung nach `authorization` suchen. Ein
-Vorschlag lebt nur im Speicher, Neuladen verwirft ihn (Kosten sind dann weg).
-Die Zeile `last-updated` im Kopf laeuft bei einer langen Fehlermeldung ueber
-375 px hinaus (Bestand, nicht aus 9.4). Der Text im Konfigurationsdialog
-"nie übertragen" stimmt fuer den Anthropic Key nicht mehr wortwoertlich.
-`.claude/launch.json` (Konfiguration `preview-build`) liegt untracked.
-
-Erster Live Lauf 25.10.2026: `Vorschlag geprueft`, 0,21 $, 6.267 Eingabe und
-9.289 Ausgabe Tokens. Der Wunsch "vegetarisch" wurde ignoriert, weil der Prompt
-Wuensche nur als Anregung fuehrte. Seitdem sind Wuensche im Prompt verbindlich
-(`Wishes (binding)`, Regel gegen ausgeschlossene Lebensmittel). Garantiert
-bleibt nur die Ausschlussliste, Freitext prueft niemand.
-
-Naechster Schritt beim Nutzer (Live Lauf, danach Retro):
-1. In der Anthropic Console eigenen Workspace mit monatlichem Ausgabelimit
-   anlegen, darin einen Key erzeugen
-2. Live Seite oeffnen, Key unter Einstellungen eintragen
-3. Reiter Plan, Ansicht Vorschlag, `Vorschlag erzeugen`, Lauf abwarten
-4. Netzwerkpruefung in den DevTools: Key nur in der Anfrage an
-   `api.anthropic.com` (Kopfzeile `authorization`), an Google nur der Google Key
-5. Danach Retro Phase 9 in `specs/roadmap.md`
+Umgesetzt, gemergt und live seit 25.10.2026. Details, Bundle Zahlen und die
+Schritte fuer den Live Lauf stehen in `docs/uebergabe-archiv-2026-10-26.md`.
+Offen beim Nutzer: Netzwerkpruefung des Live Laufs, danach Retro Phase 9.
 
 ## Pruefung des Handoffs
 

@@ -5,6 +5,7 @@ import { addMacros, sumIngredients, ZERO_MACROS } from '../nutrition/macros';
 import { effectivePlan, findBarMeal } from '../nutrition/rotation';
 import type { Overrides, PlannedDay, PlannedSlot } from '../nutrition/rotation';
 import { buildPrep } from '../nutrition/prep';
+import type { PrepSessionResult } from '../nutrition/prep';
 import { compareToGoals, dayMacros } from '../nutrition/totals';
 import { berlinDay, berlinWeekday, longDate } from '../nutrition/dates';
 import {
@@ -45,6 +46,16 @@ function loadGenerator(): Promise<GeneratorModule> {
   return generatorModule;
 }
 
+type CookModule = typeof import('./cook');
+
+let cookModule: Promise<CookModule> | null = null;
+
+/** Die Kochansicht mit `recipes.json` liegt ebenfalls in einem eigenen Chunk. */
+function loadCook(): Promise<CookModule> {
+  cookModule ??= import('./cook');
+  return cookModule;
+}
+
 const WEEKDAY_NAMES: Record<Weekday, string> = {
   Mo: 'Montag', Di: 'Dienstag', Mi: 'Mittwoch', Do: 'Donnerstag', Fr: 'Freitag', Sa: 'Samstag', So: 'Sonntag',
 };
@@ -74,6 +85,10 @@ let view: View = 'today';
 let overrides: Overrides = loadOverrides();
 let prepDone: Set<string> = loadChecked(PREP_DONE_KEY);
 let lastGoals: DayGoals | null = null;
+/** Session `id` der offenen Kochansicht, `null` zeigt die Prep Checkliste. */
+let cooking: string | null = null;
+/** Nur direkt nach dem Knopf `Kochen`, nicht bei jedem Neuzeichnen. */
+let scrollToCook = false;
 let context: PlanContext = planContext(getPlanSource(null));
 
 // Uebernahme und Rueckkehr zum Seed haben den Speicher geleert.
@@ -288,10 +303,54 @@ function weekView(days: readonly PlannedDay[], goals: DayGoals | null): HTMLElem
   return root;
 }
 
-function prepView(plan: ReturnType<typeof effectivePlan>): HTMLElement {
+/** Platzhalter, bis der Chunk der Kochansicht geladen ist. */
+function cookSlot(session: PrepSessionResult, focus: string | null): HTMLElement {
+  const slot = el('div');
+  loadCook()
+    .then((module) => {
+      const cook = module.cookView({
+        session,
+        mealName: (mealId) => context.mealsById.get(mealId)?.name ?? mealId,
+        onClose: () => {
+          cooking = null;
+          rerender();
+        },
+      });
+      slot.replaceChildren(cook);
+      if (scrollToCook) cook.scrollIntoView({ block: 'start' });
+      scrollToCook = false;
+      const root = byId('plan-content');
+      if (root) restoreFocus(root, focus);
+    })
+    .catch(() => slot.replaceChildren(el('p', { class: 'err', text: 'Kochansicht nicht geladen' })));
+  return slot;
+}
+
+function cookButton(session: PrepSessionResult): HTMLButtonElement {
+  const button = el('button', {
+    class: 'btn btn-tap',
+    text: 'Kochen',
+    attrs: { type: 'button', [FOCUS_ATTR]: `cook-${session.id}` },
+  });
+  button.addEventListener('click', () => {
+    cooking = session.id;
+    scrollToCook = true;
+    rerender();
+  });
+  return button;
+}
+
+function prepView(plan: ReturnType<typeof effectivePlan>, focus: string | null): HTMLElement {
+  const sessions = buildPrep(context.plan.prep, plan, FOODS);
+  const open = sessions.find((session) => session.id === cooking);
+  if (open) return cookSlot(open, focus);
+  cooking = null;
+
   const root = el('div');
-  for (const session of buildPrep(context.plan.prep, plan, FOODS)) {
-    const panel = el('section', { class: 'panel' }, [el('h3', { class: 'panel-title', text: session.title })]);
+  for (const session of sessions) {
+    const panel = el('section', { class: 'panel' }, [
+      el('div', { class: 'pl-head' }, [el('h3', { class: 'panel-title', text: session.title }), cookButton(session)]),
+    ]);
     session.steps.forEach((step, stepIndex) => {
       const stepBlock = el('div', { class: 'pl-step' }, [
         el('div', { class: 'pl-step-head' }, [span('pl-step-title', step.title), span('pl-device', step.device)]),
@@ -330,6 +389,7 @@ function toolbar(): HTMLElement {
   ]);
 
   if (view === 'proposal') return bar;
+  if (view === 'prep' && cooking !== null) return bar;
   const resetsPrep = view === 'prep';
   const needed = resetsPrep ? prepDone.size > 0 : hasOverrides(overrides);
   if (needed) {
@@ -422,7 +482,7 @@ export function renderPlan(goals: DayGoals | null): void {
   for (const issue of issues) content.appendChild(el('p', { class: 'err', text: issue }));
   if (view === 'today') content.appendChild(todayView(plan.days, goals));
   else if (view === 'week') content.appendChild(weekView(plan.days, goals));
-  else if (view === 'prep') content.appendChild(prepView(plan));
+  else if (view === 'prep') content.appendChild(prepView(plan, focus));
   else content.appendChild(proposalSlot(plan.days, goals, focus));
 
   root.replaceChildren(content);

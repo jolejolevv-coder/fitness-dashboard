@@ -880,3 +880,83 @@ body.no-sheet .tab:not([data-tab='plan']):not([data-tab='shopping']) { display: 
   .pl-slot { grid-column: 1 / -1; }
   .check-qty { max-width: 46%; }
 }
+
+/* ── Kochansicht ───────────────────────────────────────────────────────────── */
+
+/* Mindestgroesse kommt aus `MIN_CONTROL_PX`, gesetzt als `--ck-control` am Wurzelelement. */
+.ck { max-width: 720px; }
+.ck-btn {
+  min-height: var(--ck-control);
+  min-width: var(--ck-control);
+  font-size: 16px;
+  color: var(--text-primary);
+  background: var(--surface-primary);
+  border-radius: var(--radius-medium);
+}
+.ck-btn:hover { background: var(--surface-secondary); }
+.ck-primary { width: 100%; background: var(--blue); color: #fff; font-weight: 600; margin: 4px 0 16px; }
+.ck-primary:hover { background: var(--blue); }
+.ck-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px 12px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+.ck-head .panel-title { margin-bottom: 0; }
+.ck-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.ck-status { display: block; font-size: 12px; color: var(--text-secondary); margin-bottom: 4px; }
+.ck-status[hidden] { display: none; }
+
+.ck-timers {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 12px 0;
+  padding: 8px 0;
+  background: var(--bg);
+}
+.ck-timer {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 8px 8px 14px;
+  border-radius: var(--radius-medium);
+  background: var(--surface-primary);
+}
+.ck-timer-body { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.ck-timer-name { font-size: 14px; overflow-wrap: anywhere; }
+.ck-timer-status { font-size: 13px; font-weight: 600; }
+.ck-time { font-size: 28px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.ck-timer.is-hold .ck-timer-status, .ck-timer.is-hold .ck-time { color: var(--orange); }
+.ck-timer.is-done .ck-timer-status, .ck-timer.is-done .ck-time { color: var(--green); }
+.ck-timer .ck-btn { background: var(--surface-secondary); }
+
+.ck-screen { margin: 16px 0 8px; min-width: 0; }
+.ck-title { font-size: 22px; font-weight: 600; margin: 4px 0 6px; overflow-wrap: anywhere; }
+.ck-facts { font-size: 15px; color: var(--text-secondary); margin-bottom: 12px; }
+.ck-instruction { font-size: 18px; line-height: 1.5; margin-bottom: 12px; overflow-wrap: anywhere; }
+.ck-ing { list-style: none; }
+.ck-ing li { padding: 10px 0; border-bottom: 1px solid var(--separator); }
+.ck-ing-row { display: flex; justify-content: space-between; gap: 12px; font-size: 16px; }
+.ck-ing-name { min-width: 0; overflow-wrap: anywhere; }
+.ck-ing-qty { white-space: nowrap; font-weight: 500; }
+
+/* Vor und zurueck bleiben auch bei langen Zutatenlisten in Reichweite. */
+.ck-nav {
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 20px;
+  padding: 8px 0 12px;
+  background: var(--bg);
+}
+.ck .btn:disabled { opacity: 0.35; }
