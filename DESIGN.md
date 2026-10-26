@@ -9,13 +9,13 @@ colors:
   rail-edge: "#c9cfcd"
   ink: "#1b1e20"
   ink-2: "#555c60"
-  ink-3: "#848b8f"
+  ink-3: "#636a6e"
   blue: "#1d5fc4"
   blue-wash: "#e3ecf9"
   red: "#c4372d"
-  red-wash: "#f8e6e4"
+  red-wash: "#fbefed"
   green: "#1d7f48"
-  green-wash: "#e2f1e8"
+  green-wash: "#ecf6f0"
   tape: "#2a2f33"
   board-dark: "#181b1d"
   card-dark: "#24292c"
@@ -24,7 +24,7 @@ colors:
   rail-edge-dark: "#3a4044"
   ink-dark: "#eef1f0"
   ink-2-dark: "#aab2b5"
-  ink-3-dark: "#7c8488"
+  ink-3-dark: "#959da1"
   blue-dark: "#6aa3ff"
   blue-wash-dark: "#1d2b40"
   red-dark: "#ff7a6e"
@@ -171,7 +171,7 @@ components:
     rounded: "{rounded.pill}"
   nav:
     backgroundColor: "{colors.rail}"
-    textColor: "{colors.ink-3}"
+    textColor: "{colors.ink-2}"
     typography: "{typography.nav}"
     padding: "6px 8px 30px"
   nav-item-active:
@@ -243,7 +243,7 @@ Neutrale Emaille und Aluminium mit vier Markerfarben, deren Bedeutung nie wechse
 - **Rahmenkante** (`rail-edge`, dunkel `rail-edge-dark`): obere Kante der Navigation, Innenkante der Segmentleiste, gestrichelter Rand der Verweigerung, Ring der Abhakfelder, Nulllinie im Wochenbalken.
 - **Markerschwarz** (`ink`, dunkel `ink-dark`): Daten. Zahlen, Verlaufslinie, Balken, Hauptaktion.
 - **Zweite Tinte** (`ink-2`, dunkel `ink-2-dark`): Bezeichnung der Karte, Einheiten, Text der Verweigerung.
-- **Dritte Tinte** (`ink-3`, dunkel `ink-3-dark`): Datenbasis, Datenalter, inaktive Navigation, Achsen, Chevron. Offener Befund, siehe Named Rules.
+- **Dritte Tinte** (`ink-3`, dunkel `ink-3-dark`): Datenbasis, Datenalter, Achsen, Chevron. Die inaktive Navigation steht in `ink-2`.
 - **Klebeband** (`tape`, dunkel `tape-dark`): Zielmarke auf dem Fortschrittsbalken.
 
 ### Named Rules
@@ -251,7 +251,9 @@ Neutrale Emaille und Aluminium mit vier Markerfarben, deren Bedeutung nie wechse
 
 **The Wash Rule.** Die Spuren (`*-wash`) erscheinen nur hinter einer Markierungskapsel oder als Druckzustand. Eine Karte wird nie flaechig eingefaerbt.
 
-**The Readable Basis Rule.** Text, der eine Aussage traegt, erreicht mindestens 4,5 zu 1 auf seinem Grund. `ink-3` erreicht im Entwurf auf `card` nur rund 3,4 zu 1 (dunkel 3,9 zu 1) und auf `rail` 2,7 zu 1. Das ist ein offener Befund, kein Systemwert: beim Bau wird `ink-3` abgedunkelt (dunkel aufgehellt), bis die Datenbasis und die inaktive Navigation die Schwelle halten.
+**The Readable Basis Rule.** Text, der eine Aussage traegt, erreicht mindestens 4,5 zu 1 auf seinem Grund. `ink-3` ist dafuer gegenueber dem Entwurf abgedunkelt (hell 4,7 zu 1 auf `board`, dunkel 4,8 zu 1 auf `rail`). Die inaktive Navigation steht in `ink-2`, die Spuren hinter den Markierungskapseln sind so hell, dass Rot und Gruen 4,5 zu 1 halten.
+
+**The Canvas Rule.** Diagramme lesen ihre Farben zur Zeichenzeit aus denselben Custom Properties (`src/ui/palette.ts`), Halbtransparenz wird daraus berechnet. Wechselt das Schema, werden die Diagramme neu gezeichnet. Einzige Ausnahme sind die Muskelgruppen im Volumendiagramm, die eine feste Reihe unterscheidbarer Toene brauchen.
 
 ## Typography
 
@@ -282,7 +284,7 @@ Eine Spalte bei 375px Breite, Seitenrand 16px. Karten stehen im Abstand von 10px
 
 Die obere Leiste ist 52px hoch: Titel des Ziels links, rechts Datenalter und Symbolknoepfe. Darunter folgen, wo das Ziel sie hat, die Segmentleiste und eine waagerecht scrollende Reihe von Filterkapseln, die bis an den Bildschirmrand laeuft.
 
-Ab 900px wandert die Navigation laut Spec in eine linke Leiste, Inhalte laufen in bis zu zwei Spalten. Dieselbe Struktur, kein zweiter Codepfad. Im Entwurf ist nur 375px gezeigt; Masse der linken Leiste folgen beim Bau aus denselben Tokens (Alurahmen, Magnet, `nav` Schrift).
+Ab 900px wandert die Navigation in eine linke Leiste von 96px Breite (Alurahmen, Kante rechts in `rail-edge`, Magnet oben auf dem aktiven Ziel), der Seitenrand waechst auf 32px, `.stack` laeuft zweispaltig. Dieselbe Struktur, kein zweiter Codepfad.
 
 Jede Tippflaeche misst mindestens 44px. Listenzeilen sind mindestens 64px hoch.
 
@@ -339,12 +341,12 @@ Das Signaturelement: ein Puck mit blauem Magnetpunkt gleitet auf dem Alurahmen.
 ### Filterkapseln
 - **Ruhe:** `card`, `--shadow`, 36px hoch, Polster `0 14px`, 14px 600, `ink-2`.
 - **Gewaehlt:** `ink` als Grund, Text in `card`, ohne Schatten, mit `aria-pressed`.
-- **Einsatz:** Zeitraum im Verlauf, Trainingstag im Training. Genau eine gewaehlt.
+- **Einsatz:** Zeitraum und Gewichtsdarstellung im Verlauf, Trainingstag im Training. Genau eine gewaehlt.
 
 ### Navigation
 Der Alurahmen unten, ab 900px links.
 - **Stil:** `rail`, obere Kante 1px `rail-edge`, vier gleich breite Ziele mit Symbol (26px) und Wort (Nav, 11px 600).
-- **Zustand:** inaktiv `ink-3`, aktiv `blue` mit `aria-current="page"`. Ueber dem aktiven Ziel sitzt ein 6px Magnetpunkt in `--magnet` auf der Kante.
+- **Zustand:** inaktiv `ink-2`, aktiv `blue` mit `aria-current="page"`. Ueber dem aktiven Ziel sitzt ein 6px Magnetpunkt in `--magnet` auf der Kante.
 - **Bewegung:** der Magnetpunkt gleitet per `transform`, wie der Puck.
 
 ### Liste und Listenzeile
@@ -361,7 +363,7 @@ Der Alurahmen unten, ab 900px links.
 - **Stil:** volle Breite, 52px, Radius 14px, `ink` als Grund, Text 17px 700 in `card`, Symbol links. Eine je Ansicht, im Entwurf nur `Kochen`.
 
 ### Vollbildblatt
-Laut Spec oeffnen Einstellungen und Kochansicht als Vollbildblatt. Im Entwurf nicht gezeigt; es liegt als eigene Tafel (`board`) ueber dem Ziel, mit derselben oberen Leiste und Inhalten als Magnetkarten. Masse folgen beim Bau aus den vorhandenen Tokens.
+Einstellungen oeffnen als `dialog` mit `showModal` ueber dem Ziel: eine eigene Tafel (`board`, auch als Hintergrund), Kopf 52px mit Titel in Headline und Knopf Schliessen, Inhalte als Magnetkarten bis 560px Breite, Felder 44px auf `card-sunk`.
 
 ### Named Rules
 **The Transform Magnet Rule.** Puck und Navigationsmagnet bewegen sich ausschliesslich ueber `transform`, nie ueber `left` oder `width`. Dauer 240ms mit `--ease` (`cubic-bezier(0.22, 1, 0.36, 1)`). Bei `prefers-reduced-motion: reduce` entfallen alle Uebergaenge.

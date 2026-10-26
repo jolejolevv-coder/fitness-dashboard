@@ -20,9 +20,6 @@ import type { Charts } from './charts';
 /** Wie weit die Skala ueber den Zielwert hinausreicht. */
 const SCALE_HEADROOM = 1.6;
 
-/** Ab dieser Abweichung vom Ziel, als Anteil des Ziels, gilt ein Schnitt als daneben. */
-const OFF_TARGET_SHARE = 0.15;
-
 interface RangeSpec {
   name: string;
   values: (number | null)[];
@@ -36,11 +33,10 @@ function pct(value: number, max: number): number {
   return Math.max(0, Math.min(100, (value / max) * 100));
 }
 
-/** Grün getroffen, rot weit daneben, dazwischen ohne Farbe. */
+/** Gruen getroffen, rot daneben, wie die Abweichung auf Heute. */
 function toneOf(spec: RangeSpec, actual: number, goal: number): string {
   const hit = spec.direction === 'atLeast' ? actual >= goal : actual <= goal;
-  if (hit) return 'is-ok';
-  return Math.abs(actual - goal) > goal * OFF_TARGET_SHARE ? 'is-off' : '';
+  return hit ? 'is-ok' : 'is-off';
 }
 
 function rangeCard(spec: RangeSpec): HTMLElement {
