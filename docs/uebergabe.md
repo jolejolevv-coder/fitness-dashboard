@@ -141,7 +141,9 @@ Phase 13.6 (Mesocycle Chips im Segment Eintragen, Spec
 `specs/features/log-tab-choice.md`) umgesetzt und lokal geprueft, Push nach
 Freigabe. Annahmen siehe Spec, Abschnitt Stand. Live
 getestet, danach Nachtrag: Auswertung folgt dem Chip, Tageswechsel behaelt
-die Woche, Cache traegt seinen Trainingstab.
+die Woche, Cache traegt seinen Trainingstab. Eintragen steht unter Training
+links und ist Vorgabe (`46ab072`). Alles live auf main. Offen: Retro
+Phase 13 in `specs/roadmap.md`, sobald der Nutzer den Studio Test bestaetigt.
 
 ## Phase 11 Kochansicht
 
