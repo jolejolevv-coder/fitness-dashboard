@@ -1,6 +1,6 @@
 # Uebergabe
 
-Stand 26.10.2026, Phase 11 abgeschlossen und live, Phase 12 live seit 27.10.2026, offen nur der iPhone Test des Nutzers.
+Stand 26.10.2026, Phase 11 abgeschlossen und live, Phase 12 live seit 27.10.2026, offen nur der iPhone Test des Nutzers. Phase 13 Spec zur Freigabe.
 
 ## Wo wir stehen
 
@@ -132,6 +132,15 @@ Test des Nutzers auf dem iPhone (offene Acceptance criteria der Spec):
 6. Optional am Mac: Chrome DevTools, Application, Manifest ohne Warnung
 Ein Update wird aktiv, wenn die App ganz geschlossen war. Bei Fehlern: Befund
 in eine neue Sitzung, Rueckfall ueber `selfDestroying` (ADR 0006).
+
+## Phase 13 Heute und Training eintragen
+
+Wunsch des Nutzers nach dem ersten Blick am Handy (27.10.2026): `Heute` auf das
+Wichtigste, `Verlauf` bleibt, unter `Training` Werte eines Tags eintippen, die
+im Sheet landen. Kueche spaeter. Entschieden: Apps Script als Schreibweg, Felder
+Load, Reps Ist, Notes, nur leere Zellen, auf `Heute` nur Gewicht und Trend.
+Spec `specs/features/training-log.md` und ADR 0007 (vorgeschlagen) warten auf
+Freigabe, dazu Open questions 1 bis 4 der Spec. Kein Code geschrieben.
 
 ## Phase 11 Kochansicht
 

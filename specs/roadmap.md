@@ -19,11 +19,12 @@ Stand der Qualitaet: 88 Tests, Lint, Typpruefung und Build sauber. Geprueft bei 
 * Redesign, Polish, Oberflaeche nach Systemvorbild: abgeschlossen
 * Phase 6 Umstellung und Abschluss (README, ADR, Actions, Merge, Live Pruefung): abgeschlossen
 * Phase 7 Blockuebergreifende Trainingshistorie: nicht gestartet
-* Phase 8 Ernaehrung und Einkauf: abgeschlossen und live seit 25.10.2026 (228 Tests), Cron aktiv. Spec `specs/features/nutrition-shopping.md`, ADR 0002 und 0003 angenommen, Selektoren in `specs/features/muskelmarkt-parser.md`
+* Phase 8 Ernaehrung und Einkauf: live seit 25.10.2026, Cron aktiv. Spec `specs/features/nutrition-shopping.md`, ADR 0002 und 0003
 * Phase 9 Plangenerator ueber die Anthropic API: Spec `specs/features/plan-generator.md`, ADR 0004. Gemergt und live seit 25.10.2026. Offen beim Nutzer: erster Live Lauf mit eigenem Key, Netzwerkpruefung, dann Retro. Bundle Grenze gzip gegen `main`
 * Phase 10 Daily Import (Health, Shortcut, Apps Script fuellt leere Zellen in `Daily Tracking`): Spec `specs/features/daily-import.md` und ADR 0005 freigegeben 25.10.2026. 10.0 erledigt, 10.1 Kernlogik auf Branch `claude/daily-import-36c9f1`, nicht gemergt. Naechster Schritt 10.2 `doPost`
 * Phase 11 Kochansicht: Spec `specs/features/recipes.md` freigegeben 26.10.2026. Abgeschlossen und live seit 26.10.2026 (353 Tests, Chunk `cook` 4,1 kB gzip, Haupt Bundle +0,25 kB). Handytest in echter Prep Session bestanden: Ton, Vibration, Wake Lock, `data/recipes.json` ohne Korrektur (OptiGrill 210 °C, 800 W, Chili mit einem Halt). Nicht umgesetzt: Stueckangaben neben Gramm
 * Phase 12 Mobile App (PWA, vier Ziele mit Navigation unten, mobile first): Spec `specs/features/mobile-app.md` und ADR 0006 freigegeben 26.10.2026 (PWA mit Service Worker ueber `vite-plugin-pwa`, rein lesend, eine Oberflaeche, Chart.js nachgeladen). Abgeschlossen und live seit 27.10.2026 (Merge `9baa8af`, 361 Tests, Haupt Chunk 35,82 kB, `sw.js` 6,78 kB gzip, Lighthouse mobil je 100). Offen beim Nutzer: iPhone Test (Installation, Statusleiste, Flugmodus, Kochansicht), Schritte in `docs/uebergabe.md`
+* Phase 13 Heute verdichtet und Training eintragen: Spec `specs/features/training-log.md` und ADR 0007 (Schreibweg ueber Apps Script, nur leere Zellen) zur Freigabe vorgelegt 27.10.2026. Kueche wird danach gesondert angeschaut
 
 ## Naechste Schritte
 
