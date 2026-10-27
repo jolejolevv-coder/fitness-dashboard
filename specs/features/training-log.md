@@ -144,12 +144,14 @@ Eintragen
 * [x] Woche und Tag waehlbar, Vorauswahl erste Woche ohne `Reps Ist` am Tag
 * [x] Belegte Zellen erscheinen gesperrt mit ihrem Wert
 * [x] Entwurf ueberlebt Neuladen und Neustart der installierten App
-* [ ] Ein Senden schreibt im Sheet nur vorher leere Zellen `Load`, `Reps Ist`,
+* [x] Ein Senden schreibt im Sheet nur vorher leere Zellen `Load`, `Reps Ist`,
   `Notes` der gewaehlten Woche und des Tags, sonst aendert sich keine Zelle
-  (am Test Tab geprueft)
-* [ ] Falsches Token: `unauthorized`, im Sheet aendert sich nichts
-* [ ] Fehlende Spalte `Notes` in `Mesocycle 1`: Notes werden nicht angeboten
-* [ ] Offline ist `Senden` gesperrt, der Entwurf bleibt
+  (am Test Tab geprueft, 27.10.2026: Zellvergleich `Mesocycle 99` gegen
+  `Mesocycle 3` zeigt nur die geschriebenen Zellen, zweites Senden `occupied`)
+* [x] Falsches Token: `unauthorized`, im Sheet aendert sich nichts
+* [x] Fehlende Spalte `Notes`: Notes werden nicht angeboten. Nur ueber Tests
+  mit Fixture belegt, `Mesocycle 1` bis `3` haben `Notes` in jeder Woche
+* [x] Offline ist `Senden` gesperrt, der Entwurf bleibt
 * [x] Der Service Worker fasst `script.google.com` nicht an (Test der URL Regel)
 
 Regeln und Qualitaet
@@ -203,4 +205,5 @@ Freigabe, Live Test im Studio, Retro.
    (CORS nach der Weiterleitung auf `script.googleusercontent.com`)? Wird in
    13.3 als erstes mit einem Probeendpunkt geprueft. Falls nicht, faellt die
    Rueckmeldung je Feld weg und die App laedt nach dem Senden neu und
-   vergleicht selbst
+   vergleicht selbst. Geprueft 27.10.2026: Antwort lesbar, auch unter der CSP
+   des Builds

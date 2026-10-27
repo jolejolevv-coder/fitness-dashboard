@@ -118,6 +118,24 @@ Kriterien der Spec abhaken, Freigabe zum Merge nach `origin/main` einholen,
 nach Merge Live Test im Studio, Retro Phase 13 in `specs/roadmap.md`. Nicht
 ohne Freigabe pushen.
 
+Stand 13.5 (27.10.2026): Script als eigenes Projekt auf script.google.com
+(`97489cd`, Blatt ueber Script Property `SHEET_ID`, weil das Blatt schon ein
+gebundenes Projekt mit eigenem `doPost` hat, `Makros.gs`, Gewichtsimport aus
+Health Auto Export, bleibt unberuehrt). Nutzer hat die drei Dateien per
+Zwischenablage eingefuegt und bereitgestellt. Doppelter Inhalt im Projekt behoben, neue Version
+bereitgestellt. Probe mit falschem Token: `unauthorized`, Version `13.5`. CORS
+geprueft aus dem gebauten Stand auf localhost mit CSP: Antwort lesbar (Open
+question 4 erledigt). Kopie Test bestanden gegen `Mesocycle 99`: leere Zellen
+`written`, zweites Senden `occupied`, falsches Token `unauthorized`, Notes
+einmal `written` dann `occupied`. Zellvergleich mit `Mesocycle 3` zeigt nur
+die geschriebenen Zellen. Offline sperrt `Senden`, Entwurf bleibt.
+Panne: die lokale App stand auf Trainingstab `Mesocycle 1`, das Senden aus der
+App schrieb deshalb `60` und `8,8` in `Mesocycle 1`, W9, Day 1, Pulldown
+(Zellen CY34 und CZ34). Kein Fehler im Code, falscher Tab in den
+Einstellungen. Offen beim Nutzer: diese zwei Zellen leeren, `Mesocycle 99`
+loeschen, live Trainingstab pruefen, neues `TRAINING_TOKEN` (das erste stand
+im Chat). Danach Merge Freigabe, Live Test im Studio, Retro.
+
 ## Phase 11 Kochansicht
 
 Abgeschlossen und live, Notizen in `docs/uebergabe-archiv-2026-10-26.md`.
