@@ -14,7 +14,7 @@ export const SEGMENTS: Readonly<Record<Destination, readonly string[]>> = {
   heute: [],
   verlauf: ['gewicht', 'ernaehrung', 'wellness', 'wochen', 'analyse'],
   training: ['eintragen', 'auswertung'],
-  kueche: ['heute', 'woche', 'prep', 'vorschlag', 'einkauf'],
+  kueche: ['heute', 'woche', 'rezepte', 'einkauf'],
 };
 
 /** Segmente, die nur mit Endpunkt und Token des Apps Script erscheinen (ADR 0007). */
@@ -48,16 +48,20 @@ const SECTION_BY_SEGMENT: Readonly<Record<string, SectionId>> = {
   'training/eintragen': 'log',
   'kueche/heute': 'plan',
   'kueche/woche': 'plan',
-  'kueche/prep': 'plan',
-  'kueche/vorschlag': 'plan',
+  'kueche/rezepte': 'plan',
   'kueche/einkauf': 'shopping',
 };
 
 const PLAN_VIEW_BY_SEGMENT: Readonly<Record<string, PlanView>> = {
   heute: 'today',
   woche: 'week',
-  prep: 'prep',
-  vorschlag: 'proposal',
+  rezepte: 'prep',
+};
+
+/** Alte Segmente der Kueche, Lesezeichen und Verlauf fuehren auf Rezepte. */
+const LEGACY_SEGMENTS: Readonly<Record<string, string>> = {
+  prep: 'rezepte',
+  vorschlag: 'rezepte',
 };
 
 function isDestination(value: string): value is Destination {
@@ -76,7 +80,8 @@ function defaultSegment(destination: Destination): string | null {
 export function parseHash(hash: string): Route | null {
   const [head = '', tail = ''] = hash.replace(/^#/, '').toLowerCase().split('/');
   if (!isDestination(head)) return null;
-  const segment = SEGMENTS[head].includes(tail) ? tail : defaultSegment(head);
+  const wanted = head === 'kueche' ? (LEGACY_SEGMENTS[tail] ?? tail) : tail;
+  const segment = SEGMENTS[head].includes(wanted) ? wanted : defaultSegment(head);
   return { destination: head, segment };
 }
 

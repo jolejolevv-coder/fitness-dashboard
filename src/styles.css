@@ -909,3 +909,7 @@ body.no-sheet .settings-export { display: none; }
   background: var(--board);
 }
 .ck .btn:disabled { opacity: 0.35; }
+
+/* Segment Rezepte: Chips stehen im Fluss der Karten, nicht am Seitenrand. */
+#plan-content .chips { margin-bottom: 6px; }
+#plan-content .meal-body .chips { margin: 0 0 6px; padding-left: 0; padding-right: 0; }

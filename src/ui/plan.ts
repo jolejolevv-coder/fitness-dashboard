@@ -5,6 +5,7 @@ import { addMacros, sumIngredients, ZERO_MACROS } from '../nutrition/macros';
 import { effectivePlan, findBarMeal } from '../nutrition/rotation';
 import type { Overrides, PlannedDay, PlannedSlot } from '../nutrition/rotation';
 import { buildPrep } from '../nutrition/prep';
+import { mealUsage } from '../nutrition/mealUsage';
 import type { PrepSessionResult } from '../nutrition/prep';
 import { compareToGoals, dayMacros } from '../nutrition/totals';
 import { berlinDay, berlinWeekday, longDate } from '../nutrition/dates';
@@ -81,6 +82,13 @@ let prepDone: Set<string> = loadChecked(PREP_DONE_KEY);
 let lastGoals: DayGoals | null = null;
 /** Offene Mahlzeiten, damit ein Tausch das Aufgeklappte nicht schliesst. */
 const openMeals = new Set<string>();
+/** Chip im Segment Rezepte: Rezepte lesen oder Vorbereitung abhaken. */
+type RecipeMode = 'cook' | 'prep';
+let recipeMode: RecipeMode = 'cook';
+/** Menge im offenen Rezept: eine Portion oder die Woche. Gilt fuer alle Rezepte. */
+let recipeWeek = false;
+/** Offene Rezepte der Ansicht Kochen, getrennt von `openMeals`. */
+const openRecipes = new Set<string>();
 /** Session `id` der offenen Kochansicht, `null` zeigt die Prep Checkliste. */
 let cooking: string | null = null;
 /** Nur direkt nach dem Knopf `Kochen`, nicht bei jedem Neuzeichnen. */
@@ -444,6 +452,88 @@ function prepView(plan: ReturnType<typeof effectivePlan>, focus: string | null):
   return root;
 }
 
+const RECIPE_CHIPS: readonly { mode: RecipeMode; label: string }[] = [
+  { mode: 'cook', label: 'Kochen' },
+  { mode: 'prep', label: 'Vorbereitung' },
+];
+
+function recipeChips(): HTMLElement {
+  return el('div', { class: 'chips', attrs: { role: 'group', 'aria-label': 'Rezepte' } }, RECIPE_CHIPS.map(({ mode, label }) => {
+    const chip = el('button', {
+      class: 'chip',
+      text: label,
+      attrs: { type: 'button', 'aria-pressed': String(mode === recipeMode), [FOCUS_ATTR]: `recipe-chip-${mode}` },
+    });
+    chip.addEventListener('click', () => {
+      if (recipeMode === mode) return;
+      recipeMode = mode;
+      rerender();
+    });
+    return chip;
+  }));
+}
+
+function portionToggle(): HTMLElement {
+  return el('div', { class: 'chips', attrs: { role: 'group', 'aria-label': 'Menge' } }, [
+    { week: false, label: '1 Portion' },
+    { week: true, label: 'Woche' },
+  ].map(({ week, label }) => {
+    const chip = el('button', {
+      class: 'chip',
+      text: label,
+      attrs: { type: 'button', 'aria-pressed': String(week === recipeWeek), [FOCUS_ATTR]: `recipe-qty-${week ? 'week' : 'one'}` },
+    });
+    chip.addEventListener('click', () => {
+      if (recipeWeek === week) return;
+      recipeWeek = week;
+      rerender();
+    });
+    return chip;
+  }));
+}
+
+/** Jedes Gericht des aktiven Plans einmal, in der Reihenfolge des ersten Vorkommens. */
+function planMealIds(days: readonly PlannedDay[]): string[] {
+  const ids = new Set<string>();
+  for (const day of days) for (const slot of day.slots) ids.add(slot.mealId);
+  return [...ids];
+}
+
+function recipeCard(days: readonly PlannedDay[], mealId: string): HTMLElement {
+  const meal = context.mealsById.get(mealId);
+  const summary = el('summary', { class: 'meal-head', attrs: { [FOCUS_ATTR]: `recipe-${mealId}` } }, [
+    span('slot', meal?.slot ?? ''),
+    span('meal-name', meal?.name ?? mealId),
+    icon(CHEVRON, 'icon chev'),
+  ]);
+  const card = el('details', { class: 'card meal' }, [summary]);
+  card.open = openRecipes.has(mealId);
+  card.addEventListener('toggle', () => {
+    if (card.open) openRecipes.add(mealId);
+    else openRecipes.delete(mealId);
+  });
+
+  const usage = mealUsage(days, mealId);
+  const body = el('div', { class: 'meal-body' }, [portionToggle()]);
+  if (recipeWeek) body.appendChild(el('div', { class: 'ing-note', text: `${integer(usage.portions)} ${usage.portions === 1 ? 'Portion' : 'Portionen'}` }));
+  body.append(...ingredientRows(groupIngredients(recipeWeek ? usage.weekTotal : usage.perPortion)), ...prepRows(mealId));
+  card.appendChild(body);
+  return card;
+}
+
+function cookListView(days: readonly PlannedDay[]): HTMLElement {
+  const root = el('div', { class: 'stack' });
+  for (const mealId of planMealIds(days)) root.appendChild(recipeCard(days, mealId));
+  return root;
+}
+
+function recipesView(plan: ReturnType<typeof effectivePlan>, focus: string | null): HTMLElement {
+  const root = el('div');
+  root.appendChild(recipeChips());
+  root.appendChild(recipeMode === 'prep' ? prepView(plan, focus) : cookListView(plan.days));
+  return root;
+}
+
 // ── Aufbau ───────────────────────────────────────────────────────────────────
 
 function toolbar(): HTMLElement | null {
@@ -451,6 +541,7 @@ function toolbar(): HTMLElement | null {
   const bar = el('div', { class: 'toolbar' });
 
   if (view === 'proposal') return null;
+  if (view === 'prep' && recipeMode === 'cook') return null;
   if (view === 'prep' && cooking !== null) return null;
   const resetsPrep = view === 'prep';
   const needed = resetsPrep ? prepDone.size > 0 : hasOverrides(overrides);
@@ -558,7 +649,7 @@ export function renderPlan(goals: DayGoals | null): void {
   for (const issue of issues) content.appendChild(el('p', { class: 'err', text: issue }));
   if (view === 'today') content.appendChild(todayView(plan.days, goals));
   else if (view === 'week') content.appendChild(weekView(plan.days, goals));
-  else if (view === 'prep') content.appendChild(prepView(plan, focus));
+  else if (view === 'prep') content.appendChild(recipesView(plan, focus));
   else content.appendChild(proposalSlot(plan.days, goals, focus));
 
   root.replaceChildren(content);

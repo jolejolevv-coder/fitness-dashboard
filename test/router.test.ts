@@ -62,6 +62,24 @@ describe('formatHash', () => {
   });
 });
 
+describe('Segmente der Kueche', () => {
+  it('zeigt heute, woche, rezepte, einkauf', () => {
+    expect(visibleSegments('kueche', false)).toEqual(['heute', 'woche', 'rezepte', 'einkauf']);
+  });
+
+  it('leitet alte Hashes prep und vorschlag auf rezepte', () => {
+    const rezepte = { destination: 'kueche', segment: 'rezepte' };
+    expect(parseHash('#kueche/prep')).toEqual(rezepte);
+    expect(parseHash('#kueche/vorschlag')).toEqual(rezepte);
+    expect(formatHash(parseHash('#kueche/prep')!)).toBe('#kueche/rezepte');
+    expect(resolveRoute(parseHash('#Kueche/Vorschlag'), false)).toEqual(rezepte);
+  });
+
+  it('wendet die Umleitung nur in der Kueche an', () => {
+    expect(parseHash('#verlauf/prep')).toEqual({ destination: 'verlauf', segment: 'gewicht' });
+  });
+});
+
 describe('Navigation ohne Sheet', () => {
   it('zeigt mit Sheet alle vier Ziele, ohne Sheet nur Kueche', () => {
     expect(visibleDestinations(true)).toEqual(['heute', 'verlauf', 'training', 'kueche']);
@@ -105,16 +123,15 @@ describe('Abschnitte und Planansicht', () => {
   });
 
   it('fuehrt die Kueche auf Plan mit Ansicht oder auf Einkauf', () => {
-    expect(sectionFor({ destination: 'kueche', segment: 'prep' })).toBe('plan');
-    expect(planViewFor({ destination: 'kueche', segment: 'prep' })).toBe('prep');
-    expect(planViewFor({ destination: 'kueche', segment: 'vorschlag' })).toBe('proposal');
+    expect(sectionFor({ destination: 'kueche', segment: 'rezepte' })).toBe('plan');
+    expect(planViewFor({ destination: 'kueche', segment: 'rezepte' })).toBe('prep');
     expect(sectionFor({ destination: 'kueche', segment: 'einkauf' })).toBe('shopping');
     expect(planViewFor({ destination: 'kueche', segment: 'einkauf' })).toBeNull();
     expect(planViewFor({ destination: 'verlauf', segment: 'gewicht' })).toBeNull();
   });
 
   it('findet zu jeder Planansicht das Segment zurueck', () => {
-    for (const segment of ['heute', 'woche', 'prep', 'vorschlag']) {
+    for (const segment of ['heute', 'woche', 'rezepte']) {
       const route = { destination: 'kueche' as const, segment };
       const view = planViewFor(route);
       expect(view).not.toBeNull();

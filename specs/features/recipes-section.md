@@ -81,3 +81,9 @@ Out of scope:
   geraten wäre
 * Abteile `Kochen` und `Vorbereitung` als zwei Chips oben im Segment
   (Vorschlag) oder untereinander auf einer Seite
+
+## Stand
+
+* 17.1 erledigt: fuenf Gerichte von Grund auf, Mengen aus den Schritttexten entfernt
+* 17.2 und 17.3 gebaut: `mealUsage` in `src/nutrition/mealUsage.ts` mit Tests, Router mit Weiterleitung, Segment `Rezepte` mit `Kochen` und `Vorbereitung`. Geprueft bei 375 px: Bowl zeigt eine Portion und `3 Portionen` mit dreifachen Gramm, `Vorbereitung` wie bisher, `#kueche/prep` landet auf `Rezepte`
+* Annahmen: Chip, Umschalter und offene Karten nur im Modulzustand, Vorgabe `Kochen`. Der Umschalter gilt fuer alle offenen Rezepte. Eine Portion kommt aus dem ersten Vorkommen im Plan. Die Riegel Option ist kein eigener Slot und fehlt deshalb in der Liste
