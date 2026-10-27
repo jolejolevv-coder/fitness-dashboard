@@ -11,12 +11,17 @@
  *
  * Keine Werte im Log: die Huelle schreibt gar nicht ins Log.
  *
+ * Eigenstaendiges Projekt, nicht an das Blatt gebunden: das Blatt kommt ueber
+ * `SHEET_ID`. So bleibt ein anderes gebundenes Script des Blatts unberuehrt.
+ *
  * Script Properties:
+ *   SHEET_ID             ID des Arbeitsblatts, Teil seiner URL
  *   DAILY_IMPORT_TOKEN   Token des Shortcuts
  *   TRAINING_TOKEN       Token der App
  *   HEADER_ROW           Kopfzeile in Daily Tracking, Vorgabe DEFAULT_HEADER_ROW
  *   FIRST_DATA_ROW       erste Datenzeile, Vorgabe DEFAULT_FIRST_DATA_ROW
- * Fehlt ein Token, lehnt die Aktion jede Anfrage ab.
+ * Fehlt ein Token, lehnt die Aktion jede Anfrage ab. Fehlt `SHEET_ID`, antwortet
+ * jede gueltige Anfrage mit `not_configured`.
  *
  * Einrichtung: apps-script/README.md.
  */
@@ -28,13 +33,14 @@
 /* exported doPost */
 
 /** Kommt in jeder Antwort zurueck, damit Repo und Editor vergleichbar bleiben. */
-const SCRIPT_VERSION = '13.3';
+const SCRIPT_VERSION = '13.5';
 
 const ACTION_DAILY = 'daily';
 const ACTION_TRAINING = 'training';
 
 const ERROR_LOCKED = 'locked';
 const ERROR_INTERNAL = 'internal';
+const ERROR_NOT_CONFIGURED = 'not_configured';
 
 /** So lange wartet ein Lauf auf einen anderen, danach `locked`. */
 const LOCK_TIMEOUT_MS = 10000;
@@ -72,13 +78,20 @@ function handleRequest(rawBody) {
 
   if (action === ACTION_TRAINING) {
     const request = validateTrainingRequest(rawBody, properties.getProperty('TRAINING_TOKEN'));
-    return request.ok ? withLock(function () { return runTraining(request); }) : request;
+    return request.ok ? withSpreadsheet(properties, function (spreadsheet) { return runTraining(spreadsheet, request); }) : request;
   }
   if (action === ACTION_DAILY) {
     const request = validateRequest(rawBody, properties.getProperty('DAILY_IMPORT_TOKEN'));
-    return request.ok ? withLock(function () { return runDaily(request, properties); }) : request;
+    return request.ok ? withSpreadsheet(properties, function (spreadsheet) { return runDaily(spreadsheet, request, properties); }) : request;
   }
   return failure(ERROR_BAD_REQUEST, 'unknown action');
+}
+
+/** Oeffnet das Blatt aus `SHEET_ID` und fuehrt work unter der Sperre aus. */
+function withSpreadsheet(properties, work) {
+  const sheetId = properties.getProperty('SHEET_ID');
+  if (!sheetId) return failure(ERROR_NOT_CONFIGURED, 'SHEET_ID');
+  return withLock(function () { return work(SpreadsheetApp.openById(sheetId)); });
 }
 
 /** Fuehrt work unter der Script Sperre aus, damit zwei Laeufe nicht ineinander greifen. */
@@ -97,8 +110,8 @@ function withLock(work) {
  *
  * Unbekannte oder doppelte Koepfe brechen ab, bevor irgendetwas geschrieben wird.
  */
-function runDaily(request, properties) {
-  const sheet = SpreadsheetApp.getActive().getSheetByName(DAILY_SHEET_NAME);
+function runDaily(spreadsheet, request, properties) {
+  const sheet = spreadsheet.getSheetByName(DAILY_SHEET_NAME);
   if (sheet === null) return failure(ERROR_HEADER_MISSING, DAILY_SHEET_NAME);
 
   const headerRow = rowProperty(properties, 'HEADER_ROW', DEFAULT_HEADER_ROW);
@@ -131,8 +144,8 @@ function runDaily(request, properties) {
  * Fehler eines Eintrags (unbekannte Uebung) stehen bei diesem Eintrag, die
  * uebrigen Eintraege werden trotzdem geschrieben.
  */
-function runTraining(request) {
-  const sheet = SpreadsheetApp.getActive().getSheetByName(request.sheet);
+function runTraining(spreadsheet, request) {
+  const sheet = spreadsheet.getSheetByName(request.sheet);
   if (sheet === null) return failure(ERROR_UNKNOWN_SHEET, request.sheet);
 
   const range = sheet.getDataRange();

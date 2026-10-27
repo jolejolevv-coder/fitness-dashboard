@@ -23,12 +23,20 @@ Im Editor teilen sich alle Dateien einen globalen Namensraum. Die Tests unter
 
 ## Einrichtung
 
-1. Das Arbeitsblatt oeffnen, Erweiterungen, Apps Script. Das Script ist damit an
-   das Blatt gebunden, eine Sheet ID braucht es nicht
-2. Drei Skriptdateien anlegen (`daily-import-core.gs`, `training-log-core.gs`,
-   `daily-import.gs`) und den Inhalt der gleichnamigen `.js` Dateien
-   hineinkopieren. Die Reihenfolge spielt keine Rolle
+Eigenstaendiges Projekt, nicht an das Blatt gebunden. Das Blatt hat schon ein
+gebundenes Projekt mit eigenem `doPost` (`Makros.gs`, Gewichtsimport aus Health
+Auto Export); ein Projekt kennt nur einen `doPost`, deshalb bleibt jenes
+unberuehrt.
+
+1. script.google.com, Neues Projekt, Name zum Beispiel `fitness-dashboard
+   Schreibwege`
+2. Drei Skriptdateien anlegen (`daily-import-core`, `training-log-core`,
+   `daily-import`, die Endung `.gs` setzt der Editor) und den Inhalt der
+   gleichnamigen `.js` Dateien hineinkopieren. Die vorgegebene `Code.gs` wird
+   zur ersten davon umbenannt. Die Reihenfolge spielt keine Rolle
 3. Projekteinstellungen, Script Properties:
+   * `SHEET_ID`: die ID des Arbeitsblatts, in seiner URL zwischen `/d/` und
+     `/edit`. Fehlt sie, antwortet das Script `not_configured`
    * `TRAINING_TOKEN`: neues Zufallstoken, zum Beispiel aus
      `openssl rand -hex 24` im Terminal. Nicht in den Chat, nicht ins Repo
    * `DAILY_IMPORT_TOKEN`: eigenes Token fuer den Shortcut, sobald Phase 10.4
@@ -36,8 +44,9 @@ Im Editor teilen sich alle Dateien einen globalen Namensraum. Die Tests unter
    * `HEADER_ROW` und `FIRST_DATA_ROW` nur setzen, wenn `Daily Tracking` nicht
      mehr in Zeile 29 und 31 beginnt
 4. Bereitstellen, Neue Bereitstellung, Typ Web App. Ausfuehren als: ich.
-   Zugriff: Jeder. Beim ersten Mal fragt Google nach der Berechtigung fuer das
-   Blatt
+   Zugriff: Jeder. Google fragt beim ersten Mal nach der Berechtigung fuer
+   Tabellen. Sie gilt fuer alle eigenen Tabellen, das Script oeffnet nur die
+   aus `SHEET_ID`
 5. Die angezeigte Web App URL (endet auf `/exec`) und `TRAINING_TOKEN` in der App
    unter Einstellungen eintragen
 
@@ -86,7 +95,7 @@ Immer HTTP 200 und JSON mit `ok` und `version`.
 `status` (je Feld `written`, `occupied` oder `unknown_column`) oder `error`
 (`unknown_exercise`). Globale Fehler: `unauthorized`, `bad_request`,
 `unknown_sheet`, `unknown_day`, `unknown_week`, `unknown_column`, `locked`,
-`internal`.
+`not_configured`, `internal`.
 
 `daily`: `written` und `skipped` als Kopfnamen. Fehler siehe
 `specs/features/daily-import.md`.

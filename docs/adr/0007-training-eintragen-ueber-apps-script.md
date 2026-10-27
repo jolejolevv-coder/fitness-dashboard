@@ -54,3 +54,15 @@ eigenes Token liegen in den Script Properties und im localStorage der App.
 * Der Service Worker beruehrt Anfragen an die Script Hosts nicht
 * Rueckweg: Token in den Script Properties loeschen, das sperrt die Aktion
   sofort, ohne Deploy der App
+
+## Nachtrag 27.10.2026: eigenstaendiges Projekt
+
+Das Arbeitsblatt hat bereits ein gebundenes Apps Script Projekt mit eigenem
+`doPost` (`Makros.gs`, Gewichtsimport aus Health Auto Export). Ein Projekt kennt
+nur einen `doPost`. Entscheidung des Nutzers: unser Script laeuft als eigenes
+Projekt auf script.google.com und oeffnet das Blatt per
+`SpreadsheetApp.openById` mit der ID aus der Script Property `SHEET_ID`.
+Tradeoff: die Berechtigung gilt fuer alle eigenen Tabellen statt nur fuer das
+gebundene Blatt; dafuer bleibt der vorhandene Import unberuehrt. Die Sheet ID
+steht wie das Token in keiner Datei im Repo. Fehlt `SHEET_ID`, antwortet das
+Script `not_configured`.

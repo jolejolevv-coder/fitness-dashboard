@@ -3,10 +3,10 @@ import { createContext, runInContext } from 'node:vm';
 import { beforeEach, describe, expect, it } from 'vitest';
 
 /**
- * Tests der Huelle `doPost` (Phase 13.3, schliesst 10.2 mit ab).
+ * Tests der Huelle `doPost` (Phase 13.3, schliesst 10.2 mit ab; 13.5 eigenstaendig ueber `SHEET_ID`).
  *
  * Alle drei Dateien unter apps-script/ laufen in einem vm Kontext, dazu
- * nachgebaute Dienste von Apps Script: SpreadsheetApp mit Tabs aus den
+ * nachgebaute Dienste von Apps Script: SpreadsheetApp.openById mit Tabs aus den
  * synthetischen Fixtures, PropertiesService, LockService, ContentService.
  */
 
@@ -49,10 +49,16 @@ let properties: Record<string, string>;
 let lockFree: boolean;
 let sheets: Record<string, ReturnType<typeof fakeSheet>>;
 let doPost: (event: unknown) => { content: string };
+let openedIds: string[];
 
 function load(): void {
   const context = createContext({
-    SpreadsheetApp: { getActive: () => ({ getSheetByName: (name: string) => sheets[name] ?? null }) },
+    SpreadsheetApp: {
+      openById: (id: string) => {
+        openedIds.push(id);
+        return { getSheetByName: (name: string) => sheets[name] ?? null };
+      },
+    },
     PropertiesService: { getScriptProperties: () => ({ getProperty: (name: string) => properties[name] ?? null }) },
     LockService: { getScriptLock: () => ({ tryLock: () => lockFree, releaseLock: () => undefined }) },
     ContentService: {
@@ -73,8 +79,9 @@ function post(body: unknown): Record<string, unknown> {
 
 beforeEach(() => {
   writes = [];
+  openedIds = [];
   lockFree = true;
-  properties = { DAILY_IMPORT_TOKEN: DAILY_TOKEN, TRAINING_TOKEN, HEADER_ROW: '3', FIRST_DATA_ROW: '5' };
+  properties = { SHEET_ID: 'sheet-id-test', DAILY_IMPORT_TOKEN: DAILY_TOKEN, TRAINING_TOKEN, HEADER_ROW: '3', FIRST_DATA_ROW: '5' };
   sheets = {
     'Daily Tracking': fakeSheet('Daily Tracking', loadFixture('daily-import/week-blocks'), writes),
     'Mesocycle 2': fakeSheet('Mesocycle 2', loadFixture('training-log/with-notes'), writes),
@@ -92,7 +99,7 @@ const training = (fields: Record<string, unknown> = {}) => ({
 describe('doPost training', () => {
   it('schreibt leere Zellen und meldet je Feld', () => {
     const result = post(training());
-    expect(result).toMatchObject({ ok: true, version: '13.3' });
+    expect(result).toMatchObject({ ok: true, version: '13.5' });
     expect(result['results']).toEqual([{
       exercise: 'Bankdrücken', occurrence: 1, status: { load: 'written', repsActual: 'written', notes: 'written' },
     }]);
@@ -180,6 +187,23 @@ describe('doPost daily', () => {
 });
 
 describe('doPost allgemein', () => {
+  it('oeffnet das Blatt aus SHEET_ID', () => {
+    post(training());
+    expect(openedIds).toEqual(['sheet-id-test']);
+  });
+
+  it('ohne SHEET_ID: not_configured, nichts geoeffnet', () => {
+    delete properties['SHEET_ID'];
+    expect(post(training())).toMatchObject({ ok: false, error: 'not_configured' });
+    expect(openedIds).toEqual([]);
+    expect(writes).toEqual([]);
+  });
+
+  it('falsches Token wird vor SHEET_ID geprueft', () => {
+    delete properties['SHEET_ID'];
+    expect(post(training({ token: 'falsch' }))).toMatchObject({ ok: false, error: 'unauthorized' });
+  });
+
   it('unbekannte Aktion und kaputter Rumpf ergeben bad_request', () => {
     expect(post({ action: 'delete', token: TRAINING_TOKEN })).toMatchObject({ ok: false, error: 'bad_request' });
     expect(post('kein json')).toMatchObject({ ok: false, error: 'bad_request' });
@@ -187,6 +211,6 @@ describe('doPost allgemein', () => {
 
   it('ein Fehler im Tab wird zu internal ohne Details', () => {
     sheets['Mesocycle 2']!.getDataRange = () => { throw new Error('Zelle 62,5'); };
-    expect(post(training())).toEqual({ ok: false, error: 'internal', detail: '', version: '13.3' });
+    expect(post(training())).toEqual({ ok: false, error: 'internal', detail: '', version: '13.5' });
   });
 });

@@ -71,8 +71,8 @@ von einer fehlenden Messung unterscheiden muss.
 
 ## Apps Script
 
-* Gebunden an das Arbeitsblatt (`SpreadsheetApp.getActive()`), damit keine
-  Sheet ID im Code steht
+* Eigenes Projekt, Blatt ueber `SpreadsheetApp.openById` mit Script Property
+  `SHEET_ID`, keine Sheet ID im Code (Nachtrag 27.10.2026, ADR 0005)
 * Bereitstellung als Web App, ausfuehren als der Nutzer, Zugriff "Jeder"
 * `doPost` liest JSON aus dem Rumpf: `token`, `date` (`d.m.yyyy`), `values`
   (Objekt Kopftext auf Wert)
