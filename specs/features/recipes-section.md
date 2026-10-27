@@ -48,21 +48,21 @@ Out of scope:
 
 ## Acceptance criteria
 
-* [ ] Die Leiste der Küche zeigt `Heute`, `Woche`, `Rezepte`, `Einkauf`
-* [ ] `Rezepte` listet jedes Gericht des aktiven Plans genau einmal
-* [ ] Ein Rezept zeigt Zutaten mit Gramm und alle Schritte, kein Schritt
+* [x] Die Leiste der Küche zeigt `Heute`, `Woche`, `Rezepte`, `Einkauf`
+* [x] `Rezepte` listet jedes Gericht des aktiven Plans genau einmal
+* [x] Ein Rezept zeigt Zutaten mit Gramm und alle Schritte, kein Schritt
       verweist auf die Prep
-* [ ] `1 Portion` zeigt die Gramm einer Portion aus dem aktiven Plan, `Woche`
+* [x] `1 Portion` zeigt die Gramm einer Portion aus dem aktiven Plan, `Woche`
       die Summe aller Vorkommen und die Zahl der Portionen. Getestet als reine
       Funktion
-* [ ] Ein Gericht, das in der Woche nicht vorkommt, zeigt bei `Woche`
+* [x] Ein Gericht, das in der Woche nicht vorkommt, zeigt bei `Woche`
       `0 Portionen` und keine Zutaten
-* [ ] `Vorbereitung` läuft wie bisher: Timer, Halte, Abhaken, Zurücksetzen
-* [ ] `Vorschlag` ist nicht erreichbar, alte Links landen auf `Rezepte`
-* [ ] Datentest: keine Zahl mit Einheit g oder ml im Schritttext, jede
+* [x] `Vorbereitung` läuft wie bisher: Timer, Halte, Abhaken, Zurücksetzen
+* [x] `Vorschlag` ist nicht erreichbar, alte Links landen auf `Rezepte`
+* [x] Datentest: keine Zahl mit Einheit g oder ml im Schritttext, jede
       genannte Zutat gehört zum Gericht
-* [ ] 375 px ohne waagerechten Seitenlauf, Texte per `textContent`
-* [ ] Nutzer hat die neuen Schritte der fünf Gerichte freigegeben
+* [x] 375 px ohne waagerechten Seitenlauf, Texte per `textContent`
+* [x] Nutzer hat die neuen Schritte der fünf Gerichte freigegeben
 
 ## Implementation plan
 

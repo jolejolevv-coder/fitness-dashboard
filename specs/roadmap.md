@@ -28,7 +28,7 @@ Stand der Qualitaet: 88 Tests, Lint, Typpruefung und Build sauber. Geprueft bei 
 * Phase 14 Kassenbon einlesen: Spec `specs/features/receipt-scan.md` freigegeben 27.10.2026 (Sonnet aus dem Browser, Bonpreise im localStorage, Knopf in `Einkauf`). 14.1 bis 14.3 gebaut, 505 Tests, naechster Schritt 14.4 Live Test
 * Phase 15 Gewicht und Schritte automatisch: Spec `specs/features/daily-weight-steps.md` freigegeben 27.10.2026. 15.1 und 15.2 erledigt (Script unveraendert, Anleitung `docs/daily-import-setup.md`), 15.3 beim Nutzer
 * Phase 16 Zubereitung je Gericht: live 27.10.2026 (`ec4d51a`), Retro offen
-* Phase 17 Rezepte statt Prep, Vorschlag ausblenden: Spec `specs/features/recipes-section.md`, Freigabe offen
+* Phase 17 Rezepte statt Prep, Vorschlag ausblenden: Spec `specs/features/recipes-section.md`, live 27.10.2026, Retro offen
 
 ## Naechste Schritte
 

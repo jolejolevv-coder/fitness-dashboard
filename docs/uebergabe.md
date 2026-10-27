@@ -124,7 +124,7 @@ freigegeben 27.10.2026, offene Fragen wie vorgeschlagen (Zeit Tags bleiben je
 Portion, `Kochen` und `Vorbereitung` als Chips). 17.1 Texte in
 `data/meals.json` geschrieben (fuenf Gerichte von Grund auf, keine Mengen im
 Text), 17.2 und 17.3 gebaut und bei 375 px geprueft,
-lokal committet. Offen: Freigabe der fuenf neuen Rezepte, Push, Retro.
+Rezepte freigegeben 27.10.2026, live auf main. Offen: Retro.
 
 ## Phase 9 Plangenerator
 
