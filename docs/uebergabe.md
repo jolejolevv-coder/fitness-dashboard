@@ -116,7 +116,9 @@ Woche Betrieb, Retro.
 
 Neu 27.10.2026: Nutzer vermisst Zubereitung je Gericht. Heute gibt es nur die
 Prep Schritte (`data/recipes.json`, je ein Satz, Kochansicht unter Kueche Prep),
-`data/meals.json` hat keine Anweisungen. Naechster Schritt: Spec Phase 16.
+`data/meals.json` hat keine Anweisungen. Spec Phase 16 `specs/features/meal-instructions.md` mit Antworten
+geschrieben (Karte aufklappen, Claude schreibt Texte, 3 bis 6 Schritte, Prep
+mit), Freigabe offen.
 
 ## Phase 9 Plangenerator
 
