@@ -149,7 +149,10 @@ Dauerpreise: Aldi Sued Bon vom 27.10.2026 als `source: manual` in
 `public/data/regular_prices.json` (`32d6147`, live). Falle: der Sonntagslauf
 ersetzt mit juengerem Muskelmarkt Datum wieder, Kidney Bohnen Aldi kommen dann
 als Grossgebinde 3060 g zurueck. Phase 14 Kassenbon einlesen: Spec
-`specs/features/receipt-scan.md`, Fragen beantwortet, Freigabe offen.
+`specs/features/receipt-scan.md` freigegeben, 14.1 bis 14.3 gebaut (505 Tests,
+Chunk `receipt` 11,2 kB, Haupt Chunk +2,7 kB). Pruefansicht im Build Preview mit
+nachgestellter API Antwort geprueft, auch bei 375 px. Offen: Push nach
+Freigabe, 14.4 Live Test mit echtem Bon und echtem Key durch den Nutzer, Retro.
 
 ## Phase 11 Kochansicht
 

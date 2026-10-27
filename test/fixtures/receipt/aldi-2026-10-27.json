@@ -1,0 +1,142 @@
+{
+  "store": "Aldi Süd",
+  "date": "2026-10-27",
+  "lines": [
+    {
+      "text": "TK Gemüsesortiment",
+      "price_eur": 2.39,
+      "quantity": 1,
+      "price_per_kg_eur": null,
+      "size_g": null,
+      "food_id": null
+    },
+    {
+      "text": "TK Heidelbeeren",
+      "price_eur": 3.29,
+      "quantity": 2,
+      "price_per_kg_eur": null,
+      "size_g": null,
+      "food_id": "berries_frozen"
+    },
+    {
+      "text": "Haferflocken zart",
+      "price_eur": 0.69,
+      "quantity": 2,
+      "price_per_kg_eur": null,
+      "size_g": null,
+      "food_id": "oats"
+    },
+    {
+      "text": "Eier Freiland",
+      "price_eur": 2.99,
+      "quantity": 1,
+      "price_per_kg_eur": null,
+      "size_g": null,
+      "food_id": "egg_m"
+    },
+    {
+      "text": "Wraps Mehrkorn",
+      "price_eur": 1.59,
+      "quantity": 1,
+      "price_per_kg_eur": null,
+      "size_g": null,
+      "food_id": "wholegrain_wrap"
+    },
+    {
+      "text": "Volles Korn",
+      "price_eur": 1.19,
+      "quantity": 1,
+      "price_per_kg_eur": null,
+      "size_g": null,
+      "food_id": "wholegrain_bread"
+    },
+    {
+      "text": "Pass. Tomaten 500g",
+      "price_eur": 0.65,
+      "quantity": 3,
+      "price_per_kg_eur": null,
+      "size_g": 500,
+      "food_id": "passata"
+    },
+    {
+      "text": "Körn. Frischkäse",
+      "price_eur": 1.19,
+      "quantity": 2,
+      "price_per_kg_eur": null,
+      "size_g": null,
+      "food_id": "cottage_cheese"
+    },
+    {
+      "text": "Rote Kidney Bohnen",
+      "price_eur": 0.69,
+      "quantity": 4,
+      "price_per_kg_eur": null,
+      "size_g": null,
+      "food_id": "kidney_beans"
+    },
+    {
+      "text": "Paprika rot 500g",
+      "price_eur": 2.19,
+      "quantity": 3,
+      "price_per_kg_eur": null,
+      "size_g": 500,
+      "food_id": "bell_pepper"
+    },
+    {
+      "text": "F&G Rd Hack 5%Fett",
+      "price_eur": 5.49,
+      "quantity": 1,
+      "price_per_kg_eur": null,
+      "size_g": null,
+      "food_id": "beef_mince_5"
+    },
+    {
+      "text": "Kartoffeln mk2.5kg",
+      "price_eur": 2.59,
+      "quantity": 1,
+      "price_per_kg_eur": null,
+      "size_g": 2500,
+      "food_id": "potato"
+    },
+    {
+      "text": "Basmati Reis",
+      "price_eur": 2.49,
+      "quantity": 2,
+      "price_per_kg_eur": null,
+      "size_g": null,
+      "food_id": "basmati"
+    },
+    {
+      "text": "Avocado Stk",
+      "price_eur": 0.99,
+      "quantity": 3,
+      "price_per_kg_eur": null,
+      "size_g": null,
+      "food_id": "avocado"
+    },
+    {
+      "text": "Äpfel süß 1kg",
+      "price_eur": 1.79,
+      "quantity": 1,
+      "price_per_kg_eur": null,
+      "size_g": 1000,
+      "food_id": "apple"
+    },
+    {
+      "text": "Thunfisch 4er Pack",
+      "price_eur": 4.99,
+      "quantity": 1,
+      "price_per_kg_eur": null,
+      "size_g": null,
+      "food_id": "tuna_natural"
+    },
+    {
+      "text": "Zucchini lose",
+      "price_eur": 0.51,
+      "quantity": 1,
+      "price_per_kg_eur": 1.49,
+      "size_g": null,
+      "food_id": "zucchini"
+    }
+  ]
+}

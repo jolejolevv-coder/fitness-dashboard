@@ -17,6 +17,7 @@ test/fixtures/*
 # Synthetische Tabellen fuer die Apps Script Kerne, ohne Werte aus dem Sheet
 !test/fixtures/daily-import/
 !test/fixtures/training-log/
+!test/fixtures/receipt/
 test/golden/
 
 # Handoff aus dem Chat: enthaelt Klarname, Sheet ID und Filialadressen, bleibt lokal

@@ -1,6 +1,6 @@
 # Phase 14: Kassenbon einlesen
 
-Status: Entwurf 27.10.2026, nicht freigegeben.
+Status: freigegeben 27.10.2026.
 
 ## Goal
 
@@ -77,4 +77,45 @@ Out of scope:
 
 ## Open questions
 
-* Keine. Freigabe der Spec steht aus
+* Keine
+
+## Stand (27.10.2026, 14.1 bis 14.3 gebaut)
+
+Gebaut:
+
+* 14.1 reine Funktionen unter `src/receipt/`: `types.ts`, `schema.ts` (Schema
+  ohne Karte, Autorisierung, Adresse), `response.ts` (Pruefung mit Funden und
+  Pfad), `prices.ts` (Umrechnung auf Dauerpreise, ein Eintrag je Artikel,
+  Zusammenfuehrung mit dem juengeren `seen_at`, Ablage unter
+  `fitness_receipt_prices_v1`, Export im Format der `regular_prices.json`).
+  Konstanten in `src/config/receipt.ts`. Tests in `test/receipt.test.ts` mit
+  der Beispielantwort `test/fixtures/receipt/aldi-2026-10-27.json`
+* 14.2 `src/receipt/request.ts`: Bild als Base64 Block, Sonnet, Kostenzeile aus
+  `TOKEN_PRICES`, Status fuer fehlenden Schluessel, falschen Bildtyp, SDK, Antwort
+  ungueltig, Ablehnung, max_tokens, API Fehler, Offline, Zeitueberschreitung,
+  Abbruch
+* 14.3 `src/ui/receipt.ts` (eigener Chunk) und Knopf `Bon einlesen` in
+  `src/ui/shopping.ts`. Die Einkaufsliste nimmt ueber `priceData.ts` je Artikel
+  und Markt den juengeren Wert aus Datei und localStorage
+
+Annahmen:
+
+* Das Foto wird vor dem Senden im Browser auf 2000 px Kantenlaenge verkleinert
+  und als JPEG kodiert (API Grenze fuer Bilder, geringere Kosten)
+* Das Dateifeld hat kein `capture`, damit iOS Kamera und Mediathek zur Wahl stellt
+* Das Kontrollkaestchen je Zeile heisst `Uebernehmen` (angehakt gilt), nicht
+  `Auslassen`. Zeilen ohne Zuordnung sind abgewaehlt
+* Der Preis je Zeile ist in der Pruefansicht nur Anzeige, aenderbar sind
+  Zuordnung, Groesse und Haken. Bei Gewichtsware steht die Groesse fest auf 1000 g
+* Bei mehreren Zeilen desselben Artikels gilt der guenstigste Kilopreis, ohne
+  Kilopreis der guenstigste Packungspreis
+* Gleiches Datum bei Datei und Bon: der Wert der Datei bleibt, nur ein juengeres
+  Datum ersetzt
+* `Export` kopiert gespeicherte Bonpreise plus die Zeilen der Ansicht und
+  speichert dabei nichts
+* Die Beispielantwort hat 17 Zeilen (Gemuesesortiment plus 16 Artikel), nicht
+  alle 32 Zeilen des Bons
+* Die CSP erlaubt `api.anthropic.com` schon (`src/config/csp.ts`)
+
+Offen: 14.4 Live Test mit einem echten Bon im Browser und Retro. Die
+Oberflaeche wurde noch nicht im Browser angesehen.

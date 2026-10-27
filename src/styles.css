@@ -464,6 +464,37 @@ button, select, input, textarea { font: inherit; color: inherit; }
 
 .err { color: var(--red); font-size: 13px; margin-top: 10px; }
 
+/* Bon einlesen: Pruefansicht, je Zeile Bontext, Artikel und Groesse. */
+.receipt > .toolbar-note { margin-top: 6px; }
+.receipt-row {
+  display: grid;
+  grid-template-columns: 44px 1fr;
+  grid-template-areas: "take main" "take controls";
+  gap: 4px 4px;
+  align-items: center;
+  padding: 8px 12px 8px 0;
+}
+.receipt-row.is-off { opacity: 0.55; }
+.receipt-take { grid-area: take; display: flex; align-items: center; justify-content: center; min-height: 44px; }
+.receipt-take input { width: 20px; height: 20px; accent-color: var(--blue); }
+.receipt-main { grid-area: main; display: flex; justify-content: space-between; gap: 8px; min-width: 0; }
+.receipt-text { min-width: 0; overflow-wrap: anywhere; font: 600 14px/1.3 var(--text); }
+.receipt-price { flex: none; font-size: 14px; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.receipt-controls { grid-area: controls; display: flex; gap: 8px; align-items: center; min-width: 0; }
+.receipt-controls select, .receipt-size input {
+  min-height: 44px;
+  padding: 0 10px;
+  border: none;
+  border-radius: 10px;
+  background: var(--card-sunk);
+  color: var(--ink);
+  font-size: 16px;
+}
+.receipt-controls select { flex: 1; min-width: 0; }
+.receipt-size { display: flex; align-items: center; gap: 4px; flex: none; color: var(--ink-3); font-size: 14px; }
+.receipt-size input { width: 84px; font-variant-numeric: tabular-nums; }
+.receipt-size input:disabled, .receipt-controls select:disabled { color: var(--ink-3); }
+
 /* ── Heute ─────────────────────────────────────────────────────────────────── */
 
 #hero > .card { margin-top: 10px; }

@@ -19,6 +19,10 @@ let priceData: PriceData | null = null;
 let priceRequested = false;
 let lastGoals: DayGoals | null = null;
 
+/** Bon einlesen: Knopf und Ansicht bleiben ueber das Neuzeichnen der Liste bestehen. */
+const receiptView = el('div', { class: 'receipt' });
+let receiptBar: HTMLElement | null = null;
+
 // Uebernahme und Rueckkehr zum Seed haben den Speicher geleert.
 onPlanSourceChange(() => {
   done = loadChecked(SHOPPING_DONE_KEY);
@@ -96,6 +100,40 @@ function rerender(): void {
   renderShopping(lastGoals);
 }
 
+/** Nach dem Speichern von Bonpreisen: Preise neu zusammenstellen und die Liste zeichnen. */
+function refreshPrices(): void {
+  void loadPriceData().then((data) => {
+    priceData = data;
+    rerender();
+  });
+}
+
+/** Die Ansicht liegt in einem eigenen Chunk und wird erst beim ersten Bon geladen. */
+async function scanFile(file: File, button: HTMLButtonElement): Promise<void> {
+  button.disabled = true;
+  try {
+    const module = await import('./receipt');
+    await module.scanReceipt(file, { view: receiptView, onSaved: refreshPrices });
+  } catch {
+    receiptView.replaceChildren(el('p', { class: 'err', text: 'Bon Modul nicht geladen' }));
+  } finally {
+    button.disabled = false;
+  }
+}
+
+function buildReceiptBar(): HTMLElement {
+  // Ohne `capture`, damit das Handy Kamera und Mediathek zur Wahl stellt.
+  const input = el('input', { attrs: { type: 'file', accept: 'image/*', hidden: '' } });
+  const button = el('button', { class: 'btn', text: 'Bon einlesen', attrs: { type: 'button' } });
+  button.addEventListener('click', () => input.click());
+  input.addEventListener('change', () => {
+    const file = input.files?.[0];
+    input.value = '';
+    if (file) void scanFile(file, button);
+  });
+  return el('div', { class: 'toolbar' }, [button, input]);
+}
+
 /** Zeichnet den Reiter Einkauf. Preise kommen nach, sobald die Dateien da sind. */
 export function renderShopping(goals: DayGoals | null): void {
   const root = byId('shopping-content');
@@ -153,6 +191,8 @@ export function renderShopping(goals: DayGoals | null): void {
     ]));
   }
   content.appendChild(summary);
+  receiptBar ??= buildReceiptBar();
+  content.append(receiptBar, receiptView);
 
   if (done.size > 0) {
     const reset = el('button', { class: 'btn', text: 'Abhaken zurücksetzen', attrs: { type: 'button', [FOCUS_ATTR]: 'reset' } });
