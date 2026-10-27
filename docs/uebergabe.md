@@ -114,11 +114,10 @@ mehr), freigegeben. 15.1 und 15.2 erledigt, Script unveraendert, Anleitung
 `docs/daily-import-setup.md`. Live auf main (`ae91803`). Offen: 15.3 Einrichtung durch den Nutzer, eine
 Woche Betrieb, Retro.
 
-Neu 27.10.2026: Nutzer vermisst Zubereitung je Gericht. Heute gibt es nur die
-Prep Schritte (`data/recipes.json`, je ein Satz, Kochansicht unter Kueche Prep),
-`data/meals.json` hat keine Anweisungen. Spec Phase 16 `specs/features/meal-instructions.md` mit Antworten
-geschrieben (Karte aufklappen, Claude schreibt Texte, 3 bis 6 Schritte, Prep
-mit), Freigabe offen.
+Phase 16 Zubereitung je Gericht: Spec `specs/features/meal-instructions.md`
+freigegeben, 16.1 bis 16.3 gebaut und lokal committet (`a4859f2`, 539 Tests,
+Build gruen, Heute und Woche bei 375 px geprueft). Offen: Freigabe der Texte
+durch den Nutzer, dann Push nach main, Retro.
 
 ## Phase 9 Plangenerator
 
