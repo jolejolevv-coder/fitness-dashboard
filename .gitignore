@@ -13,7 +13,10 @@ public/preview/
 
 # Messwerte bleiben lokal. Sie stammen aus dem Sheet und sind ein
 # Entwicklungsbehelf, kein Bestandteil des Produkts.
-test/fixtures/
+test/fixtures/*
+# Synthetische Tabellen fuer die Apps Script Kerne, ohne Werte aus dem Sheet
+!test/fixtures/daily-import/
+!test/fixtures/training-log/
 test/golden/
 
 # Handoff aus dem Chat: enthaelt Klarname, Sheet ID und Filialadressen, bleibt lokal

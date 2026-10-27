@@ -1,6 +1,6 @@
 # Uebergabe
 
-Stand 27.10.2026, Phase 12 live, offen nur der iPhone Test des Nutzers. Phase 13 freigegeben, 13.1 erledigt, naechster Schritt 13.2.
+Stand 27.10.2026, Phase 12 live, offen nur der iPhone Test des Nutzers. Phase 13 freigegeben, 13.1 und 13.2 erledigt, naechster Schritt 13.3.
 
 ## Wo wir stehen
 
@@ -110,13 +110,31 @@ Bundle gzip: Haupt Chunk 35,71 kB (vorher 35,82), CSS 5,24 kB, `charts`
 74,07 kB. 365 Tests. Geprueft im Build bei 375 px hell und dunkel, ohne
 waagerechten Lauf.
 
-Startprompt 13.2 (Ordner dieses Worktrees): Lies CLAUDE.md, specs/roadmap.md,
+13.2 erledigt 27.10.2026: Aus `claude/daily-import-36c9f1` (`b5a8081`)
+uebernommen `apps-script/daily-import-core.js`, `test/daily-import-core.test.ts`,
+`test/fixtures/daily-import/`, ESLint Block fuer `apps-script/`. Neu
+`apps-script/training-log-core.js` mit `validateTrainingRequest`,
+`findDayHeader`, `findWeekBlock`, `findExerciseRow`, `planTrainingWrites`;
+nutzt die Hilfsfunktionen des Daily Import Kerns (gemeinsamer globaler
+Namensraum, Tests laden beide Dateien in einen vm Kontext). Synthetische Tabs
+`test/fixtures/training-log/with-notes.json` und `without-notes.json`. 437 Tests.
+Befund am Tab (in der Spec nachgetragen): Kopf hat zweimal `Reps`, Ist ist das
+hinter `Load`; je Tag eine eigene Kopfzeile; doppelte Uebungszeilen, daher
+`occurrence` je Eintrag; neuer Fehlercode `unknown_day`; nur Tabs `Mesocycle N`.
+Annahmen: Hoechstlaenge `Reps Ist` 40 Zeichen (Spec nennt keine); die
+Vorschau Fixture zeigt auch in `Mesocycle 1` eine Spalte `Notes`,
+`specs/sheet-structure.md` sagt nein. Die Logik kommt mit beidem aus, das
+Kriterium "Notes in Mesocycle 1 nicht angeboten" wird in 13.5 am echten Tab
+geprueft.
+
+Startprompt 13.3 (Ordner dieses Worktrees): Lies CLAUDE.md, specs/roadmap.md,
 docs/uebergabe.md (Abschnitt Phase 13) und `specs/features/training-log.md`.
-Setze 13.2 um: `apps-script/daily-import-core.js`, Tests und Fixtures aus
-Branch `claude/daily-import-36c9f1` (Commit `b5a8081`) uebernehmen, dazu
-reine Funktionen `findWeekBlock`, `findExerciseRow`, `planTrainingWrites`
-mit Tests per Vitest und `node:vm` gegen synthetische Tabs unter
-`test/fixtures/`. Danach 13.3 und 13.4 nach Plan der Spec. Nicht pushen.
+Setze 13.3 um: Huelle `apps-script/daily-import.js` mit `doPost`, Token aus
+Script Properties (`DAILY_IMPORT_TOKEN`, `TRAINING_TOKEN`), Aktionen `daily`
+und `training`, `LockService`, Antwort als JSON; Anleitung
+`apps-script/README.md` fuer die Bereitstellung als Web App. Open question 4
+(CORS) kann nur der Nutzer am echten Endpunkt pruefen, Probeweg in die
+README. Danach 13.4. Nicht pushen.
 
 ## Phase 11 Kochansicht
 

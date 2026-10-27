@@ -85,6 +85,15 @@ Antwort: je Eintrag und Feld `written`, `occupied` oder ein Fehlercode
 (`unknown_exercise`, `unknown_column`), dazu global `unauthorized`,
 `unknown_sheet`, `unknown_week`, `bad_request`.
 
+Nachtrag 13.2 (Befund am Tab): Die Kopfzeile eines Tages nennt nicht `Reps
+Ist`, sondern zweimal `Reps`, Soll vor und Ist nach `Load`; das Script nimmt
+das erste `Reps` (oder `Reps Ist`) hinter `Load`. Jeder Tag hat eine eigene
+Kopfzeile mit dem Tag links und allen Wochenbloecken. Dieselbe Uebung steht an
+einem Tag teils in zwei Zeilen, deshalb traegt ein Eintrag zusaetzlich
+`occurrence` (1 basiert, Vorgabe 1). Global kommt `unknown_day` hinzu, und
+`sheet` muss `Mesocycle N` heissen, sonst `unknown_sheet`. Kernfunktionen in
+`apps-script/training-log-core.js`.
+
 ## Harte Regeln
 
 | Regel | Wie Phase 13 sie haelt |
@@ -145,7 +154,7 @@ Eintragen
 
 Regeln und Qualitaet
 
-* [ ] Kernfunktionen des Scripts (Block finden, Zeile finden, Schreibplan) als
+* [x] Kernfunktionen des Scripts (Block finden, Zeile finden, Schreibplan) als
   reine Funktionen mit synthetischen Tabs getestet
 * [ ] CSP nur um die zwei Script Hosts ergaenzt, als Test
 * [ ] Bundle Budget eingehalten, Zahlen im Commit

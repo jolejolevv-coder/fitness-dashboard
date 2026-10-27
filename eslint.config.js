@@ -31,6 +31,20 @@ export default tseslint.config(
     },
   },
   {
+    // Apps Script kennt keine Module. Funktionen auf oberster Ebene sind global
+    // und werden ueber /* exported */ als bewusst ungenutzt markiert.
+    files: ['apps-script/**/*.js'],
+    languageOptions: { ecmaVersion: 2019, sourceType: 'script', globals: {} },
+    rules: {
+      eqeqeq: ['error', 'always', { null: 'ignore' }],
+      'no-var': 'error',
+      'prefer-const': 'error',
+      'no-console': 'error',
+      '@typescript-eslint/no-unused-vars': 'off',
+      'no-unused-vars': 'error',
+    },
+  },
+  {
     // Die Preis Skripte laufen in der Konsole, dort ist console.log die Ausgabe.
     files: ['scripts/**/*.ts'],
     rules: { 'no-console': 'off' },
