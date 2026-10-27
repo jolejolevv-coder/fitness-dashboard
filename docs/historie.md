@@ -539,3 +539,9 @@ anlegen und Key erzeugen.
 1. Gut: Daten, reine Funktionen und Oberflaeche in getrennten Schritten. Zeit als `now` Parameter machte Timer, Halte und Neuladen ohne Geraet testbar, der eigene Chunk hielt das Haupt Bundle bei +0,25 kB. Der Handytest lief ohne eine Korrektur an den Rezeptdaten.
 2. Falsche Annahme: Der Auftrag fuer 11.3 ging davon aus, `plan-generator` sei noch nicht auf `main` und lokales `main` sei die Basis. Tatsaechlich lag `plan-generator` schon auf `origin/main`, lokales `main` war mit einem ungepushten Phase 10 Commit davon abgezweigt. Aufgefallen erst an Konflikten im Probemerge. Ausserdem stand der lokale Test im WLAN als gleichwertige Option da, obwohl Wake Lock dort ohne HTTPS gar nicht laeuft.
 3. Besser spezifizieren: Merge Ziele immer gegen `origin/main` pruefen (`git merge-base`), nicht gegen das lokale `main`. Browser APIs mit Secure Context Pflicht (Wake Lock) in der Spec als Testbedingung nennen. Jede Spalte einer Mustertabelle braucht ein Akzeptanzkriterium oder den Vermerk spaeter, wie bei den Stueckangaben.
+
+## Retro Phase 12
+
+1. Gut: Budget mit Messwerten aus 12.0, jeder Unterschritt pruefte dagegen. URL Regel als reine Funktion, Deploy im gebauten Stand simuliert.
+2. Falsche Annahmen: `generateSW` haette `index.html` immer aus dem Cache geliefert, gegen ADR 0006. Ohne `viewport-fit=cover` waeren die Safe Area Regeln wirkungslos geblieben. Schemawechsel und iPhone Verhalten liessen sich im Browser Pane nicht pruefen.
+3. Besser spezifizieren: Strategie des Service Workers je Dateiart schon in der Spec, und welche Kriterien nur auf dem Geraet pruefbar sind.

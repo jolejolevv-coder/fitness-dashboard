@@ -75,42 +75,8 @@ Bekannt: Muskelgruppen im Volumendiagramm haben 14 feste Toene (in
 `DESIGN.md` als Ausnahme benannt). Mit der Fixture ergeben 14 und 30 Tage
 keine Waegungen und zeigen die bestehende Fehlermeldung, kein Rueckschritt.
 
-12.5 PWA erledigt 27.10.2026, Commit `6a6eb92`. `vite-plugin-pwa` 1.3.0 mit
-`injectManifest` und eigenem `src/sw.ts`; die Regel der erlaubten URLs ist die
-reine Funktion `classifyRequest` in `src/pwa/policy.ts` mit Test
-(`test/pwa-policy.test.ts`). Nur GET der eigenen Herkunft unter dem Basispfad:
-Navigation Netz zuerst (4 s), Rueckfall `index.html` aus dem Precache;
-`assets/` Cache zuerst (`assets-runtime`, beim Aktivieren geleert);
-`data/prices.json` und `data/regular_prices.json` Netz zuerst (`data`). Alles
-andere geht vorbei. Updateweg ohne `skipWaiting`, Registrierung ueber
-`registerSW.js` (ausserhalb des Haupt Chunks). Icons aus `public/icon.svg`
-mit `npm run icons` (`pwa-assets.config.ts`), PNG committet. Manifest Werte in
-`src/config/pwa.ts`. CSP plus `worker-src` und `manifest-src`, Test prueft die
-volle Liste der Direktiven.
-
-Annahmen 12.5 (Standard gewaehlt, ohne Rueckfrage):
-* `injectManifest` statt `generateSW`: innerhalb ADR 0006 Variante A, noetig
-  fuer Netz zuerst bei `index.html` und eine testbare URL Regel
-* `apple-mobile-web-app-status-bar-style` `default`, weil `black-translucent`
-  weisse Statusleistenschrift auf heller Emaille zeigt. Im Live Test pruefen,
-  wie die Leiste im dunklen Schema aussieht
-* `viewport-fit=cover` neu, ohne ihn liefert `env(safe-area-inset-*)` auf
-  dem iPhone null. Die Regeln in `src/styles.css` gab es schon
-* Hintergrund und Themenfarbe im Manifest `board` `#eceeed`, `theme-color`
-  im `index.html` hell und dunkel getrennt
-
-Geprueft im gebauten Stand (`vite preview`, Browser Pane): Service Worker
-aktiv, Cache Storage nur eigene Pfade nach Durchlauf aller Ziele mit
-Dummy Zugangsdaten (zwei Sheets Anfragen gingen am Service Worker vorbei),
-Offlinestart bei gestopptem Server mit Verlauf samt Diagrammen und Einkauf
-samt Preisen. Deploy simuliert: alte Sitzung laedt ihren `charts` Chunk aus
-dem alten Precache, obwohl der Server ihn nicht mehr hat; Neuladen zeigt die
-neue Version. Die neue Version wird aktiv, wenn kein Tab der alten mehr offen
-ist. Die Manifest Ansicht von Chrome DevTools war im Pane nicht erreichbar,
-Pflichtfelder und Icons sind von Hand geprueft; die Warnungsfreiheit gehoert
-in die Lighthouse Messung von 12.6.
-Bundle gzip: Haupt Chunk 35,82 kB, CSS 5,24 kB, `charts` 74,07 kB, alle JS
-Chunks 204,43 kB, `sw.js` 6,78 kB (Ziel 8), `index.html` 3,16 kB. 361 Tests.
+12.5 PWA erledigt 27.10.2026 (`6a6eb92`), Einzelheiten und Annahmen in
+`docs/uebergabe-archiv-2026-10-26.md`.
 
 12.6 Abschluss 27.10.2026: Branch per Vorspulen nach `origin/main`
 gepusht (`5e3f3cd..9baa8af`), Deploy gruen. Live geprueft: `sw.js`,

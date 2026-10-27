@@ -50,10 +50,4 @@ Lighthouse aus Phase 6 nachgeholt am 27.10.2026, mobil je 100.
 
 Die harten Regeln stehen in `CLAUDE.md` (kein Schreibzugriff aufs Sheet, keine Zielwerte als Literal, Spaltenzuordnung ueber Kopfzeilen, `textContent` statt `innerHTML`, keine Zugangsdaten im Repo, `testdata/` nie committen). Dazu aus der Roadmap: Bei jeder Datei, die committet wird, vorher fragen, wer sie am Ende lesen kann.
 
-## Retro Phase 12
-
-1. Gut: Budget mit Messwerten aus 12.0, jeder Unterschritt pruefte dagegen. URL Regel als reine Funktion, Deploy im gebauten Stand simuliert.
-2. Falsche Annahmen: `generateSW` haette `index.html` immer aus dem Cache geliefert, gegen ADR 0006. Ohne `viewport-fit=cover` waeren die Safe Area Regeln wirkungslos geblieben. Schemawechsel und iPhone Verhalten liessen sich im Browser Pane nicht pruefen.
-3. Besser spezifizieren: Strategie des Service Workers je Dateiart schon in der Spec, und welche Kriterien nur auf dem Geraet pruefbar sind.
-
-Retro Phase 11 und aeltere Retros: `docs/historie.md`.
+Retros ab Phase 11: `docs/historie.md`.
