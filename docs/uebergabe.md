@@ -132,9 +132,11 @@ die geschriebenen Zellen. Offline sperrt `Senden`, Entwurf bleibt.
 Panne: die lokale App stand auf Trainingstab `Mesocycle 1`, das Senden aus der
 App schrieb deshalb `60` und `8,8` in `Mesocycle 1`, W9, Day 1, Pulldown
 (Zellen CY34 und CZ34). Kein Fehler im Code, falscher Tab in den
-Einstellungen. Offen beim Nutzer: diese zwei Zellen leeren, `Mesocycle 99`
-loeschen, live Trainingstab pruefen, neues `TRAINING_TOKEN` (das erste stand
-im Chat). Danach Merge Freigabe, Live Test im Studio, Retro.
+Einstellungen. Nutzer hat die zwei Zellen geleert, `Mesocycle 99` geloescht
+und ein neues `TRAINING_TOKEN` gesetzt. Nach Freigabe am 27.10.2026 nach
+`origin/main` gepusht (`c7fb5e8`), Deploy gruen, live mit Chunk `log` und
+CSP Hosts. Offen: Live Test im Studio durch den Nutzer (neues Token in der
+App eintragen), danach Retro Phase 13 in `specs/roadmap.md`.
 
 ## Phase 11 Kochansicht
 
