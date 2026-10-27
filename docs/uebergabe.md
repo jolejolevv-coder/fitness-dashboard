@@ -116,8 +116,8 @@ Woche Betrieb, Retro.
 
 Phase 16 Zubereitung je Gericht: Spec `specs/features/meal-instructions.md`
 freigegeben, 16.1 bis 16.3 gebaut und lokal committet (`a4859f2`, 539 Tests,
-Build gruen, Heute und Woche bei 375 px geprueft). Offen: Freigabe der Texte
-durch den Nutzer, dann Push nach main, Retro.
+Build gruen, Heute und Woche bei 375 px geprueft). Texte freigegeben 27.10.2026,
+live auf main. Offen: Retro nach Nutzung in der Kueche.
 
 ## Phase 9 Plangenerator
 

@@ -39,19 +39,19 @@ Out of scope:
 
 ## Acceptance criteria
 
-* [ ] Alle zehn Gerichte in `data/meals.json` haben drei bis sechs Schritte,
+* [x] Alle zehn Gerichte in `data/meals.json` haben drei bis sechs Schritte,
       ausser `Riegel-Option` mit einem Schritt (Annahme 27.10.2026)
-* [ ] Jeder Schritt nennt nur Zutaten, die das Gericht auch hat
-* [ ] Alle zehn Prep Schritte haben ausfuehrlichere Texte, die Kochansicht
+* [x] Jeder Schritt nennt nur Zutaten, die das Gericht auch hat
+* [x] Alle zehn Prep Schritte haben ausfuehrlichere Texte, die Kochansicht
       laeuft unveraendert (Timer, Halte, Mise en place)
-* [ ] Die Karte klappt in `Heute` und `Woche` auf und zu, Zutaten mit Gramm
+* [x] Die Karte klappt in `Heute` und `Woche` auf und zu, Zutaten mit Gramm
       aus dem aktiven Plan, nicht aus dem Seed
-* [ ] Ein Gericht ohne Schritte zeigt `Zubereitung 0 von 1`, keinen Fehler
-* [ ] Texte gehen per `textContent` ins DOM
-* [ ] Datenpruefung als Test: jedes Gericht hat Schritte, jede genannte Zutat
+* [x] Ein Gericht ohne Schritte zeigt `Zubereitung 0 von 1`, keinen Fehler
+* [x] Texte gehen per `textContent` ins DOM
+* [x] Datenpruefung als Test: jedes Gericht hat Schritte, jede genannte Zutat
       gehoert zum Gericht (ueber eine Liste der Zutaten je Schritt)
-* [ ] 375 px ohne waagerechten Seitenlauf
-* [ ] Nutzer hat die Texte gelesen und freigegeben
+* [x] 375 px ohne waagerechten Seitenlauf
+* [x] Nutzer hat die Texte gelesen und freigegeben
 
 ## Implementation plan
 
@@ -79,4 +79,4 @@ Annahmen:
 
 * Zutaten und Gramm kommen aus dem aktiven Plan (`planned.ingredients`), Schritte aus dem aktiven Gericht, nicht aus dem Seed.
 * Die Spalte `Woche` hatte keine Aufklappkarte, daher der Knopf an der Slot Nummer statt einer ganzen Karte als Tippflaeche.
-* Kein eigener Plan Chunk vorhanden, `plan.ts` liegt im Hauptchunk. Pruefung bei 375 px steht noch aus (16.3 Abnahme im Browser).
+* Kein eigener Plan Chunk vorhanden, `plan.ts` liegt im Hauptchunk. Pruefung bei 375 px erledigt 27.10.2026, Texte vom Nutzer freigegeben 27.10.2026.
