@@ -155,6 +155,11 @@ Out of scope:
 
 ## Acceptance criteria
 
+Stand 27.10.2026 nach dem Merge: Lighthouse 12 mobil live Performance,
+Accessibility und Best Practices je 100 (ohne Sheet, Startziel Kueche).
+Lighthouse 12 fuehrt keine PWA Kategorie mehr, Installierbarkeit prueft der
+Nutzer auf dem iPhone. Offen sind die Punkte, die nur auf dem Geraet gehen.
+
 PWA
 
 * [ ] Chrome DevTools Application zeigt ein gueltiges Manifest ohne Warnung,
@@ -164,9 +169,9 @@ PWA
   (`env(safe-area-inset-*)`)
 * [ ] Im Flugmodus startet die installierte App, zeigt die letzten Sheet Werte
   mit ihrem Alter und Plan, Einkauf und Kochen voll
-* [ ] Cache Storage enthaelt nach einem vollen Durchlauf keine URL von
+* [x] Cache Storage enthaelt nach einem vollen Durchlauf keine URL von
   `googleapis.com` oder `anthropic.com` (in DevTools geprueft)
-* [ ] Nach einem Deploy laedt die App beim naechsten Start mit Netz die neue
+* [x] Nach einem Deploy laedt die App beim naechsten Start mit Netz die neue
   Version, nachgeladene Chunks der alten Version brechen eine offene Sitzung
   nicht ab
 * [ ] Wake Lock, Ton und Vibration der Kochansicht funktionieren in der
@@ -174,31 +179,31 @@ PWA
 
 Navigation und Oberflaeche
 
-* [ ] Bei 375 px keine waagerechte Seitenbewegung auf keinem Ziel und keinem
+* [x] Bei 375 px keine waagerechte Seitenbewegung auf keinem Ziel und keinem
   Segment
-* [ ] Vier Ziele unten, Tippflaechen mindestens 44 mal 44 px, aktives Ziel
+* [x] Vier Ziele unten, Tippflaechen mindestens 44 mal 44 px, aktives Ziel
   per `aria-current` markiert, per Tastatur bedienbar
-* [ ] Zurueck Geste und Neuladen fuehren auf dasselbe Ziel und Segment
-* [ ] Ohne Sheet zeigt die Leiste nur `Kueche` und startet dort
-* [ ] Kein Element mit `table`, keine Zeilenliste aus Bezeichnung gegen Wert
+* [x] Zurueck Geste und Neuladen fuehren auf dasselbe Ziel und Segment
+* [x] Ohne Sheet zeigt die Leiste nur `Kueche` und startet dort
+* [x] Kein Element mit `table`, keine Zeilenliste aus Bezeichnung gegen Wert
   als Grundbaustein auf `Heute`, `Verlauf` und `Training`
-* [ ] Jede Kennzahl, die bisher eine Verweigerung zeigt, zeigt sie weiterhin
+* [x] Jede Kennzahl, die bisher eine Verweigerung zeigt, zeigt sie weiterhin
   als Zahlenzeile an derselben Stelle wie die Zahl
-* [ ] Ab 900 px Navigation links, Inhalte zweispaltig, keine zweite Navigation
+* [x] Ab 900 px Navigation links, Inhalte zweispaltig, keine zweite Navigation
   im Markup
-* [ ] Lighthouse mobil auf der Live Seite: Accessibility und Best Practices je
+* [x] Lighthouse mobil auf der Live Seite: Accessibility und Best Practices je
   mindestens 95, PWA installierbar (holt die offene Messung aus Phase 6 nach)
 
 Regeln und Qualitaet
 
-* [ ] `git diff origin/main -- src/analytics src/parse` ist leer
-* [ ] Alle bestehenden Tests gruen, neue Tests fuer Router, Navigation ohne
+* [x] `git diff origin/main -- src/analytics src/parse` ist leer
+* [x] Alle bestehenden Tests gruen, neue Tests fuer Router, Navigation ohne
   Sheet und die Liste der vom Service Worker erlaubten URLs
-* [ ] Keine Zuweisung an `innerHTML` in `src/`, als Test
-* [ ] CSP enthaelt `worker-src 'self'` und `manifest-src 'self'`, sonst
+* [x] Keine Zuweisung an `innerHTML` in `src/`, als Test
+* [x] CSP enthaelt `worker-src 'self'` und `manifest-src 'self'`, sonst
   unveraendert, als Test
-* [ ] Bundle Budget aus der Tabelle eingehalten, Zahlen im Abschlusscommit
-* [ ] `npm run check` und Build sauber
+* [x] Bundle Budget aus der Tabelle eingehalten, Zahlen im Abschlusscommit
+* [x] `npm run check` und Build sauber
 
 ## Implementation plan
 

@@ -1,6 +1,6 @@
 # Uebergabe
 
-Stand 26.10.2026, Phase 11 abgeschlossen und live, Phase 12 in Arbeit (12.5 erledigt 27.10.2026, naechster Schritt 12.6 Abschluss).
+Stand 26.10.2026, Phase 11 abgeschlossen und live, Phase 12 live seit 27.10.2026, offen nur der iPhone Test des Nutzers.
 
 ## Wo wir stehen
 
@@ -112,19 +112,26 @@ in die Lighthouse Messung von 12.6.
 Bundle gzip: Haupt Chunk 35,82 kB, CSS 5,24 kB, `charts` 74,07 kB, alle JS
 Chunks 204,43 kB, `sw.js` 6,78 kB (Ziel 8), `index.html` 3,16 kB. 361 Tests.
 
-Startprompt 12.6 (neue Sitzung, Ordner dieses Worktrees, Branch
-`claude/mobile-app-b71746`): Lies CLAUDE.md, specs/roadmap.md,
-docs/uebergabe.md (Abschnitt Phase 12) und die Acceptance criteria in
-`specs/features/mobile-app.md`. Setze 12.6 um: Branch gegen `origin/main`
-abgleichen, `npm run check` und Build, `git diff origin/main -- src/analytics
-src/parse` leer, Bundle Zahlen. Merge nach `origin/main` und Push erst nach
-ausdruecklicher Freigabe des Nutzers. Danach Live Pruefung unter
-me.nahobinoco.com/fitness-dashboard/: Manifest ohne Warnung, Cache Storage ohne
-fremde URLs, Lighthouse mobil (Accessibility und Best Practices je 95, PWA
-installierbar). Schritte des Nutzers auf dem iPhone: Zum Home Bildschirm,
-Zugangsdaten neu eintragen, Start im Vollbild, Statusleiste hell und dunkel,
-Flugmodus, Kochansicht mit Wake Lock, Ton und Vibration. Acceptance criteria
-abhaken, Retro Phase 12 in `specs/roadmap.md`.
+12.6 Abschluss 27.10.2026: Branch per Vorspulen nach `origin/main`
+gepusht (`5e3f3cd..9baa8af`), Deploy gruen. Live geprueft: `sw.js`,
+`manifest.webmanifest`, Icons und `registerSW.js` liefern 200, CSP live mit
+`worker-src` und `manifest-src`, Service Worker aktiv mit Scope
+`/fitness-dashboard/`, Cache Storage nur eigene URLs (Precache 19, `data` 2),
+keine Konsolenfehler. Lighthouse 12.8.2 mobil live ohne Sheet: Performance,
+Accessibility, Best Practices je 100. Lighthouse 12 kennt keine PWA Kategorie
+mehr. `git diff origin/main -- src/analytics src/parse` war vor dem Merge leer.
+
+Test des Nutzers auf dem iPhone (offene Acceptance criteria der Spec):
+1. Safari, me.nahobinoco.com/fitness-dashboard/, Teilen, Zum Home Bildschirm
+2. App starten, Zugangsdaten in Einstellungen neu eintragen (eigener Speicher)
+3. Vollbild ohne Browserleiste, Statusleiste und Home Indikator verdecken
+   nichts, im hellen und im dunklen Schema
+4. Einmal alle vier Ziele oeffnen, dann Flugmodus, App ganz schliessen und neu
+   starten: letzte Werte mit Alter, Plan, Einkauf, Kochen
+5. Kochansicht: Wake Lock, Ton, Vibration
+6. Optional am Mac: Chrome DevTools, Application, Manifest ohne Warnung
+Ein Update wird aktiv, wenn die App ganz geschlossen war. Bei Fehlern: Befund
+in eine neue Sitzung, Rueckfall ueber `selfDestroying` (ADR 0006).
 
 ## Phase 11 Kochansicht
 
