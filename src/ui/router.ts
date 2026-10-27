@@ -13,9 +13,12 @@ export type Destination = (typeof DESTINATIONS)[number];
 export const SEGMENTS: Readonly<Record<Destination, readonly string[]>> = {
   heute: [],
   verlauf: ['gewicht', 'ernaehrung', 'wellness', 'wochen', 'analyse'],
-  training: [],
+  training: ['auswertung', 'eintragen'],
   kueche: ['heute', 'woche', 'prep', 'vorschlag', 'einkauf'],
 };
+
+/** Segmente, die nur mit Endpunkt und Token des Apps Script erscheinen (ADR 0007). */
+const LOG_SEGMENTS: readonly string[] = ['eintragen'];
 
 /** Ziele, deren Daten im Bundle liegen und die deshalb ohne Sheet funktionieren. */
 const STANDALONE_DESTINATIONS: readonly Destination[] = ['kueche'];
@@ -30,7 +33,7 @@ export interface Route {
 }
 
 /** Abschnitte im Markup, aus der Zeit der acht Reiter. Ein Ziel zeigt hoechstens einen davon. */
-export type SectionId = 'overview' | 'nutrition' | 'wellness' | 'weeks' | 'analysis' | 'training' | 'plan' | 'shopping';
+export type SectionId = 'overview' | 'nutrition' | 'wellness' | 'weeks' | 'analysis' | 'training' | 'log' | 'plan' | 'shopping';
 
 /** Ansichten innerhalb des Abschnitts Plan, gleiche Werte wie in `plan.ts`. */
 export type PlanView = 'today' | 'week' | 'prep' | 'proposal';
@@ -41,6 +44,8 @@ const SECTION_BY_SEGMENT: Readonly<Record<string, SectionId>> = {
   'verlauf/wellness': 'wellness',
   'verlauf/wochen': 'weeks',
   'verlauf/analyse': 'analysis',
+  'training/auswertung': 'training',
+  'training/eintragen': 'log',
   'kueche/heute': 'plan',
   'kueche/woche': 'plan',
   'kueche/prep': 'plan',
@@ -83,6 +88,11 @@ export function visibleDestinations(hasSheet: boolean): readonly Destination[] {
   return hasSheet ? DESTINATIONS : STANDALONE_DESTINATIONS;
 }
 
+/** Segmente eines Ziels, die gezeigt werden. Ohne Zugang zum Apps Script fehlt `eintragen`. */
+export function visibleSegments(destination: Destination, canLog: boolean): readonly string[] {
+  return SEGMENTS[destination].filter((segment) => canLog || !LOG_SEGMENTS.includes(segment));
+}
+
 export function startRoute(hasSheet: boolean): Route {
   const destination = hasSheet ? ONLINE_START : OFFLINE_START;
   return { destination, segment: defaultSegment(destination) };
@@ -93,14 +103,16 @@ export function startRoute(hasSheet: boolean): Route {
  * braucht, auf das Startziel aus. Der Hash bleibt dabei stehen, damit nach dem
  * Laden der Daten wieder das gewuenschte Ziel erscheint.
  */
-export function resolveRoute(requested: Route | null, hasSheet: boolean): Route {
-  if (requested && visibleDestinations(hasSheet).includes(requested.destination)) return requested;
-  return startRoute(hasSheet);
+export function resolveRoute(requested: Route | null, hasSheet: boolean, canLog = false): Route {
+  if (!requested || !visibleDestinations(hasSheet).includes(requested.destination)) return startRoute(hasSheet);
+  if (requested.segment !== null && !visibleSegments(requested.destination, canLog).includes(requested.segment)) {
+    return { destination: requested.destination, segment: defaultSegment(requested.destination) };
+  }
+  return requested;
 }
 
 /** Abschnitt im Markup zu einer Route. `null` fuer `heute`, das nur die Kopfbloecke zeigt. */
 export function sectionFor(route: Route): SectionId | null {
-  if (route.destination === 'training') return 'training';
   return SECTION_BY_SEGMENT[formatHash(route).slice(1)] ?? null;
 }
 

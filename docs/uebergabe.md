@@ -1,6 +1,6 @@
 # Uebergabe
 
-Stand 27.10.2026, Phase 12 live, offen nur der iPhone Test des Nutzers. Phase 13 freigegeben, 13.1 bis 13.3 erledigt, naechster Schritt 13.4.
+Stand 27.10.2026, Phase 12 live, offen nur der iPhone Test des Nutzers. Phase 13 freigegeben, 13.1 bis 13.4 erledigt, naechster Schritt 13.5 mit dem Nutzer.
 
 ## Wo wir stehen
 
@@ -73,38 +73,9 @@ umgestellt. Gearbeitet wird weiter im Worktree `.claude/worktrees/mobile-app-b71
 auf Branch `claude/mobile-app-b71746` (Stand `origin/main` plus Phase 13 Doku),
 Merge nach `origin/main` nur nach Freigabe des Nutzers.
 
-13.1 erledigt 27.10.2026: `Heute` zeigt drei Magnetkarten, `Gewicht` (letzte
-Waegung, Datum, Zahl der Waegungen), `Trend pro Woche` (geglaettet, Plan und
-Basis, rot ab 1,5facher Sollrate wie zuvor) und `Gesamtverlust` (erste gegen
-letzte Waegung, `Zugelegt` bei Zunahme). Am Anfang von `Verlauf` `Analyse`
-stehen neu `Fortschritt` (Fortschritt zum Ziel mit Balken, Compliance),
-`Insights` und `Tagesdurchschnitt`; Wochenrate und Zieldatum standen dort schon
-(`Rate`, `Ziel N kg`). Kopfzeile `Makrocycle 1` und Hinweis der Zielwerte
-bleiben auf `Heute`. `src/analytics` und `src/parse` unveraendert.
-Annahmen: Einheit `kg/Woche` brach bei 375 px um, daher Bezeichnung `Trend pro
-Woche` mit Einheit `kg`; ohne Zielgewicht zeigt `Fortschritt zum Ziel` die
-Verweigerung `Kein Zielgewicht` statt zu fehlen; die Unterzeile von
-`Tagesdurchschnitt` nennt jetzt den Gesamtzeitraum, vorher irrtuemlich den
-gefilterten (`rangeCaption` in `src/ui/format.ts`). Test `test/today.test.ts`.
-Bundle gzip: Haupt Chunk 35,71 kB (vorher 35,82), CSS 5,24 kB, `charts`
-74,07 kB. 365 Tests. Geprueft im Build bei 375 px hell und dunkel, ohne
-waagerechten Lauf.
-
-13.2 erledigt 27.10.2026: Aus `claude/daily-import-36c9f1` (`b5a8081`)
-uebernommen `apps-script/daily-import-core.js`, `test/daily-import-core.test.ts`,
-`test/fixtures/daily-import/`, ESLint Block fuer `apps-script/`. Neu
-`apps-script/training-log-core.js` mit `validateTrainingRequest`,
-`findDayHeader`, `findWeekBlock`, `findExerciseRow`, `planTrainingWrites`;
-nutzt die Hilfsfunktionen des Daily Import Kerns (gemeinsamer globaler
-Namensraum, Tests laden beide Dateien in einen vm Kontext). Synthetische Tabs
-`test/fixtures/training-log/with-notes.json` und `without-notes.json`. 437 Tests.
-Befund am Tab (in der Spec nachgetragen): Kopf hat zweimal `Reps`, Ist ist das
-hinter `Load`; je Tag eine eigene Kopfzeile; doppelte Uebungszeilen, daher
-`occurrence` je Eintrag; neuer Fehlercode `unknown_day`; nur Tabs `Mesocycle N`.
-Annahmen: Hoechstlaenge `Reps Ist` 40 Zeichen (Spec nennt keine); die
-Vorschau Fixture zeigt auch in `Mesocycle 1` eine Spalte `Notes`,
-`specs/sheet-structure.md` sagt nein. Die Logik kommt mit beidem aus, das
-Kriterium "Notes in Mesocycle 1 nicht angeboten" wird in 13.5 am echten Tab
+13.1 (`0513e2d`) und 13.2 (`3e80c01`) erledigt 27.10.2026, Einzelheiten und
+Annahmen in `docs/uebergabe-archiv-2026-10-26.md`. Annahme aus 13.2 bleibt
+offen: ob `Mesocycle 1` eine Spalte `Notes` hat, wird in 13.5 am echten Tab
 geprueft.
 
 13.3 erledigt 27.10.2026: `apps-script/daily-import.js` mit `doPost`,
@@ -118,23 +89,34 @@ Tests. Anleitung `apps-script/README.md` mit Test gegen Kopie `Mesocycle 99`
 und CORS Probe. Bereitstellung und CORS Probe (Open question 4) macht der
 Nutzer, siehe README.
 
-Startprompt 13.4 (Ordner dieses Worktrees): Lies CLAUDE.md, specs/roadmap.md,
-docs/uebergabe.md (Abschnitt Phase 13), `specs/features/training-log.md` und
-`apps-script/README.md` (Abschnitt Antworten). Setze 13.4 um: Einstellungen
-Endpunkt URL und Token (localStorage), Segment `Eintragen` und `Auswertung`
-unter Training (`#training/eintragen`), Entwurf im localStorage, Senden als
-`text/plain`, CSP `connect-src` um die zwei Script Hosts mit Test, URL Regel
-des Service Workers mit Test, Chunk `log` hoechstens 4 kB gzip. Nicht pushen.
+13.4 erledigt 27.10.2026: Unter `Training` die Segmente `Auswertung` und
+`Eintragen` (`#training/eintragen`); `Eintragen` erscheint nur mit Apps Script
+URL und Token aus den Einstellungen (localStorage `fitness_log_access_v1`, nur
+URLs ab `https://script.google.com/`). Chunk `log` (`src/log/`): liest den
+Mesocycle Tab wie das Script, Chips fuer Woche und Tag, Vorauswahl erste Woche
+ohne `Reps Ist`, je Uebung Soll und die Felder `Load`, `Reps Ist`, `Notes`
+(nur mit Spalte), belegte Zellen gesperrt mit Wert. Entwurf sofort im
+localStorage `fitness_log_draft_v1`. `Senden` ohne Content Type, offline
+gesperrt; Antwort je Feld `geschrieben`, `belegt` oder Fehlercode, danach
+Neuladen der Daten. Ist die Antwort nicht lesbar (CORS), meldet die App nur
+den Versand und laedt neu. CSP `connect-src` um `script.google.com` und
+`script.googleusercontent.com`, beide mit Test, ebenso die Vorbeileitung im
+Service Worker. 471 Tests. Bundle gzip: Haupt Chunk 36,29 kB (+0,58), `log`
+2,98 kB, CSS 5,32 kB. Geprueft im Build bei 375 px hell und dunkel mit
+erfundenem Endpunkt, ohne Senden.
+Annahmen: Summenzeilen unter den Uebungen zaehlen nicht (erste Leerzeile
+beendet den Block, Befund an den Vorschaudaten, in der Spec nachgetragen);
+Vorauswahl gilt fuer den zuerst gewaehlten Tag, danach je Tagwechsel neu;
+Offline Sperre nur im Code geprueft, nicht im Browser.
 
-Entwurf 13.4 (Sitzung vom 27.10.2026, falls sie abbricht): Router
-`SEGMENTS.training = ['auswertung', 'eintragen']`, `eintragen` nur sichtbar mit
-Endpunkt und Token, sonst faellt die Route auf `auswertung`; Abschnitt `log`
-neben `training`. CSS Regel, die `.segment-row` unter Training versteckt,
-entfaellt. Zugang in eigenem localStorage Schluessel, Felder im Dialog
-Einstellungen. Chunk `log` (`src/log/`) mit reiner Funktion, die den Tab wie
-das Script liest (Kopfzeile je Tag, `Load`, `Reps` hinter `Load`, `Notes`),
-Entwurf je Tab, Woche, Tag; Senden ohne Content Type (also `text/plain`),
-Tab aus `trainingSheetName`.
+Startprompt 13.5 (Ordner dieses Worktrees): Lies CLAUDE.md, specs/roadmap.md,
+docs/uebergabe.md (Abschnitt Phase 13), `specs/features/training-log.md` und
+`apps-script/README.md`. 13.5 braucht den Nutzer: Script bereitstellen, CORS
+Probe, Test gegen Kopie `Mesocycle 99` (README), dann App gegen die Kopie
+(Einstellungen URL und Token, ein Senden, zweites Senden `belegt`), offene
+Kriterien der Spec abhaken, Freigabe zum Merge nach `origin/main` einholen,
+nach Merge Live Test im Studio, Retro Phase 13 in `specs/roadmap.md`. Nicht
+ohne Freigabe pushen.
 
 ## Phase 11 Kochansicht
 

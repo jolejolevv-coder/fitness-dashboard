@@ -10,12 +10,13 @@ import {
   sectionFor,
   startRoute,
   visibleDestinations,
+  visibleSegments,
 } from '../src/ui/router';
 
 describe('parseHash', () => {
   it('liest Ziel ohne Segment', () => {
     expect(parseHash('#heute')).toEqual({ destination: 'heute', segment: null });
-    expect(parseHash('#training')).toEqual({ destination: 'training', segment: null });
+    expect(parseHash('#training')).toEqual({ destination: 'training', segment: 'auswertung' });
   });
 
   it('liest Ziel mit Segment', () => {
@@ -99,7 +100,8 @@ describe('Abschnitte und Planansicht', () => {
 
   it('zeigt auf Heute keinen Abschnitt, auf Training den Abschnitt Training', () => {
     expect(sectionFor({ destination: 'heute', segment: null })).toBeNull();
-    expect(sectionFor({ destination: 'training', segment: null })).toBe('training');
+    expect(sectionFor({ destination: 'training', segment: 'auswertung' })).toBe('training');
+    expect(sectionFor({ destination: 'training', segment: 'eintragen' })).toBe('log');
   });
 
   it('fuehrt die Kueche auf Plan mit Ansicht oder auf Einkauf', () => {
@@ -118,5 +120,18 @@ describe('Abschnitte und Planansicht', () => {
       expect(view).not.toBeNull();
       if (view) expect(kuecheRouteFor(view)).toEqual(route);
     }
+  });
+});
+
+describe('Training eintragen', () => {
+  it('zeigt eintragen nur mit Zugang zum Apps Script', () => {
+    expect(visibleSegments('training', false)).toEqual(['auswertung']);
+    expect(visibleSegments('training', true)).toEqual(['auswertung', 'eintragen']);
+  });
+
+  it('faellt ohne Zugang von eintragen auf auswertung zurueck', () => {
+    const requested = parseHash('#training/eintragen');
+    expect(resolveRoute(requested, true, false)).toEqual({ destination: 'training', segment: 'auswertung' });
+    expect(resolveRoute(requested, true, true)).toEqual({ destination: 'training', segment: 'eintragen' });
   });
 });

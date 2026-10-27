@@ -26,7 +26,8 @@ import { renderCoach } from './ui/coach';
 import { renderMetrics } from './ui/metrics';
 import type { WeightMode } from './charts/weight';
 import { renderTraining } from './ui/training';
-import { closeSettings, currentRoute, navigate, openSettings, setHasSheet, setupRangeButtons, setupShell } from './ui/shell';
+import { closeSettings, currentRoute, navigate, openSettings, setCanLog, setHasSheet, setupRangeButtons, setupShell } from './ui/shell';
+import { getLogAccess, isValidEndpoint, saveLogAccess } from './config/logAccess';
 import { kuecheRouteFor, planViewFor, sectionFor, type Route } from './ui/router';
 import { onPlanViewChange, renderPlan, setPlanView } from './ui/plan';
 import { renderShopping } from './ui/shopping';
@@ -50,12 +51,14 @@ const AGE_TICK_MS = 60 * 1000;
 
 const MS_PER_DAY = 864e5;
 
-const SECTION_NAMES = ['overview', 'nutrition', 'wellness', 'weeks', 'training', 'analysis', 'plan', 'shopping'] as const;
+const SECTION_NAMES = ['overview', 'nutrition', 'wellness', 'weeks', 'training', 'log', 'analysis', 'plan', 'shopping'] as const;
 
 let allDaily: DailyEntry[] = [];
 let allWeekBlocks: WeekBlock[] = [];
 let goals: Goals | null = null;
 let training: ParsedTraining | null = null;
+/** Rohzeilen des Mesocycle Tabs, das Segment `Eintragen` liest sie selbst. */
+let trainingRows: SheetValues = [];
 let sections: SectionRenderers | null = null;
 let dateRangeDays = 0;
 let weightMode: WeightMode = 'weight';
@@ -86,6 +89,9 @@ function showConfig(): void {
   set('input-anthropic-key', loadApiKey() ?? '');
   const target = getTargets().targetWeightKg;
   set('input-target-weight', target === null ? '' : String(target));
+  const access = getLogAccess();
+  set('input-log-endpoint', access?.endpoint ?? '');
+  set('input-log-token', access?.token ?? '');
   openSettings();
   input('input-sheet-id')?.focus();
 }
@@ -110,10 +116,21 @@ function handleSaveConfig(): void {
     return;
   }
 
+  // Training eintragen: beide oder keins, und nur an eine Apps Script Adresse.
+  const logEndpoint = input('input-log-endpoint')?.value.trim() ?? '';
+  const logToken = input('input-log-token')?.value.trim() ?? '';
+  if (Boolean(logEndpoint) !== Boolean(logToken) || (logEndpoint && !isValidEndpoint(logEndpoint))) {
+    alert('Apps Script URL (https://script.google.com/…) und Token gehören zusammen.');
+    return;
+  }
+
   saveCredentials(credentials);
   saveTargets({ targetWeightKg: parsedTarget });
   // Eigener Schluessel, getrennt von den Google Zugangsdaten. Leer entfernt ihn.
   saveApiKey(input('input-anthropic-key')?.value ?? null);
+  saveLogAccess(logEndpoint, logToken);
+  dirty.add('log');
+  setCanLog(getLogAccess() !== null);
   closeSettings();
   if (goals) renderShared();
   void loadData(true);
@@ -243,6 +260,10 @@ function renderActiveSection(): void {
     void renderChartSection(name);
     return;
   }
+  if (name === 'log') {
+    void renderLogSection();
+    return;
+  }
   if (dirty.has(name)) {
     rendererFor(name)?.();
     dirty.delete(name);
@@ -270,6 +291,33 @@ async function renderChartSection(name: string): Promise<void> {
   }
   // Nach dem Einblenden nachmessen, siehe resizeVisibleCharts.
   requestAnimationFrame(charts.resizeVisibleCharts);
+}
+
+/**
+ * Segment `Eintragen` als Chunk `log`. Wie bei den Diagrammen bleibt der
+ * Abschnitt markiert, wenn der Abruf scheitert.
+ */
+async function renderLogSection(): Promise<void> {
+  const container = byId('log');
+  const access = getLogAccess();
+  if (!container || !access || !dirty.has('log')) return;
+  let log: typeof import('./log/index');
+  try {
+    log = await import('./log/index');
+  } catch (error) {
+    statusSuffix = ` · Eintragen nicht geladen: ${describe(error)}`;
+    updateDataAge();
+    return;
+  }
+  if (activeSection() !== 'log') return;
+  const credentials = getCredentials();
+  log.renderLog(container, {
+    rows: trainingRows,
+    sheet: credentials.trainingSheetName || DEFAULT_TRAINING_SHEET,
+    access,
+    reload: () => loadData(true),
+  });
+  dirty.delete('log');
 }
 
 /**
@@ -339,6 +387,7 @@ function applyParsed(raw: SheetValues, rawTraining: SheetValues, timestamp: numb
   allWeekBlocks = parsed.weekBlocks;
   goals = parseGoals(raw, rawTraining);
   training = rawTraining.length ? parseTraining(rawTraining) : null;
+  trainingRows = rawTraining;
   dataTimestamp = timestamp;
   dataFromCache = fromCache;
 
@@ -428,7 +477,7 @@ function wire(): void {
     button.addEventListener('click', () => setWeightMode((button.dataset['mode'] ?? 'weight') as WeightMode));
   }
 
-  setupShell(showRoute, hasCredentials(getCredentials()));
+  setupShell(showRoute, hasCredentials(getCredentials()), getLogAccess() !== null);
   // Der Plan wechselt nach einer Uebernahme selbst auf Woche, der Hash zieht nach.
   onPlanViewChange((view) => navigate(kuecheRouteFor(view)));
   setupRangeButtons(applyDateRange);

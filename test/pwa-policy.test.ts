@@ -33,6 +33,13 @@ describe('classifyRequest', () => {
     expect(classifyRequest(get('https://api.anthropic.com/v1/models'), SCOPE)).toBe('bypass');
   });
 
+  it('laesst das Apps Script vorbei, POST wie GET, samt Umleitung', () => {
+    const exec = 'https://script.google.com/macros/s/ID/exec';
+    expect(classifyRequest({ url: exec, method: 'POST', mode: 'cors' }, SCOPE)).toBe('bypass');
+    expect(classifyRequest(get(exec), SCOPE)).toBe('bypass');
+    expect(classifyRequest(get('https://script.googleusercontent.com/macros/echo?user_content_key=X'), SCOPE)).toBe('bypass');
+  });
+
   it('laesst fremde Herkunft mit gleichem Pfad vorbei', () => {
     expect(classifyRequest(get('https://example.com/fitness-dashboard/assets/a.js'), SCOPE)).toBe('bypass');
     expect(classifyRequest(get('http://me.nahobinoco.com/fitness-dashboard/assets/a.js'), SCOPE)).toBe('bypass');

@@ -2,12 +2,12 @@ import { countTabOpened } from '../config/usage';
 import { byId } from './dom';
 import { FOCUS_ATTR, el } from './build';
 import {
-  SEGMENTS,
   formatHash,
   parseHash,
   resolveRoute,
   sectionFor,
   visibleDestinations,
+  visibleSegments,
   type Destination,
   type Route,
 } from './router';
@@ -41,9 +41,13 @@ const SEGMENT_LABELS: Readonly<Record<string, string>> = {
   prep: 'Prep',
   vorschlag: 'Vorschlag',
   einkauf: 'Einkauf',
+  auswertung: 'Auswertung',
+  eintragen: 'Eintragen',
 };
 
 let hasSheet = false;
+/** Endpunkt und Token des Apps Script liegen vor, das Segment `eintragen` erscheint. */
+let canLog = false;
 let current: Route | null = null;
 let routeHandler: RouteHandler = () => undefined;
 
@@ -123,7 +127,7 @@ let segmentDestination: Destination | null = null;
 function buildSegmentBar(destination: Destination): HTMLElement {
   const bar = el('div', { class: 'segment-bar', attrs: { role: 'group', 'aria-label': DESTINATION_LABELS[destination] } });
   bar.appendChild(el('span', { class: 'segment-puck', attrs: { 'aria-hidden': 'true' } }));
-  for (const segment of SEGMENTS[destination]) {
+  for (const segment of visibleSegments(destination, canLog)) {
     const item = el('button', {
       class: 'segment-item',
       text: SEGMENT_LABELS[segment] ?? segment,
@@ -139,7 +143,8 @@ function buildSegmentBar(destination: Destination): HTMLElement {
 function renderSegmentBar(route: Route): void {
   const slot = byId('segment-bar');
   if (!slot) return;
-  if (!SEGMENTS[route.destination].length || route.segment === null) {
+  // Ein einzelnes Segment braucht keine Leiste.
+  if (visibleSegments(route.destination, canLog).length < 2 || route.segment === null) {
     slot.replaceChildren();
     segmentDestination = null;
     return;
@@ -172,7 +177,7 @@ function showSections(route: Route): void {
 }
 
 function apply(): void {
-  const route = resolveRoute(parseHash(window.location.hash), hasSheet);
+  const route = resolveRoute(parseHash(window.location.hash), hasSheet, canLog);
   const changed = current === null || formatHash(current) !== formatHash(route);
   current = route;
 
@@ -196,9 +201,18 @@ export function setHasSheet(value: boolean): void {
   apply();
 }
 
-export function setupShell(onRoute: RouteHandler, initialHasSheet: boolean): void {
+/** Zugang zum Apps Script gespeichert oder entfernt. Baut die Segmentleiste neu. */
+export function setCanLog(value: boolean): void {
+  if (value === canLog) return;
+  canLog = value;
+  segmentDestination = null;
+  if (current !== null) apply();
+}
+
+export function setupShell(onRoute: RouteHandler, initialHasSheet: boolean, initialCanLog: boolean): void {
   routeHandler = onRoute;
   hasSheet = initialHasSheet;
+  canLog = initialCanLog;
   window.addEventListener('hashchange', apply);
   window.addEventListener('resize', placeMagnets);
   apply();

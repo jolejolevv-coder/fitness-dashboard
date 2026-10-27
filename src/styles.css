@@ -424,6 +424,33 @@ button, select, input, textarea { font: inherit; color: inherit; }
   cursor: pointer;
 }
 .btn-primary:hover, .btn-primary:active { background: var(--ink); }
+.btn-primary:disabled { opacity: 0.4; cursor: default; }
+
+/* ── Training eintragen ────────────────────────────────────────────────────── */
+
+#log .chips { margin-bottom: 10px; }
+.log-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 10px;
+}
+.log-field { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.log-field.is-wide { grid-column: 1 / -1; }
+.log-field-name { color: var(--ink-3); font: 600 12px/1.2 var(--text); }
+.log-field input {
+  width: 100%;
+  min-height: 44px;
+  padding: 0 12px;
+  border: none;
+  border-radius: 10px;
+  background: var(--card-sunk);
+  color: var(--ink);
+  font-size: 16px;
+}
+.log-field input:disabled { color: var(--ink-3); }
+.log-field .mark { align-self: flex-start; }
+.log-status { margin-top: 8px; text-align: center; }
 
 .toolbar {
   display: flex;
@@ -452,7 +479,6 @@ button, select, input, textarea { font: inherit; color: inherit; }
 #segment-bar:empty { display: none; }
 
 body[data-destination='heute'] .segment-row,
-body[data-destination='training'] .segment-row,
 body:not([data-destination='verlauf']) #range-chips { display: none; }
 
 

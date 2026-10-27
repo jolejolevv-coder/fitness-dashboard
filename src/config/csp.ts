@@ -8,7 +8,17 @@
  * traegt `style` Attribute.
  */
 
-export const CSP_CONNECT_HOSTS: readonly string[] = ['https://sheets.googleapis.com', 'https://api.anthropic.com'];
+/**
+ * Das Apps Script nimmt den POST unter script.google.com an und leitet die
+ * Antwort auf script.googleusercontent.com um, beide Hosts braucht `fetch`
+ * (Training eintragen, ADR 0007).
+ */
+export const CSP_CONNECT_HOSTS: readonly string[] = [
+  'https://sheets.googleapis.com',
+  'https://api.anthropic.com',
+  'https://script.google.com',
+  'https://script.googleusercontent.com',
+];
 
 export const CSP_DIRECTIVES: Readonly<Record<string, readonly string[]>> = {
   'default-src': ["'self'"],

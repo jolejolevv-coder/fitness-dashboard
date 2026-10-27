@@ -76,9 +76,12 @@ describe('CSP', () => {
   const directive = (name: string): string[] =>
     policy.split('; ').find((part) => part.startsWith(`${name} `))?.split(' ').slice(1) ?? [];
 
-  it('erlaubt Verbindungen nur zu self, Sheets und Anthropic', () => {
-    expect(directive('connect-src')).toEqual(["'self'", 'https://sheets.googleapis.com', 'https://api.anthropic.com']);
-    expect(CSP_CONNECT_HOSTS).toHaveLength(2);
+  it('erlaubt Verbindungen nur zu self, Sheets, Anthropic und dem Apps Script', () => {
+    expect(directive('connect-src')).toEqual([
+      "'self'", 'https://sheets.googleapis.com', 'https://api.anthropic.com',
+      'https://script.google.com', 'https://script.googleusercontent.com',
+    ]);
+    expect(CSP_CONNECT_HOSTS).toHaveLength(4);
   });
 
   it('laedt Skripte nur von self, ohne unsafe-inline und unsafe-eval', () => {

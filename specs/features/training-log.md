@@ -140,25 +140,25 @@ Heute
 
 Eintragen
 
-* [ ] Ohne Endpunkt und Token gibt es kein Segment `Eintragen`
-* [ ] Woche und Tag waehlbar, Vorauswahl erste Woche ohne `Reps Ist` am Tag
-* [ ] Belegte Zellen erscheinen gesperrt mit ihrem Wert
-* [ ] Entwurf ueberlebt Neuladen und Neustart der installierten App
+* [x] Ohne Endpunkt und Token gibt es kein Segment `Eintragen`
+* [x] Woche und Tag waehlbar, Vorauswahl erste Woche ohne `Reps Ist` am Tag
+* [x] Belegte Zellen erscheinen gesperrt mit ihrem Wert
+* [x] Entwurf ueberlebt Neuladen und Neustart der installierten App
 * [ ] Ein Senden schreibt im Sheet nur vorher leere Zellen `Load`, `Reps Ist`,
   `Notes` der gewaehlten Woche und des Tags, sonst aendert sich keine Zelle
   (am Test Tab geprueft)
 * [ ] Falsches Token: `unauthorized`, im Sheet aendert sich nichts
 * [ ] Fehlende Spalte `Notes` in `Mesocycle 1`: Notes werden nicht angeboten
 * [ ] Offline ist `Senden` gesperrt, der Entwurf bleibt
-* [ ] Der Service Worker fasst `script.google.com` nicht an (Test der URL Regel)
+* [x] Der Service Worker fasst `script.google.com` nicht an (Test der URL Regel)
 
 Regeln und Qualitaet
 
 * [x] Kernfunktionen des Scripts (Block finden, Zeile finden, Schreibplan) als
   reine Funktionen mit synthetischen Tabs getestet
-* [ ] CSP nur um die zwei Script Hosts ergaenzt, als Test
-* [ ] Bundle Budget eingehalten, Zahlen im Commit
-* [ ] `npm run check` und Build sauber, Pruefung bei 375 px hell und dunkel
+* [x] CSP nur um die zwei Script Hosts ergaenzt, als Test
+* [x] Bundle Budget eingehalten, Zahlen im Commit
+* [x] `npm run check` und Build sauber, Pruefung bei 375 px hell und dunkel
 * [ ] Live Test im Studio durch den Nutzer
 
 ## Implementation plan
@@ -180,6 +180,11 @@ Nutzer, Anleitung in `apps-script/README.md`.
 
 Phase 13.4 App: Einstellungen, Segment `Eintragen`, Entwurf, Senden, CSP, URL
 Regel des Service Workers erweitert, Chunk `log`.
+
+Nachtrag 13.4: Unter den Uebungen eines Tags stehen im Tab nach Leerzeilen
+Summenzeilen (`Dauer der Trainingseinheit`, `Vol. Upper`, `Satzzahl`). Die App
+nimmt als Uebungen nur die zusammenhaengenden Zeilen direkt unter der
+Kopfzeile, die erste leere Zeile beendet den Block.
 
 Phase 13.5 Abschluss: Test gegen eine Kopie des Mesocycle Tabs, Merge nach
 Freigabe, Live Test im Studio, Retro.
