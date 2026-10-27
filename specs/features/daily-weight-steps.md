@@ -1,6 +1,6 @@
 # Phase 15: Gewicht und Schritte automatisch eintragen
 
-Status: Entwurf 27.10.2026, nicht freigegeben.
+Status: freigegeben 27.10.2026.
 
 ## Goal
 
@@ -77,6 +77,16 @@ Out of scope:
 
 ## Open questions
 
-* Reichen die Datumszeilen in `Daily Tracking` ueber den 25.10.2026 hinaus?
-  Laut Erhebung vom 29.07.2026 enden sie dort. Pruefung in 15.1 ueber die
-  Daten des Dashboards
+* Keine. Die Datumszeilen reichen bis 28.02.2027 (Pruefung 27.10.2026 ueber
+  den Cache des Dashboards)
+
+## Stand
+
+* 15.1 erledigt: Das Script braucht keine Aenderung. `planWrites` reicht Zahlen
+  als Zahlen durch, `setValue` schreibt sie, die Anzeige folgt dem Gebietsschema
+  des Blatts. Bestand: `Weight` wie `85,1`, `Time` wie `08:54`, `Steps` ganze
+  Zahl. Neuer Test fuer den Morgenlauf mit den drei Feldern
+* 15.2 erledigt: `docs/daily-import-setup.md`. Annahme: ein zweiter Kurzbefehl
+  `Tageswerte Nachtrag` fragt das Datum ab, damit die Automation ohne Abfrage
+  laeuft
+* 15.3 beim Nutzer: Token, Kurzbefehl, Automation, Pruefung nach Anleitung

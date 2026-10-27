@@ -292,6 +292,14 @@ describe('Ablauf wie in der Huelle', () => {
     expect('writes' in plan && plan.writes.map((w) => w.header)).toEqual(['Steps', 'Calories']);
   });
 
+  it('schreibt den Morgenlauf aus Phase 15 mit Zahlen als Zahlen', () => {
+    const plan = planFor(loadTable('week-blocks'), day(12, 1, 2030), { Weight: 85.1, Time: '08:54', Steps: 11400 });
+    expect(plan).toMatchObject({ ok: true, skipped: [] });
+    expect('writes' in plan && plan.writes.map((w) => [w.header, w.value])).toEqual([
+      ['Weight', 85.1], ['Time', '08:54'], ['Steps', 11400],
+    ]);
+  });
+
   it('beschreibt in verschobenen Spalten die richtige Spalte', () => {
     const plan = planFor(loadTable('shifted-columns'), day(13, 1, 2030), { Steps: 9000 });
     expect(plan).toMatchObject({ ok: true, row: 37, writes: [{ header: 'Steps', column: 19, value: 9000 }] });

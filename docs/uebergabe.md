@@ -156,7 +156,9 @@ nachgestellter API Antwort geprueft, auch bei 375 px. Live auf main (`256b58c`).
 Phase 15 Gewicht und Schritte automatisch: Spec
 `specs/features/daily-weight-steps.md`, Fragen beantwortet (Kurzbefehl mit
 Tippen, morgens fuer gestern, Schritte nur Zepp, `Makros.gs` laeuft nicht
-mehr), Freigabe offen.
+mehr), freigegeben. 15.1 und 15.2 erledigt, Script unveraendert, Anleitung
+`docs/daily-import-setup.md`. Offen: 15.3 Einrichtung durch den Nutzer, eine
+Woche Betrieb, Retro.
 
 ## Phase 11 Kochansicht
 
