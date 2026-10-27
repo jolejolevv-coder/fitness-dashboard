@@ -280,6 +280,8 @@ async function renderChartSection(name: string): Promise<void> {
 function renderAnalysisTab(): void {
   if (!goals) return;
   renderAnalysis(allDaily, goals, getTargets().targetWeightKg);
+  renderCoach(allDaily, goals);
+  renderMetrics(allDaily, goals);
 }
 
 function applyDateRange(days: number): void {
@@ -288,19 +290,16 @@ function applyDateRange(days: number): void {
 }
 
 /**
- * Kopf, Hero, Coaching und sekundaere Kennzahlen.
+ * Kopf, Heute und die Diagrammabschnitte.
  *
- * Hero, Coaching und Kennzahlen rechnen ueber den gesamten Bestand, weil ihre
- * Aussagen Fenster von bis zu 56 Tagen brauchen. Die Diagramme folgen dem
- * Zeitraumfilter.
+ * Heute rechnet ueber den gesamten Bestand, die Diagramme folgen dem
+ * Zeitraumfilter. Coaching und Tagesdurchschnitt stehen in `Analyse`.
  */
 function renderShared(): void {
   if (!goals) return;
   const targetWeightKg = getTargets().targetWeightKg;
 
-  renderHero({ daily: allDaily, goals, targetWeightKg });
-  renderCoach(allDaily, goals);
-  renderMetrics(allDaily, goals);
+  renderHero({ daily: allDaily, goals });
 
   sections = renderDashboard({
     daily: filteredDaily(),

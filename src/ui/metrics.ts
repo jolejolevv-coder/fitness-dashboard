@@ -1,9 +1,9 @@
 import type { DailyEntry } from '../types';
 import type { Goals } from '../parse/goals';
 import { avg } from '../analytics/smoothing';
-import { byId } from './dom';
+import { byId, setText } from './dom';
 import { el } from './build';
-import { decimal, EMPTY, integer, signed, target as formatTarget } from './format';
+import { decimal, EMPTY, integer, rangeCaption, signed, target as formatTarget } from './format';
 
 /**
  * Sekundaere Kennzahlen, in drei Gruppen.
@@ -74,6 +74,8 @@ function group(title: string, cards: HTMLElement[]): HTMLElement[] {
 export function renderMetrics(daily: readonly DailyEntry[], goals: Goals): void {
   const container = byId('metrics');
   if (!container) return;
+  // Die Kennzahlen rechnen ueber den gesamten Bestand, die Unterzeile auch.
+  setText('metrics-range', rangeCaption(daily));
 
   const goal = goals.average;
   const mean = (pick: (e: DailyEntry) => number | null): number | null => avg(daily.map(pick));

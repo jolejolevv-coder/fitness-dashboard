@@ -45,3 +45,17 @@ export const dateFormat = new Intl.DateTimeFormat('de-DE', {
   month: '2-digit',
   year: 'numeric',
 });
+
+const MONTHS = [
+  'Jan.', 'Feb.', 'März', 'Apr.', 'Mai', 'Juni',
+  'Juli', 'Aug.', 'Sept.', 'Okt.', 'Nov.', 'Dez.',
+] as const;
+
+/** Erster bis letzter datierter Tag, `3. Aug. bis 27. Okt.`, leer ohne Datum. */
+export function rangeCaption(entries: readonly { dateObj: Date | null }[]): string {
+  const dated = entries.filter((e) => e.dateObj);
+  const first = dated[0]?.dateObj;
+  const last = dated[dated.length - 1]?.dateObj;
+  if (!first || !last) return '';
+  return `${first.getDate()}. ${MONTHS[first.getMonth()]} bis ${last.getDate()}. ${MONTHS[last.getMonth()]}`;
+}

@@ -125,9 +125,9 @@ Out of scope:
 
 Heute
 
-* [ ] `Heute` zeigt genau drei Karten: Gewicht, Wochenrate Trend, Gesamtverlust
-* [ ] Jeder vorher auf `Heute` gezeigte Wert steht in `Verlauf` `Analyse`
-* [ ] `git diff -- src/analytics src/parse` gegen den Stand vor Phase 13 ist leer
+* [x] `Heute` zeigt genau drei Karten: Gewicht, Wochenrate Trend, Gesamtverlust
+* [x] Jeder vorher auf `Heute` gezeigte Wert steht in `Verlauf` `Analyse`
+* [x] `git diff -- src/analytics src/parse` gegen den Stand vor Phase 13 ist leer
 
 Eintragen
 

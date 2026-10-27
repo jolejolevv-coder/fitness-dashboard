@@ -1,6 +1,6 @@
 # Uebergabe
 
-Stand 26.10.2026, Phase 11 abgeschlossen und live, Phase 12 live seit 27.10.2026, offen nur der iPhone Test des Nutzers. Phase 13 Spec zur Freigabe.
+Stand 27.10.2026, Phase 12 live, offen nur der iPhone Test des Nutzers. Phase 13 freigegeben, 13.1 erledigt, naechster Schritt 13.2.
 
 ## Wo wir stehen
 
@@ -52,28 +52,7 @@ Gebauten Stand ansehen mit Eintrag `build-preview`, Dev Server mit `dev` der
 lokalen `.claude/launch.json` (nicht committet). Fixtures aus
 `public/preview/*.json` nur in localStorage `fitness_cache_v1`.
 
-Rest 12.4 erledigt 27.10.2026. Commits `7169819` Heute, `d62081f` Training
-plus Diagrammfarben, `3b218f9` Verlauf, `b65970a` Aliase und Uebergangsregeln
-entfernt, `49750b3` `DESIGN.md` auf gebaute Werte. Neu `src/ui/cards.ts`
-(`card`, `refusalCard`, `valueNode`, `mark`) und `src/ui/palette.ts`
-(`COLORS` liest bei jedem Zugriff die Custom Properties, `parseColor`,
-`withAlpha` mit Test). Schemawechsel verwirft alle Diagramme
-(`destroyAllCharts`) und zeichnet den aktiven Abschnitt neu; live nicht
-geprueft, die Emulation im Browser Pane loest kein `change` aus.
-Training: Uebungen als `.list` aus `button` Zeilen, Tippen waehlt die
-Detailansicht, Trainingstag als `.chips`, beide `select` und `t-table` weg.
-Verlauf: Zeitraum und Gewichtsmodus als `.chips`, alles als Magnetkarten,
-Verweigerungen als `.refusal` mit `keine Aussage`. PNG Export ueber
-`data-export` oder `.card-label` an allen 15 Diagrammen. Entfernt: Erklaersatz
-`.analysis-note`, Legende der Zielbereiche, `segmented()`. Entscheidung dieser
-Sitzung: Zielbereiche faerben wie Heute (getroffen gruen, sonst rot), keine
-neue Rotschwelle, sie waere eine Bewertung ohne Grundlage im Sheet.
-Bundle gzip: Haupt Chunk 35,82 kB (Ziel 40), CSS 5,24 kB (Ziel 8), `charts`
-74,07 kB (Ziel 78), alle JS Chunks 204,44 kB (Grenze 207,61). 350 Tests.
-Geprueft je Ziel bei 375 und 1280 px, hell und dunkel, ohne waagerechten Lauf.
-Bekannt: Muskelgruppen im Volumendiagramm haben 14 feste Toene (in
-`DESIGN.md` als Ausnahme benannt). Mit der Fixture ergeben 14 und 30 Tage
-keine Waegungen und zeigen die bestehende Fehlermeldung, kein Rueckschritt.
+Rest 12.4 erledigt 27.10.2026, Einzelheiten in `docs/uebergabe-archiv-2026-10-26.md`.
 
 12.5 PWA erledigt 27.10.2026 (`6a6eb92`), Einzelheiten und Annahmen in
 `docs/uebergabe-archiv-2026-10-26.md`.
@@ -114,14 +93,30 @@ umgestellt. Gearbeitet wird weiter im Worktree `.claude/worktrees/mobile-app-b71
 auf Branch `claude/mobile-app-b71746` (Stand `origin/main` plus Phase 13 Doku),
 Merge nach `origin/main` nur nach Freigabe des Nutzers.
 
-Startprompt 13.1 (neue Sitzung, Ordner dieses Worktrees): Lies CLAUDE.md,
-specs/roadmap.md, docs/uebergabe.md (Abschnitt Phase 13) und
-`specs/features/training-log.md`. Setze 13.1 um (Teil A): `Heute` zeigt genau
-drei Magnetkarten (Gewicht mit Datum, Trend als Wochenrate, Gesamtverlust),
-alles andere von `Heute` an den Anfang von `Verlauf` `Analyse`, ohne
-Aenderung in `src/analytics` und `src/parse`. Tests, `npm run check`, Build,
-Pruefung bei 375 px hell und dunkel, Bundle Zahlen im Commit, Uebergabe und
-Startprompt 13.2. Danach 13.2 bis 13.4 nach Plan der Spec. Nicht pushen.
+13.1 erledigt 27.10.2026: `Heute` zeigt drei Magnetkarten, `Gewicht` (letzte
+Waegung, Datum, Zahl der Waegungen), `Trend pro Woche` (geglaettet, Plan und
+Basis, rot ab 1,5facher Sollrate wie zuvor) und `Gesamtverlust` (erste gegen
+letzte Waegung, `Zugelegt` bei Zunahme). Am Anfang von `Verlauf` `Analyse`
+stehen neu `Fortschritt` (Fortschritt zum Ziel mit Balken, Compliance),
+`Insights` und `Tagesdurchschnitt`; Wochenrate und Zieldatum standen dort schon
+(`Rate`, `Ziel N kg`). Kopfzeile `Makrocycle 1` und Hinweis der Zielwerte
+bleiben auf `Heute`. `src/analytics` und `src/parse` unveraendert.
+Annahmen: Einheit `kg/Woche` brach bei 375 px um, daher Bezeichnung `Trend pro
+Woche` mit Einheit `kg`; ohne Zielgewicht zeigt `Fortschritt zum Ziel` die
+Verweigerung `Kein Zielgewicht` statt zu fehlen; die Unterzeile von
+`Tagesdurchschnitt` nennt jetzt den Gesamtzeitraum, vorher irrtuemlich den
+gefilterten (`rangeCaption` in `src/ui/format.ts`). Test `test/today.test.ts`.
+Bundle gzip: Haupt Chunk 35,71 kB (vorher 35,82), CSS 5,24 kB, `charts`
+74,07 kB. 365 Tests. Geprueft im Build bei 375 px hell und dunkel, ohne
+waagerechten Lauf.
+
+Startprompt 13.2 (Ordner dieses Worktrees): Lies CLAUDE.md, specs/roadmap.md,
+docs/uebergabe.md (Abschnitt Phase 13) und `specs/features/training-log.md`.
+Setze 13.2 um: `apps-script/daily-import-core.js`, Tests und Fixtures aus
+Branch `claude/daily-import-36c9f1` (Commit `b5a8081`) uebernehmen, dazu
+reine Funktionen `findWeekBlock`, `findExerciseRow`, `planTrainingWrites`
+mit Tests per Vitest und `node:vm` gegen synthetische Tabs unter
+`test/fixtures/`. Danach 13.3 und 13.4 nach Plan der Spec. Nicht pushen.
 
 ## Phase 11 Kochansicht
 

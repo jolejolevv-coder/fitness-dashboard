@@ -5,7 +5,7 @@ import { daysDiffer, targetRateKgPerWeek, type Goals } from '../parse/goals';
 import { byId, COLORS, setText } from './dom';
 import { renderCorrelation } from './correlation';
 import { renderNutritionRanges, renderWellnessSparks } from './panels';
-import { decimal, integer, signed } from './format';
+import { decimal, integer, rangeCaption, signed } from './format';
 import { el } from './build';
 import { card, mark, refusalCard, valueNode } from './cards';
 import type { Charts } from './charts';
@@ -132,11 +132,6 @@ function weeklyChart(charts: Charts, id: string, labels: string[], values: (numb
   });
 }
 
-const MONTHS = [
-  'Jan.', 'Feb.', 'März', 'Apr.', 'Mai', 'Juni',
-  'Juli', 'Aug.', 'Sept.', 'Okt.', 'Nov.', 'Dez.',
-] as const;
-
 /**
  * Zeitraum als Unterzeile der Abschnitte.
  *
@@ -144,14 +139,7 @@ const MONTHS = [
  * ist, worauf sich die Zahlen darunter beziehen.
  */
 function renderRangeCaption(daily: readonly DailyEntry[]): void {
-  const dated = daily.filter((d) => d.dateObj);
-  const first = dated[0]?.dateObj;
-  const last = dated[dated.length - 1]?.dateObj;
-  const caption = first && last
-    ? `${first.getDate()}. ${MONTHS[first.getMonth()]} bis ${last.getDate()}. ${MONTHS[last.getMonth()]}`
-    : '';
-  setText('metrics-range', caption);
-  setText('weight-range', caption);
+  setText('weight-range', rangeCaption(daily));
 }
 
 function renderLegend(entries: readonly LegendEntry[]): void {

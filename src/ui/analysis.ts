@@ -5,7 +5,9 @@ import { complianceOf, streakOf, type Picker, type Predicate } from '../analytic
 import { correlations } from '../analytics/correlation';
 import { detectPlateau, projectToTarget, weightTrend, type PlateauStatus } from '../analytics/trend';
 import { tdeeRange } from '../analytics/tdee';
+import { weightChange } from '../analytics/weight';
 import { byId } from './dom';
+import { el } from './build';
 import { card, refusalCard, valueNode } from './cards';
 import { decimal, dateFormat, integer, target } from './format';
 
@@ -69,10 +71,70 @@ export function renderAnalysis(
     ? null
     : complianceOf(daily, (e) => e.protein, (v) => v >= goals.average.proteinG!).pct;
 
+  renderProgress(daily, goals, targetWeightKg);
   renderKpis(daily, goals, targetWeightKg, trend, proteinCompliance);
   renderTrendDetail(trend);
   renderStreaks(daily, goals);
   renderCorrelations(daily);
+}
+
+/**
+ * Fortschritt zum Ziel und Gesamtcompliance, frueher auf `Heute`.
+ */
+function renderProgress(daily: readonly DailyEntry[], goals: Goals, targetWeightKg: number | null): void {
+  const container = byId('a-progress');
+  if (!container) return;
+  container.replaceChildren(progressCard(daily, targetWeightKg), complianceCard(daily, goals));
+}
+
+/** Anteil der Strecke vom Startgewicht zum Ziel, auf 0 bis 100 begrenzt. */
+function progressPct(start: number, current: number, target: number): number | null {
+  const span = target - start;
+  if (Math.abs(span) < 0.01) return null;
+  return Math.max(0, Math.min(100, ((current - start) / span) * 100));
+}
+
+function progressBar(pct: number): HTMLElement {
+  const fill = el('span');
+  fill.style.width = `${pct}%`;
+  const end = el('i');
+  end.style.left = 'calc(100% - 3px)';
+  return el('div', { class: 'bar' }, [fill, end]);
+}
+
+/** Erste gegen letzte Waegung, gemessen an der Strecke zum Zielgewicht. */
+function progressCard(daily: readonly DailyEntry[], targetWeightKg: number | null): HTMLElement {
+  const label = 'Fortschritt zum Ziel';
+  if (targetWeightKg === null) return refusalCard(label, 'Kein Zielgewicht');
+  const change = weightChange(daily);
+  if (!change) return refusalCard(label, 'Noch keine Wägungen erfasst');
+  const pct = progressPct(change.firstRaw, change.lastRaw, targetWeightKg);
+  if (pct === null) return refusalCard(label, 'Start gleich Ziel');
+
+  const value = valueNode(integer(pct), '%');
+  const result = card(label, value, [`${decimal(change.lastRaw, 1)} kg aktuell`, `Ziel ${decimal(targetWeightKg, 1)} kg`]);
+  value.after(progressBar(pct));
+  return result;
+}
+
+/** Gesamtcompliance ueber Protein und Kalorien, als Anteil der erfassten Tage. */
+function complianceCard(daily: readonly DailyEntry[], goals: Goals): HTMLElement {
+  const protein = goals.average.proteinG;
+  const calories = goals.average.caloriesKcal;
+  if (protein === null || calories === null) return refusalCard('Compliance', 'Keine Zielwerte gelesen');
+
+  const p = complianceOf(daily, (e) => e.protein, (v) => v >= protein);
+  const c = complianceOf(daily, (e) => e.calories, (v) => v <= calories);
+  const recorded = p.recorded + c.recorded;
+  if (!recorded) return refusalCard('Compliance', `Basis 0 von ${integer(daily.length)} Tagen`);
+
+  const pct = Math.round(((p.hit + c.hit) / recorded) * 100);
+  const tone = pct >= COMPLIANCE_OK_PCT ? 'is-ok' : pct < COMPLIANCE_OFF_PCT ? 'is-off' : '';
+  return card(
+    'Compliance',
+    valueNode(integer(pct), '%', tone),
+    [`Protein ${integer(p.hit)} von ${integer(p.recorded)}`, `Kalorien ${integer(c.hit)} von ${integer(c.recorded)}`],
+  );
 }
 
 function renderKpis(

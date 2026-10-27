@@ -360,3 +360,29 @@ Pflichtfelder und Icons sind von Hand geprueft; die Warnungsfreiheit gehoert
 in die Lighthouse Messung von 12.6.
 Bundle gzip: Haupt Chunk 35,82 kB, CSS 5,24 kB, `charts` 74,07 kB, alle JS
 Chunks 204,43 kB, `sw.js` 6,78 kB (Ziel 8), `index.html` 3,16 kB. 361 Tests.
+
+## Rest 12.4 (aus der Uebergabe verschoben 27.10.2026)
+
+Rest 12.4 erledigt 27.10.2026. Commits `7169819` Heute, `d62081f` Training
+plus Diagrammfarben, `3b218f9` Verlauf, `b65970a` Aliase und Uebergangsregeln
+entfernt, `49750b3` `DESIGN.md` auf gebaute Werte. Neu `src/ui/cards.ts`
+(`card`, `refusalCard`, `valueNode`, `mark`) und `src/ui/palette.ts`
+(`COLORS` liest bei jedem Zugriff die Custom Properties, `parseColor`,
+`withAlpha` mit Test). Schemawechsel verwirft alle Diagramme
+(`destroyAllCharts`) und zeichnet den aktiven Abschnitt neu; live nicht
+geprueft, die Emulation im Browser Pane loest kein `change` aus.
+Training: Uebungen als `.list` aus `button` Zeilen, Tippen waehlt die
+Detailansicht, Trainingstag als `.chips`, beide `select` und `t-table` weg.
+Verlauf: Zeitraum und Gewichtsmodus als `.chips`, alles als Magnetkarten,
+Verweigerungen als `.refusal` mit `keine Aussage`. PNG Export ueber
+`data-export` oder `.card-label` an allen 15 Diagrammen. Entfernt: Erklaersatz
+`.analysis-note`, Legende der Zielbereiche, `segmented()`. Entscheidung dieser
+Sitzung: Zielbereiche faerben wie Heute (getroffen gruen, sonst rot), keine
+neue Rotschwelle, sie waere eine Bewertung ohne Grundlage im Sheet.
+Bundle gzip: Haupt Chunk 35,82 kB (Ziel 40), CSS 5,24 kB (Ziel 8), `charts`
+74,07 kB (Ziel 78), alle JS Chunks 204,44 kB (Grenze 207,61). 350 Tests.
+Geprueft je Ziel bei 375 und 1280 px, hell und dunkel, ohne waagerechten Lauf.
+Bekannt: Muskelgruppen im Volumendiagramm haben 14 feste Toene (in
+`DESIGN.md` als Ausnahme benannt). Mit der Fixture ergeben 14 und 30 Tage
+keine Waegungen und zeigen die bestehende Fehlermeldung, kein Rueckschritt.
+
