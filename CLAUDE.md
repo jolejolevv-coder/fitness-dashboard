@@ -21,11 +21,14 @@ erlaubt.
 
 ## Harte Regeln
 
-* Kein Schreibzugriff des Dashboards auf das Google Sheet, unter keinen
-  Umstaenden. Einziger Schreibweg ist der Daily Import nach ADR 0005: er fuellt
-  nur leere Zellen vorhandener Datumszeilen, haengt nichts an, ueberschreibt nichts
-* Token und Endpunkt URL des Daily Import stehen in keiner Datei im Repo, nur in
-  den Script Properties und im Shortcut
+* Kein direkter Schreibzugriff des Dashboards auf das Google Sheet, weder ueber
+  die Sheets API noch per OAuth. Es gibt genau zwei Schreibwege, beide ueber das
+  Apps Script und beide nur in leere Zellen, nichts anhaengen, nichts
+  ueberschreiben: der Daily Import nach ADR 0005 (leere Zellen vorhandener
+  Datumszeilen) und Training eintragen nach ADR 0007 (leere Zellen `Load`,
+  `Reps Ist`, `Notes` eines Mesocycle Tabs)
+* Token und Endpunkt URL des Apps Script stehen in keiner Datei im Repo, nur in
+  den Script Properties, im Shortcut und im localStorage der App
 * Keine Zielwerte, Schwellen oder Konstanten als Literal im Berechnungscode.
   Zielwerte kommen aus dem Sheet, siehe `specs/features/goals.md`
 * Spalten werden ueber Kopfzeilen zugeordnet, nie ueber feste Indizes. Eine

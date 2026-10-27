@@ -1,7 +1,8 @@
 # Heute verdichtet und Training eintragen (Phase 13)
 
-Status: Entwurf zur Freigabe, 27.10.2026. Architektur in
-`docs/adr/0007-training-eintragen-ueber-apps-script.md` (vorgeschlagen).
+Status: freigegeben 27.10.2026, Open questions 1 bis 3 wie vorgeschlagen
+entschieden, 4 wird in 13.3 geprueft. Architektur in
+`docs/adr/0007-training-eintragen-ueber-apps-script.md` (angenommen).
 Entscheidungen des Nutzers vom 27.10.2026 sind eingearbeitet: Schreibweg ueber
 das Apps Script des Daily Import, Eingabe Load, Reps Ist und Notes, nur leere
 Zellen, auf `Heute` bleiben Gewicht und Trend.

@@ -1,7 +1,6 @@
 # ADR 0007: Training aus der App eintragen, ueber das Apps Script
 
-Status: vorgeschlagen (27.10.2026). Richtung vom Nutzer am 27.10.2026 gewaehlt
-(Apps Script, nur leere Zellen), Annahme steht aus. Spec:
+Status: angenommen (27.10.2026), mit eigenem Token `TRAINING_TOKEN`. Spec:
 `specs/features/training-log.md`.
 
 ## Kontext

@@ -51,11 +51,13 @@ Mindestdatenlage und verweigert die Aussage darunter, statt zu raten.
 
 ## Was es ausdruecklich nicht tut
 
-* Keine Dateneingabe im Dashboard. Das Sheet bleibt die Eingabemaske, dazu ab
-  Phase 10 der Daily Import (iOS Shortcut plus Apps Script, ADR 0005), der
-  Werte aus Apple Health in leere Zellen vorhandener Datumszeilen schreibt
-* Kein Schreibzugriff des Dashboards auf das Sheet, keine Aenderung an dessen
-  Struktur, auch nicht durch den Daily Import
+* Keine Dateneingabe im Dashboard ausser den Ist Werten eines Trainingstags
+  (ab Phase 13, ADR 0007). Das Sheet bleibt die Eingabemaske, dazu ab Phase 10
+  der Daily Import (iOS Shortcut plus Apps Script, ADR 0005), der Werte aus
+  Apple Health in leere Zellen vorhandener Datumszeilen schreibt
+* Kein direkter Schreibzugriff des Dashboards auf das Sheet. Training eintragen
+  laeuft ueber dasselbe Apps Script und fuellt nur leere Zellen. Keine
+  Aenderung an der Struktur des Sheets, durch keinen Schreibweg
 * Kein Zugang fuer den Trainer. Er hat die Rohdaten, ihm fehlt nichts
 * Keine Empfehlungen. Die Seite zeigt Zahlen und benennt Zustaende, sie ordnet
   nichts an

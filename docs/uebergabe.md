@@ -139,8 +139,23 @@ Wunsch des Nutzers nach dem ersten Blick am Handy (27.10.2026): `Heute` auf das
 Wichtigste, `Verlauf` bleibt, unter `Training` Werte eines Tags eintippen, die
 im Sheet landen. Kueche spaeter. Entschieden: Apps Script als Schreibweg, Felder
 Load, Reps Ist, Notes, nur leere Zellen, auf `Heute` nur Gewicht und Trend.
-Spec `specs/features/training-log.md` und ADR 0007 (vorgeschlagen) warten auf
-Freigabe, dazu Open questions 1 bis 4 der Spec. Kein Code geschrieben.
+Spec `specs/features/training-log.md` und ADR 0007 freigegeben 27.10.2026,
+Open questions 1 bis 3 wie vorgeschlagen (eigenes `TRAINING_TOKEN`, Vorauswahl
+erste Woche ohne `Reps Ist`, Segmente `Eintragen` und `Auswertung`), 4 (CORS
+der Web App) wird in 13.3 als erstes geprueft. 13.0 erledigt: harte Regel in
+`CLAUDE.md` und `specs/mission.md` auf zwei Schreibwege ueber das Apps Script
+umgestellt. Gearbeitet wird weiter im Worktree `.claude/worktrees/mobile-app-b71746`
+auf Branch `claude/mobile-app-b71746` (Stand `origin/main` plus Phase 13 Doku),
+Merge nach `origin/main` nur nach Freigabe des Nutzers.
+
+Startprompt 13.1 (neue Sitzung, Ordner dieses Worktrees): Lies CLAUDE.md,
+specs/roadmap.md, docs/uebergabe.md (Abschnitt Phase 13) und
+`specs/features/training-log.md`. Setze 13.1 um (Teil A): `Heute` zeigt genau
+drei Magnetkarten (Gewicht mit Datum, Trend als Wochenrate, Gesamtverlust),
+alles andere von `Heute` an den Anfang von `Verlauf` `Analyse`, ohne
+Aenderung in `src/analytics` und `src/parse`. Tests, `npm run check`, Build,
+Pruefung bei 375 px hell und dunkel, Bundle Zahlen im Commit, Uebergabe und
+Startprompt 13.2. Danach 13.2 bis 13.4 nach Plan der Spec. Nicht pushen.
 
 ## Phase 11 Kochansicht
 
