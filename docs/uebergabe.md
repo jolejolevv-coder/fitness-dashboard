@@ -145,6 +145,12 @@ die Woche, Cache traegt seinen Trainingstab. Eintragen steht unter Training
 links und ist Vorgabe (`46ab072`). Alles live auf main. Offen: Retro
 Phase 13 in `specs/roadmap.md`, sobald der Nutzer den Studio Test bestaetigt.
 
+Dauerpreise: Aldi Sued Bon vom 27.10.2026 als `source: manual` in
+`public/data/regular_prices.json` (`32d6147`, live). Falle: der Sonntagslauf
+ersetzt mit juengerem Muskelmarkt Datum wieder, Kidney Bohnen Aldi kommen dann
+als Grossgebinde 3060 g zurueck. Phase 14 Kassenbon einlesen: Spec
+`specs/features/receipt-scan.md`, Fragen beantwortet, Freigabe offen.
+
 ## Phase 11 Kochansicht
 
 Abgeschlossen und live, Notizen in `docs/uebergabe-archiv-2026-10-26.md`.
