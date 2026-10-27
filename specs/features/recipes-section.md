@@ -1,6 +1,6 @@
 # Phase 17: Rezepte statt Prep, Vorschlag ausblenden
 
-Status: Entwurf 27.10.2026, Freigabe offen.
+Status: freigegeben 27.10.2026, offene Fragen wie vorgeschlagen.
 
 ## Goal
 

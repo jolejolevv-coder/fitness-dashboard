@@ -119,6 +119,12 @@ freigegeben, 16.1 bis 16.3 gebaut und lokal committet (`a4859f2`, 539 Tests,
 Build gruen, Heute und Woche bei 375 px geprueft). Texte freigegeben 27.10.2026,
 live auf main. Offen: Retro nach Nutzung in der Kueche.
 
+Phase 17 Rezepte statt Prep: Spec `specs/features/recipes-section.md`
+freigegeben 27.10.2026, offene Fragen wie vorgeschlagen (Zeit Tags bleiben je
+Portion, `Kochen` und `Vorbereitung` als Chips). 17.1 Texte in
+`data/meals.json` geschrieben (fuenf Gerichte von Grund auf, keine Mengen im
+Text), Freigabe durch den Nutzer offen. 17.2 und 17.3 in Arbeit.
+
 ## Phase 9 Plangenerator
 
 Umgesetzt, gemergt und live seit 25.10.2026. Details, Bundle Zahlen und die

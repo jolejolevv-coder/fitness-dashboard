@@ -31,7 +31,7 @@
     ],
     "steps": [
       {
-        "text": "Haferflocken mit 200 ml Wasser in einer großen Schüssel verrühren.",
+        "text": "Haferflocken mit der zweieinhalbfachen Menge Wasser in einer großen Schüssel verrühren.",
         "device": null,
         "minutes": null,
         "temperatureC": null,
@@ -119,33 +119,46 @@
     ],
     "steps": [
       {
-        "text": "Egg Muffins aus der Prep vom Sonntag nehmen.",
+        "text": "Eier mit Frischkäse, Salz, Pfeffer und Paprikapulver verquirlen.",
         "device": null,
         "minutes": null,
         "temperatureC": null,
         "foods": [
           "egg_m",
           "cottage_cheese",
-          "turkey_coldcut",
-          "spinach_frozen",
-          "bell_pepper"
+          "salt",
+          "pepper",
+          "paprika_sweet"
         ]
       },
       {
-        "text": "Abgedeckt erwärmen.",
-        "device": "Mikrowelle",
-        "minutes": 1,
-        "temperatureC": null,
-        "foods": []
-      },
-      {
-        "text": "Mit Brot essen, Schnittlauch nach Geschmack.",
+        "text": "Spinat auftauen und gut ausdrücken, Paprika und Aufschnitt klein schneiden, mit Schnittlauch unter die Eimasse rühren.",
         "device": null,
         "minutes": null,
         "temperatureC": null,
         "foods": [
-          "wholegrain_bread",
+          "spinach_frozen",
+          "bell_pepper",
+          "turkey_coldcut",
           "chives_frozen"
+        ]
+      },
+      {
+        "text": "In Silikonformen zu drei Vierteln füllen und backen, bis die Mitte fest ist.",
+        "device": "Airfryer",
+        "minutes": 15,
+        "temperatureC": 160,
+        "foods": [
+          "egg_m"
+        ]
+      },
+      {
+        "text": "Mit Brot essen.",
+        "device": null,
+        "minutes": null,
+        "temperatureC": null,
+        "foods": [
+          "wholegrain_bread"
         ]
       }
     ]
@@ -300,17 +313,30 @@
     ],
     "steps": [
       {
-        "text": "Reis und Hähnchen aus der Prep in eine Schale geben.",
-        "device": null,
-        "minutes": null,
+        "text": "Reis kalt abspülen, mit der doppelten Menge Wasser und einer Prise Salz abgedeckt garen, danach 5 Minuten ziehen lassen.",
+        "device": "Mikrowelle",
+        "minutes": 12,
         "temperatureC": null,
         "foods": [
           "basmati",
-          "chicken_breast"
+          "salt"
         ]
       },
       {
-        "text": "Brokkoli in Röschen mit 2 EL Wasser abgedeckt garen.",
+        "text": "Hähnchen trocken tupfen, mit etwas Sojasauce, Curry, Kurkuma und Knoblauch einreiben und grillen, bis der Kern durch ist.",
+        "device": "OptiGrill",
+        "minutes": 7,
+        "temperatureC": 210,
+        "foods": [
+          "chicken_breast",
+          "soy_sauce",
+          "curry",
+          "turmeric",
+          "garlic_granulated"
+        ]
+      },
+      {
+        "text": "Brokkoli in Röschen mit einem Schuss Wasser abgedeckt garen.",
         "device": "Mikrowelle",
         "minutes": 4,
         "temperatureC": null,
@@ -319,18 +345,18 @@
         ]
       },
       {
-        "text": "Alles zusammen abgedeckt erwärmen.",
-        "device": "Mikrowelle",
-        "minutes": 2,
+        "text": "Hähnchen in Streifen schneiden und mit Reis und Brokkoli in eine Schale geben.",
+        "device": null,
+        "minutes": null,
         "temperatureC": null,
         "foods": [
-          "basmati",
           "chicken_breast",
+          "basmati",
           "broccoli"
         ]
       },
       {
-        "text": "Olivenöl darüber, Skyr mit Sojasauce verrühren und als Soße dazu.",
+        "text": "Olivenöl darüber, Skyr mit der restlichen Sojasauce verrühren und als Soße dazu.",
         "device": null,
         "minutes": null,
         "temperatureC": null,
@@ -394,33 +420,59 @@
     ],
     "steps": [
       {
-        "text": "Chili und Reis aus der Prep vom Mittwoch in eine Schale geben.",
+        "text": "Reis kalt abspülen, mit der doppelten Menge Wasser abgedeckt garen, danach 5 Minuten ziehen lassen.",
+        "device": "Mikrowelle",
+        "minutes": 10,
+        "temperatureC": null,
+        "foods": [
+          "basmati"
+        ]
+      },
+      {
+        "text": "Hack mit Öl in eine große, mikrowellenfeste Schüssel geben und abgedeckt garen.",
+        "device": "Mikrowelle",
+        "minutes": 4,
+        "temperatureC": null,
+        "foods": [
+          "beef_mince_5",
+          "olive_oil"
+        ]
+      },
+      {
+        "text": "Hack mit einer Gabel zerteilen, Passata, abgetropfte Kidneybohnen, gewürfelte Paprika, Kreuzkümmel, Paprikapulver, Chili, Knoblauch und Salz unterrühren.",
         "device": null,
         "minutes": null,
         "temperatureC": null,
         "foods": [
           "beef_mince_5",
-          "kidney_beans",
           "passata",
+          "kidney_beans",
           "bell_pepper",
-          "basmati"
+          "cumin",
+          "paprika_sweet",
+          "chili",
+          "garlic_granulated",
+          "salt"
         ]
       },
       {
-        "text": "Abgedeckt erwärmen, nach der Hälfte umrühren.",
+        "text": "Abgedeckt fertig garen, nach der Hälfte umrühren.",
         "device": "Mikrowelle",
-        "minutes": 3,
+        "minutes": 8,
         "temperatureC": null,
-        "foods": []
+        "foods": [
+          "beef_mince_5",
+          "passata",
+          "kidney_beans"
+        ]
       },
       {
-        "text": "Nach Geschmack mit Chili und Salz nachwürzen.",
+        "text": "Abschmecken und mit dem Reis anrichten.",
         "device": null,
         "minutes": null,
         "temperatureC": null,
         "foods": [
-          "chili",
-          "salt"
+          "basmati"
         ]
       }
     ]
@@ -469,7 +521,18 @@
     ],
     "steps": [
       {
-        "text": "Hähnchen aus der Prep in Streifen schneiden, Paprika in Streifen.",
+        "text": "Hähnchen trocken tupfen, mit Knoblauch und Kräutern würzen und grillen, bis der Kern durch ist.",
+        "device": "OptiGrill",
+        "minutes": 7,
+        "temperatureC": 210,
+        "foods": [
+          "chicken_breast",
+          "garlic_granulated",
+          "herbs_frozen"
+        ]
+      },
+      {
+        "text": "Hähnchen kurz ruhen lassen und in Streifen schneiden, Paprika in Streifen.",
         "device": null,
         "minutes": null,
         "temperatureC": null,
@@ -756,24 +819,45 @@
     ],
     "steps": [
       {
-        "text": "Pute und Wedges mit Gemüse aus der Prep in eine Schale geben.",
+        "text": "Kartoffeln waschen, ungeschält in Spalten schneiden, mit der Hälfte des Öls und Rosmarin mischen und backen.",
+        "device": "Airfryer",
+        "minutes": 22,
+        "temperatureC": 200,
+        "foods": [
+          "potato",
+          "olive_oil",
+          "rosemary"
+        ]
+      },
+      {
+        "text": "Zucchini und Paprika in grobe Stücke schneiden, mit dem restlichen Öl mischen, nach der Hälfte der Zeit zugeben und den Korb schütteln.",
         "device": null,
         "minutes": null,
         "temperatureC": null,
         "foods": [
-          "turkey_breast",
-          "potato",
           "zucchini",
-          "bell_pepper"
+          "bell_pepper",
+          "olive_oil"
         ]
       },
       {
-        "text": "Wedges knusprig aufbacken, Pute in den letzten 3 Minuten dazu.",
-        "device": "Airfryer",
-        "minutes": 6,
-        "temperatureC": 180,
+        "text": "Pute trocken tupfen, mit Paprika geräuchert, Knoblauch und Salz einreiben und grillen, bis der Kern durch ist.",
+        "device": "OptiGrill",
+        "minutes": 7,
+        "temperatureC": 210,
         "foods": [
-          "potato",
+          "turkey_breast",
+          "paprika_smoked",
+          "garlic_granulated",
+          "salt"
+        ]
+      },
+      {
+        "text": "Pute kurz ruhen lassen und in Scheiben schneiden.",
+        "device": null,
+        "minutes": null,
+        "temperatureC": null,
+        "foods": [
           "turkey_breast"
         ]
       },
