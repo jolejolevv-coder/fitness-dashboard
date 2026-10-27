@@ -28,7 +28,7 @@
 
 /* global failure, parseJsonObject, isPlainObject, tokensMatch, normalizeHeader, cellAt, isCellEmpty,
    ERROR_UNAUTHORIZED, ERROR_BAD_REQUEST */
-/* exported validateTrainingRequest, findDayHeader, findWeekBlock, findExerciseRow, planTrainingWrites */
+/* exported validateTrainingRequest, findDayHeader, findWeekBlock, findExerciseRow, planTrainingWrites, sheetValue */
 
 const ERROR_UNKNOWN_SHEET = 'unknown_sheet';
 const ERROR_UNKNOWN_DAY = 'unknown_day';
@@ -55,6 +55,12 @@ const HEADER_NOTES = 'Notes';
 
 /** Hoechstlaengen je Feld, wie die App sie prueft. */
 const MAX_LENGTH = { load: 20, repsActual: 40, notes: 200 };
+
+/** Reine Dezimalzahl mit Komma oder Punkt, wird als Zahl geschrieben. */
+const PLAIN_NUMBER_PATTERN = /^\d+([,.]\d+)?$/;
+
+/** Vorangestellt erzwingt es Text: kein Datum aus `9-9`, keine Formel aus `=...`. */
+const TEXT_PREFIX = "'";
 
 /** Felder eines Eintrags in Schreibreihenfolge. */
 const TRAINING_FIELDS = ['load', 'repsActual', 'notes'];
@@ -201,6 +207,22 @@ function planTrainingWrites(rowDisplay, rowFormulas, columns, entry) {
     }
   }
   return { ok: true, writes: writes, status: status };
+}
+
+/**
+ * Wert fuer setValue.
+ *
+ * Eine reine Dezimalzahl wie `62,5` wird Zahl, damit Formeln des Trainers mit
+ * ihr rechnen koennen. Alles andere, etwa `55x2`, `9-9` oder `10,9,8`, wird mit
+ * Apostroph als Text geschrieben. Sonst deutet Sheets `9-9` als Datum, und ein
+ * Text mit `=` am Anfang wuerde zur Formel.
+ *
+ * @param {string} text bereinigter Wert eines Felds
+ * @returns {(number|string)}
+ */
+function sheetValue(text) {
+  if (PLAIN_NUMBER_PATTERN.test(text)) return Number(text.replace(',', '.'));
+  return TEXT_PREFIX + text;
 }
 
 /** Bereinigter Eintrag oder null. Leere Felder fallen weg, mindestens eins muss bleiben. */

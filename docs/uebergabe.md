@@ -1,6 +1,6 @@
 # Uebergabe
 
-Stand 27.10.2026, Phase 12 live, offen nur der iPhone Test des Nutzers. Phase 13 freigegeben, 13.1 und 13.2 erledigt, naechster Schritt 13.3.
+Stand 27.10.2026, Phase 12 live, offen nur der iPhone Test des Nutzers. Phase 13 freigegeben, 13.1 bis 13.3 erledigt, naechster Schritt 13.4.
 
 ## Wo wir stehen
 
@@ -127,14 +127,24 @@ Vorschau Fixture zeigt auch in `Mesocycle 1` eine Spalte `Notes`,
 Kriterium "Notes in Mesocycle 1 nicht angeboten" wird in 13.5 am echten Tab
 geprueft.
 
-Startprompt 13.3 (Ordner dieses Worktrees): Lies CLAUDE.md, specs/roadmap.md,
-docs/uebergabe.md (Abschnitt Phase 13) und `specs/features/training-log.md`.
-Setze 13.3 um: Huelle `apps-script/daily-import.js` mit `doPost`, Token aus
-Script Properties (`DAILY_IMPORT_TOKEN`, `TRAINING_TOKEN`), Aktionen `daily`
-und `training`, `LockService`, Antwort als JSON; Anleitung
-`apps-script/README.md` fuer die Bereitstellung als Web App. Open question 4
-(CORS) kann nur der Nutzer am echten Endpunkt pruefen, Probeweg in die
-README. Danach 13.4. Nicht pushen.
+13.3 erledigt 27.10.2026: `apps-script/daily-import.js` mit `doPost`,
+Aktionen `daily` (Vorgabe ohne `action`, schliesst 10.2 ab) und `training`,
+je eigenes Token aus den Script Properties, Pruefung vor der Sperre,
+`LockService`, Antwort JSON mit `version` (`SCRIPT_VERSION`), Ausnahmen als
+`internal` ohne Details, kein Log. Neu im Kern `sheetValue`: reine Dezimalzahl
+als Zahl, alles andere mit Apostroph als Text (kein Datum aus `9-9`, keine
+Formel aus `=`). Test `test/web-app.test.ts` mit nachgebauten Diensten, 453
+Tests. Anleitung `apps-script/README.md` mit Test gegen Kopie `Mesocycle 99`
+und CORS Probe. Bereitstellung und CORS Probe (Open question 4) macht der
+Nutzer, siehe README.
+
+Startprompt 13.4 (Ordner dieses Worktrees): Lies CLAUDE.md, specs/roadmap.md,
+docs/uebergabe.md (Abschnitt Phase 13), `specs/features/training-log.md` und
+`apps-script/README.md` (Abschnitt Antworten). Setze 13.4 um: Einstellungen
+Endpunkt URL und Token (localStorage), Segment `Eintragen` und `Auswertung`
+unter Training (`#training/eintragen`), Entwurf im localStorage, Senden als
+`text/plain`, CSP `connect-src` um die zwei Script Hosts mit Test, URL Regel
+des Service Workers mit Test, Chunk `log` hoechstens 4 kB gzip. Nicht pushen.
 
 ## Phase 11 Kochansicht
 

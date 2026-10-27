@@ -211,3 +211,20 @@ describe('planTrainingWrites', () => {
     for (const write of result.writes) expect(allowed).toContain(write.column);
   });
 });
+
+describe('sheetValue', () => {
+  const sheetValue = (core as unknown as { sheetValue(text: string): string | number }).sheetValue;
+
+  it('schreibt reine Dezimalzahlen als Zahl', () => {
+    expect(sheetValue('60')).toBe(60);
+    expect(sheetValue('62,5')).toBe(62.5);
+    expect(sheetValue('7.5')).toBe(7.5);
+  });
+
+  it('schreibt alles andere als Text, ohne Datum und ohne Formel', () => {
+    expect(sheetValue('55x2')).toBe("'55x2");
+    expect(sheetValue('9-9')).toBe("'9-9");
+    expect(sheetValue('10,9,8')).toBe("'10,9,8");
+    expect(sheetValue('=HYPERLINK("x")')).toBe("'=HYPERLINK(\"x\")");
+  });
+});
