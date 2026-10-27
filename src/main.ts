@@ -5,7 +5,7 @@ import { parseDaily } from './parse/daily';
 import { parseTraining } from './parse/training';
 import { parseGoals, type Goals } from './parse/goals';
 import { MissingColumnsError } from './parse/columns';
-import { fetchDailySheet, fetchTrainingSheet } from './sheets';
+import { fetchDailySheet, fetchSheetTitles, fetchTrainingSheet } from './sheets';
 import {
   DEFAULT_DAILY_SHEET,
   DEFAULT_TRAINING_SHEET,
@@ -311,10 +311,13 @@ async function renderLogSection(): Promise<void> {
   }
   if (activeSection() !== 'log') return;
   const credentials = getCredentials();
+  if (!hasCredentials(credentials)) return;
   log.renderLog(container, {
-    rows: trainingRows,
-    sheet: credentials.trainingSheetName || DEFAULT_TRAINING_SHEET,
+    analysisSheet: credentials.trainingSheetName || DEFAULT_TRAINING_SHEET,
+    analysisRows: trainingRows,
     access,
+    loadTitles: () => fetchSheetTitles(credentials.sheetId, credentials.apiKey),
+    loadRows: (sheet) => fetchTrainingSheet(credentials.sheetId, credentials.apiKey, sheet),
     reload: () => loadData(true),
   });
   dirty.delete('log');

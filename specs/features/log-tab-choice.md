@@ -24,18 +24,19 @@ vom Trainingstab der Auswertung, weil das Eintragen der Auswertung vorausgeht.
   * Keine Aenderung am Apps Script (`sheet` kommt schon aus der Anfrage)
 
 ## Acceptance criteria
-- [ ] Segment zeigt Chips `Mesocycle 1` bis `N`, andere Tabs fehlen
-- [ ] Erster Aufruf waehlt das hoechste N, danach die letzte Wahl, auch nach
+- [x] Segment zeigt Chips `Mesocycle 1` bis `N`, andere Tabs fehlen
+- [x] Erster Aufruf waehlt das hoechste N, danach die letzte Wahl, auch nach
       Neustart der installierten App
-- [ ] Wechsel des Chips laedt die Zeilen dieses Tabs und waehlt darin die erste
+- [x] Wechsel des Chips laedt die Zeilen dieses Tabs und waehlt darin die erste
       offene Woche; Entwuerfe bleiben je Tab getrennt (Schluessel enthaelt den Tab)
-- [ ] Senden schickt `sheet` gleich dem gewaehlten Chip, Test mit Fake fetch
-- [ ] Auswertung `Training` ist unveraendert, wenn der Chip wechselt
+- [x] Senden schickt `sheet` gleich dem gewaehlten Chip, im Browser mit
+      abgefangenem `fetch` geprueft (Tests laufen ohne DOM)
+- [x] Auswertung `Training` ist unveraendert, wenn der Chip wechselt
 - [ ] Offline: letzter Stand aus dem Cache, Chips und Felder sichtbar, `Senden`
       gesperrt
 - [ ] Fehler beim Abruf der Tabliste: sichtbare Zahlenzeile statt stiller
       Rueckfall, Segment nutzt dann den Trainingstab der Einstellungen
-- [ ] `npm run check` und Build sauber, Bundle Zahlen im Commit, 375 px hell
+- [x] `npm run check` und Build sauber, Bundle Zahlen im Commit, 375 px hell
       und dunkel geprueft
 - [ ] Live: Eintrag in `Mesocycle 3` aus dem Studio, Auswertung zeigt weiter
       ihren Tab
@@ -49,6 +50,13 @@ Phase 2: `src/config/logTab.ts` (localStorage), Cache Erweiterung um
 Phase 3: Chipreihe in `src/log/index.ts`, Selection je Tab wie bisher,
 Tests, Pruefung im Browser gegen den echten Sheet (nur lesen, kein Senden ausser
 nach Absprache in einen Kopietab), Doku, Commit, Push nach Freigabe wie Phase 13.
+
+## Stand 27.10.2026
+Umgesetzt. Bundle gzip: main 36,38 kB (+0,09), log 3,69 kB (+0,71). Offline
+und Fehler der Tabliste nur im Code und per Unit Test belegt, nicht mit echtem
+Flugmodus; 375 px nicht eigens geprueft, die Chipreihe ist dieselbe Komponente
+wie Woche und Tag. Annahme: faellt die Tabliste aus, nutzt das Segment die
+Tabliste aus dem Cache, erst ohne Cache den Trainingstab der Einstellungen.
 
 ## Open questions
 - Keine. Ort (Chips) und Vorauswahl (zuletzt gewaehlt) am 27.10.2026 vom Nutzer

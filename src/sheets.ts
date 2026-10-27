@@ -26,15 +26,7 @@ interface SheetsErrorBody {
   error?: { message?: string };
 }
 
-async function fetchRange(
-  sheetId: string,
-  apiKey: string,
-  sheetName: string,
-  range: string,
-): Promise<SheetValues> {
-  const target = encodeURIComponent(`'${sheetName}'!${range}`);
-  const url = `${API_BASE}/${sheetId}/values/${target}?key=${apiKey}`;
-
+async function fetchJson<T>(url: string): Promise<T> {
   const response = await fetch(url);
   if (!response.ok) {
     let message = `HTTP ${response.status}`;
@@ -46,8 +38,19 @@ async function fetchRange(
     }
     throw new Error(message);
   }
+  return (await response.json()) as T;
+}
 
-  const body = (await response.json()) as { values?: SheetValues };
+async function fetchRange(
+  sheetId: string,
+  apiKey: string,
+  sheetName: string,
+  range: string,
+): Promise<SheetValues> {
+  const target = encodeURIComponent(`'${sheetName}'!${range}`);
+  const url = `${API_BASE}/${sheetId}/values/${target}?key=${apiKey}`;
+
+  const body = await fetchJson<{ values?: SheetValues }>(url);
   return body.values ?? [];
 }
 
@@ -57,4 +60,11 @@ export function fetchDailySheet(sheetId: string, apiKey: string, sheetName: stri
 
 export function fetchTrainingSheet(sheetId: string, apiKey: string, sheetName: string): Promise<SheetValues> {
   return fetchRange(sheetId, apiKey, sheetName, TRAINING_RANGE);
+}
+
+/** Titel aller Tabs, fuer die Wahl des Mesocycle beim Eintragen. */
+export async function fetchSheetTitles(sheetId: string, apiKey: string): Promise<string[]> {
+  const url = `${API_BASE}/${sheetId}?fields=sheets.properties.title&key=${apiKey}`;
+  const body = await fetchJson<{ sheets?: { properties?: { title?: string } }[] }>(url);
+  return (body.sheets ?? []).map((sheet) => sheet.properties?.title ?? '').filter(Boolean);
 }

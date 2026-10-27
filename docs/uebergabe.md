@@ -137,6 +137,9 @@ und ein neues `TRAINING_TOKEN` gesetzt. Nach Freigabe am 27.10.2026 nach
 `origin/main` gepusht (`c7fb5e8`), Deploy gruen, live mit Chunk `log` und
 CSP Hosts. Offen: Live Test im Studio durch den Nutzer (neues Token in der
 App eintragen), danach Retro Phase 13 in `specs/roadmap.md`.
+Phase 13.6 (Mesocycle Chips im Segment Eintragen, Spec
+`specs/features/log-tab-choice.md`) umgesetzt und lokal geprueft, Push nach
+Freigabe. Annahmen siehe Spec, Abschnitt Stand.
 
 ## Phase 11 Kochansicht
 
