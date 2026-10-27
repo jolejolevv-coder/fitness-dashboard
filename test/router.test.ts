@@ -16,7 +16,7 @@ import {
 describe('parseHash', () => {
   it('liest Ziel ohne Segment', () => {
     expect(parseHash('#heute')).toEqual({ destination: 'heute', segment: null });
-    expect(parseHash('#training')).toEqual({ destination: 'training', segment: 'auswertung' });
+    expect(parseHash('#training')).toEqual({ destination: 'training', segment: 'eintragen' });
   });
 
   it('liest Ziel mit Segment', () => {
@@ -126,12 +126,17 @@ describe('Abschnitte und Planansicht', () => {
 describe('Training eintragen', () => {
   it('zeigt eintragen nur mit Zugang zum Apps Script', () => {
     expect(visibleSegments('training', false)).toEqual(['auswertung']);
-    expect(visibleSegments('training', true)).toEqual(['auswertung', 'eintragen']);
+    expect(visibleSegments('training', true)).toEqual(['eintragen', 'auswertung']);
   });
 
   it('faellt ohne Zugang von eintragen auf auswertung zurueck', () => {
     const requested = parseHash('#training/eintragen');
     expect(resolveRoute(requested, true, false)).toEqual({ destination: 'training', segment: 'auswertung' });
     expect(resolveRoute(requested, true, true)).toEqual({ destination: 'training', segment: 'eintragen' });
+  });
+
+  it('oeffnet Training mit eintragen, ohne Zugang mit auswertung', () => {
+    expect(resolveRoute(parseHash('#training'), true, true)).toEqual({ destination: 'training', segment: 'eintragen' });
+    expect(resolveRoute(parseHash('#training'), true, false)).toEqual({ destination: 'training', segment: 'auswertung' });
   });
 });

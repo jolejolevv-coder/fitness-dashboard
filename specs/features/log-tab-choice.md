@@ -73,6 +73,10 @@ jetzt `trainingSheet` und wird bei Abweichung fuer Training ignoriert.
 Offline ist der Chipwechsel gesperrt, weil er neu laden muss.
 Bundle gzip: main 36,55 kB, log 3,40 kB.
 
+Weiterer Wunsch nach dem Live Test: `Eintragen` steht unter Training links
+und ist die Vorgabe. Ohne Zugang zum Apps Script faellt die Vorgabe auf das
+erste sichtbare Segment, `Auswertung`.
+
 ## Open questions
 - Keine. Ort (Chips) und Vorauswahl (zuletzt gewaehlt) am 27.10.2026 vom Nutzer
   entschieden.

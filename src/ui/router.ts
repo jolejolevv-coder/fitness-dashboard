@@ -13,7 +13,7 @@ export type Destination = (typeof DESTINATIONS)[number];
 export const SEGMENTS: Readonly<Record<Destination, readonly string[]>> = {
   heute: [],
   verlauf: ['gewicht', 'ernaehrung', 'wellness', 'wochen', 'analyse'],
-  training: ['auswertung', 'eintragen'],
+  training: ['eintragen', 'auswertung'],
   kueche: ['heute', 'woche', 'prep', 'vorschlag', 'einkauf'],
 };
 
@@ -106,7 +106,9 @@ export function startRoute(hasSheet: boolean): Route {
 export function resolveRoute(requested: Route | null, hasSheet: boolean, canLog = false): Route {
   if (!requested || !visibleDestinations(hasSheet).includes(requested.destination)) return startRoute(hasSheet);
   if (requested.segment !== null && !visibleSegments(requested.destination, canLog).includes(requested.segment)) {
-    return { destination: requested.destination, segment: defaultSegment(requested.destination) };
+    // Ohne Zugang zum Apps Script ist die Vorgabe `eintragen` unsichtbar, dann gilt das erste sichtbare Segment.
+    const fallback = visibleSegments(requested.destination, canLog)[0] ?? defaultSegment(requested.destination);
+    return { destination: requested.destination, segment: fallback };
   }
   return requested;
 }
