@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { getLogTab, loadLogCache, saveLogCache, saveLogTab } from '../src/config/logTab';
-import { mesocycleTabs, pickLogTab } from '../src/log/tabs';
+import { loadLogCache, saveLogCache, takeLegacyLogTab } from '../src/config/logTab';
+import { mesocycleTabs } from '../src/log/tabs';
 import { fetchSheetTitles } from '../src/sheets';
 
 /** Tests der Tabwahl beim Eintragen (Phase 13.6). */
@@ -23,24 +23,7 @@ describe('mesocycleTabs', () => {
   });
 });
 
-describe('pickLogTab', () => {
-  const tabs = ['Mesocycle 1', 'Mesocycle 2', 'Mesocycle 3'];
-
-  it('waehlt die letzte Wahl, wenn es den Tab noch gibt', () => {
-    expect(pickLogTab(tabs, 'Mesocycle 2')).toBe('Mesocycle 2');
-  });
-
-  it('waehlt sonst das hoechste N', () => {
-    expect(pickLogTab(tabs, null)).toBe('Mesocycle 3');
-    expect(pickLogTab(tabs, 'Mesocycle 99')).toBe('Mesocycle 3');
-  });
-
-  it('gibt null ohne Tabs', () => {
-    expect(pickLogTab([], 'Mesocycle 1')).toBeNull();
-  });
-});
-
-describe('Tabwahl und Cache im localStorage', () => {
+describe('Tabliste und alte Wahl im localStorage', () => {
   beforeEach(() => {
     vi.stubGlobal('localStorage', new MemoryStorage());
   });
@@ -49,21 +32,20 @@ describe('Tabwahl und Cache im localStorage', () => {
     vi.unstubAllGlobals();
   });
 
-  it('merkt sich die Wahl', () => {
-    expect(getLogTab()).toBeNull();
-    saveLogTab('Mesocycle 3');
-    expect(getLogTab()).toBe('Mesocycle 3');
-  });
-
-  it('haelt Tabliste und Zeilen des gewaehlten Tabs', () => {
-    const cache = { titles: ['Mesocycle 3'], tab: 'Mesocycle 3', rows: [['Day 1', 'Excercise']] };
-    saveLogCache(cache);
-    expect(loadLogCache()).toEqual(cache);
+  it('haelt die Tabliste', () => {
+    saveLogCache({ titles: ['Mesocycle 1', 'Mesocycle 3'] });
+    expect(loadLogCache()).toEqual({ titles: ['Mesocycle 1', 'Mesocycle 3'] });
   });
 
   it('verwirft einen Cache in falscher Form', () => {
-    localStorage.setItem('fitness_log_cache_v1', JSON.stringify({ titles: 'x', tab: 1 }));
+    localStorage.setItem('fitness_log_cache_v1', JSON.stringify({ titles: 'x' }));
     expect(loadLogCache()).toBeNull();
+  });
+
+  it('uebernimmt die alte Wahl genau einmal', () => {
+    localStorage.setItem('fitness_log_tab_v1', 'Mesocycle 3');
+    expect(takeLegacyLogTab()).toBe('Mesocycle 3');
+    expect(takeLegacyLogTab()).toBeNull();
   });
 });
 

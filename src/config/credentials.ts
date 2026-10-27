@@ -23,6 +23,8 @@ export interface Credentials {
 export interface CachedData {
   raw: SheetValues;
   rawTraining: SheetValues;
+  /** Tab von rawTraining. Fehlt in Caches vor Phase 13.6. */
+  trainingSheet?: string;
   ts: number;
 }
 
@@ -43,9 +45,9 @@ export function saveCredentials(credentials: Credentials): void {
   localStorage.setItem(CONFIG_KEY, JSON.stringify(credentials));
 }
 
-export function saveCache(raw: SheetValues, rawTraining: SheetValues): void {
+export function saveCache(raw: SheetValues, rawTraining: SheetValues, trainingSheet: string): void {
   try {
-    localStorage.setItem(CACHE_KEY, JSON.stringify({ raw, rawTraining, ts: Date.now() }));
+    localStorage.setItem(CACHE_KEY, JSON.stringify({ raw, rawTraining, trainingSheet, ts: Date.now() }));
   } catch {
     // Ein voller localStorage darf das Dashboard nicht anhalten.
   }

@@ -139,7 +139,9 @@ CSP Hosts. Offen: Live Test im Studio durch den Nutzer (neues Token in der
 App eintragen), danach Retro Phase 13 in `specs/roadmap.md`.
 Phase 13.6 (Mesocycle Chips im Segment Eintragen, Spec
 `specs/features/log-tab-choice.md`) umgesetzt und lokal geprueft, Push nach
-Freigabe. Annahmen siehe Spec, Abschnitt Stand.
+Freigabe. Annahmen siehe Spec, Abschnitt Stand. Live
+getestet, danach Nachtrag: Auswertung folgt dem Chip, Tageswechsel behaelt
+die Woche, Cache traegt seinen Trainingstab.
 
 ## Phase 11 Kochansicht
 

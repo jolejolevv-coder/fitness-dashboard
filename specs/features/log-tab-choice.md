@@ -31,7 +31,8 @@ vom Trainingstab der Auswertung, weil das Eintragen der Auswertung vorausgeht.
       offene Woche; Entwuerfe bleiben je Tab getrennt (Schluessel enthaelt den Tab)
 - [x] Senden schickt `sheet` gleich dem gewaehlten Chip, im Browser mit
       abgefangenem `fetch` geprueft (Tests laufen ohne DOM)
-- [x] Auswertung `Training` ist unveraendert, wenn der Chip wechselt
+- [x] ~~Auswertung `Training` ist unveraendert, wenn der Chip wechselt~~
+      ersetzt: Auswertung folgt dem Chip, siehe Nachtrag
 - [ ] Offline: letzter Stand aus dem Cache, Chips und Felder sichtbar, `Senden`
       gesperrt
 - [ ] Fehler beim Abruf der Tabliste: sichtbare Zahlenzeile statt stiller
@@ -57,6 +58,20 @@ und Fehler der Tabliste nur im Code und per Unit Test belegt, nicht mit echtem
 Flugmodus; 375 px nicht eigens geprueft, die Chipreihe ist dieselbe Komponente
 wie Woche und Tag. Annahme: faellt die Tabliste aus, nutzt das Segment die
 Tabliste aus dem Cache, erst ohne Cache den Trainingstab der Einstellungen.
+
+## Nachtrag 27.10.2026 nach dem Live Test
+Nutzerentscheidung: die Auswertung folgt dem Chip. Der Chip setzt den
+Trainingstab der Zugangsdaten (dasselbe Feld wie in den Einstellungen, das
+Feld bleibt als Spiegel und fuer den Fall ohne Eintragen Zugang) und laedt
+alles neu. Damit entfallen eigener Zeilenabruf, `fitness_log_tab_v1` und
+Zeilen im Log Cache; dieser haelt nur noch die Tabliste. Eine Wahl aus der
+ersten Fassung wird beim Start einmal als Trainingstab uebernommen.
+Tageswechsel behaelt die Woche, statt zur ersten offenen Woche zu springen.
+Fehler beim Live Test: der Sheet Cache trug keinen Tabnamen, nach einem
+Tabwechsel belegten Zeilen des alten Tabs die Vorauswahl. Der Cache traegt
+jetzt `trainingSheet` und wird bei Abweichung fuer Training ignoriert.
+Offline ist der Chipwechsel gesperrt, weil er neu laden muss.
+Bundle gzip: main 36,55 kB, log 3,40 kB.
 
 ## Open questions
 - Keine. Ort (Chips) und Vorauswahl (zuletzt gewaehlt) am 27.10.2026 vom Nutzer

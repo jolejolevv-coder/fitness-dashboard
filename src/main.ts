@@ -28,6 +28,7 @@ import type { WeightMode } from './charts/weight';
 import { renderTraining } from './ui/training';
 import { closeSettings, currentRoute, navigate, openSettings, setCanLog, setHasSheet, setupRangeButtons, setupShell } from './ui/shell';
 import { getLogAccess, isValidEndpoint, saveLogAccess } from './config/logAccess';
+import { takeLegacyLogTab } from './config/logTab';
 import { kuecheRouteFor, planViewFor, sectionFor, type Route } from './ui/router';
 import { onPlanViewChange, renderPlan, setPlanView } from './ui/plan';
 import { renderShopping } from './ui/shopping';
@@ -313,14 +314,29 @@ async function renderLogSection(): Promise<void> {
   const credentials = getCredentials();
   if (!hasCredentials(credentials)) return;
   log.renderLog(container, {
-    analysisSheet: credentials.trainingSheetName || DEFAULT_TRAINING_SHEET,
-    analysisRows: trainingRows,
+    sheet: credentials.trainingSheetName || DEFAULT_TRAINING_SHEET,
+    rows: trainingRows,
     access,
     loadTitles: () => fetchSheetTitles(credentials.sheetId, credentials.apiKey),
-    loadRows: (sheet) => fetchTrainingSheet(credentials.sheetId, credentials.apiKey, sheet),
+    chooseSheet: (sheet) => chooseTrainingSheet(sheet),
     reload: () => loadData(true),
   });
   dirty.delete('log');
+}
+
+/** Ein Mesocycle Chip setzt den Trainingstab fuer Eintragen und Auswertung. */
+async function chooseTrainingSheet(sheet: string): Promise<void> {
+  const credentials = getCredentials();
+  if (!hasCredentials(credentials)) return;
+  saveCredentials({ ...credentials, trainingSheetName: sheet });
+  await loadData(true);
+}
+
+/** Uebernimmt die Wahl aus der ersten Fassung von 13.6 einmal als Trainingstab. */
+function adoptLegacyLogTab(): void {
+  const tab = takeLegacyLogTab();
+  const credentials = getCredentials();
+  if (tab && hasCredentials(credentials)) saveCredentials({ ...credentials, trainingSheetName: tab });
 }
 
 /**
@@ -426,7 +442,9 @@ export async function loadData(force = false): Promise<void> {
     if (cache) {
       try {
         statusSuffix = ' · aktualisiere';
-        applyParsed(cache.raw, cache.rawTraining, cache.ts, true);
+        // Trainingszeilen eines anderen Tabs wuerden Eintragen und Auswertung falsch vorbelegen.
+        const sameTab = cache.trainingSheet === (credentials.trainingSheetName || DEFAULT_TRAINING_SHEET);
+        applyParsed(cache.raw, sameTab ? cache.rawTraining : [], cache.ts, true);
       } catch {
         // Ein unlesbarer Cache darf den frischen Abruf nicht verhindern.
       }
@@ -446,7 +464,7 @@ export async function loadData(force = false): Promise<void> {
           return [] as SheetValues;
         }),
     ]);
-    saveCache(raw, rawTraining);
+    saveCache(raw, rawTraining, credentials.trainingSheetName || DEFAULT_TRAINING_SHEET);
     statusSuffix = '';
     applyParsed(raw, rawTraining, Date.now(), false);
   } catch (error) {
@@ -502,5 +520,6 @@ function wire(): void {
   window.setInterval(updateDataAge, AGE_TICK_MS);
 }
 
+adoptLegacyLogTab();
 wire();
 void loadData(true);

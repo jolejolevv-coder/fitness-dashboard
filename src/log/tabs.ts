@@ -1,5 +1,5 @@
 /**
- * Welche Tabs das Segment `Eintragen` anbietet und welcher vorausgewaehlt ist
+ * Welche Tabs das Segment `Eintragen` als Chips anbietet
  * (Phase 13.6, specs/features/log-tab-choice.md).
  */
 
@@ -13,10 +13,4 @@ export function mesocycleTabs(titles: readonly string[]): string[] {
     .filter((item) => item.match !== null)
     .sort((a, b) => Number(a.match![1]) - Number(b.match![1]))
     .map((item) => item.title);
-}
-
-/** Zuletzt gewaehlter Tab, sonst der mit dem hoechsten N. */
-export function pickLogTab(tabs: readonly string[], saved: string | null): string | null {
-  if (saved && tabs.includes(saved)) return saved;
-  return tabs.at(-1) ?? null;
 }

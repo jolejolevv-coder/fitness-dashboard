@@ -5,8 +5,8 @@ import { refusalCard } from '../ui/cards';
 import { clearDraft, draftKey, entryKey, loadDraft, LOG_FIELDS, saveField, type LogField } from './draft';
 import { buildEntries, isLocked, MAX_LENGTH, sendLog, type EntryResult } from './send';
 import { firstOpenWeek, readLogTab, type LogExercise, type LogTab } from './tab';
-import { getLogTab, loadLogCache, saveLogCache, saveLogTab } from '../config/logTab';
-import { mesocycleTabs, pickLogTab } from './tabs';
+import { loadLogCache, saveLogCache } from '../config/logTab';
+import { mesocycleTabs } from './tabs';
 
 /**
  * Segment `Eintragen` unter Training, als nachgeladener Chunk `log`.
@@ -17,12 +17,13 @@ import { mesocycleTabs, pickLogTab } from './tabs';
  */
 
 export interface LogContext {
-  /** Trainingstab der Auswertung und seine schon geladenen Zeilen. */
-  analysisSheet: string;
-  analysisRows: SheetValues;
+  /** Trainingstab, gilt fuer Eintragen und Auswertung, und seine Zeilen. */
+  sheet: string;
+  rows: SheetValues;
   access: LogAccess;
   loadTitles: () => Promise<string[]>;
-  loadRows: (sheet: string) => Promise<SheetValues>;
+  /** Setzt den Trainingstab und laedt alles neu, danach zeichnet die App neu. */
+  chooseSheet: (sheet: string) => Promise<void>;
   /** Laedt die Sheet Daten neu, danach zeichnet die App das Segment neu. */
   reload: () => Promise<void>;
 }
@@ -41,89 +42,54 @@ let message = '';
 let sending = false;
 let refreshStatus: (() => void) | null = null;
 
-/** Tabliste und Zeilen der Tabs ausserhalb der Auswertung, Phase 13.6. */
+/** Tabliste fuer die Chips, Phase 13.6. */
 let titles: string[] | null = null;
 let titlesError = '';
-const tabRows = new Map<string, SheetValues>();
 let refreshing = false;
 
 window.addEventListener('online', () => refreshStatus?.());
 window.addEventListener('offline', () => refreshStatus?.());
 
 export function renderLog(container: HTMLElement, context: LogContext): void {
-  const cache = loadLogCache();
-  if (cache) {
-    titles ??= cache.titles;
-    if (!tabRows.has(cache.tab)) tabRows.set(cache.tab, cache.rows);
-  }
+  titles ??= loadLogCache()?.titles ?? null;
   show(container, context);
-  void refresh(container, context);
+  void refreshTitles(container, context);
 }
 
-/** Angebotene Tabs, ohne Tabliste nur der Trainingstab der Auswertung. */
+/** Angebotene Tabs, ohne Tabliste nur der Trainingstab. */
 function offeredTabs(context: LogContext): string[] {
   const tabs = mesocycleTabs(titles ?? []);
-  return tabs.length ? tabs : [context.analysisSheet];
+  return tabs.length ? tabs : [context.sheet];
 }
 
-function currentSheet(context: LogContext): string {
-  return pickLogTab(offeredTabs(context), getLogTab()) ?? context.analysisSheet;
-}
-
-function rowsOf(context: LogContext, sheet: string): SheetValues | undefined {
-  return sheet === context.analysisSheet ? context.analysisRows : tabRows.get(sheet);
-}
-
-/** Holt Tabliste und Zeilen des gewaehlten Tabs, zeichnet danach neu. */
-async function refresh(container: HTMLElement, context: LogContext): Promise<void> {
+async function refreshTitles(container: HTMLElement, context: LogContext): Promise<void> {
   if (refreshing || !navigator.onLine) return;
   refreshing = true;
   try {
     titles = await context.loadTitles();
     titlesError = '';
+    saveLogCache({ titles });
   } catch (error) {
     titlesError = `Tabliste nicht geladen: ${error instanceof Error ? error.message : String(error)}`;
-  }
-  try {
-    await loadSheetRows(context, currentSheet(context));
   } finally {
     refreshing = false;
   }
   show(container, context);
 }
 
-async function loadSheetRows(context: LogContext, sheet: string): Promise<void> {
-  if (sheet === context.analysisSheet) return;
-  try {
-    const rows = await context.loadRows(sheet);
-    tabRows.set(sheet, rows);
-    saveLogCache({ titles: titles ?? [], tab: sheet, rows });
-  } catch (error) {
-    message = `${sheet} nicht geladen: ${error instanceof Error ? error.message : String(error)}`;
-  }
-}
-
 function show(container: HTMLElement, context: LogContext): void {
   const offered = offeredTabs(context);
-  const sheet = currentSheet(context);
+  const { sheet } = context;
   const header: HTMLElement[] = [chips('Mesocycle', offered, offered.indexOf(sheet), (index) => {
-    saveLogTab(offered[index]!);
+    const chosen = offered[index]!;
+    if (chosen === sheet || sending || !navigator.onLine) return;
     message = '';
-    show(container, context);
-    if (!rowsOf(context, offered[index]!)) {
-      void loadSheetRows(context, offered[index]!).then(() => show(container, context));
-    }
+    container.replaceChildren(...header, el('div', { class: 'card-basis log-status', text: 'lädt' }));
+    void context.chooseSheet(chosen);
   })];
   if (titlesError) header.push(el('div', { class: 'card-basis', text: titlesError }));
 
-  const rows = rowsOf(context, sheet);
-  if (!rows) {
-    header.push(el('div', { class: 'card-basis log-status', text: message || (navigator.onLine ? 'lädt' : 'offline') }));
-    container.replaceChildren(...header);
-    return;
-  }
-
-  const tab = readLogTab(rows);
+  const tab = readLogTab(context.rows);
   if (!tab || !tab.days.length) {
     container.replaceChildren(...header, refusalCard('Eintragen', `Keine Wochenblöcke in ${sheet}`));
     return;
@@ -150,7 +116,7 @@ function draw(container: HTMLElement, context: LogContext, view: View, selection
   });
   const dayChips = chips('Trainingstag', tab.days.map((d) => d.label), selection.day, (index) => {
     selection.day = index;
-    selection.week = firstOpenWeek(tab.days[index]!);
+    selection.week = Math.min(selection.week, tab.days[index]!.weeks.length - 1);
     message = '';
     redraw();
   });
@@ -173,7 +139,7 @@ function draw(container: HTMLElement, context: LogContext, view: View, selection
 
   button.addEventListener('click', () => {
     const target = { sheet, key, week: selection.week + 1, day: day.label };
-    void submit(context, target, exercises, updateStatus).then(() => reloadAfterSend(container, context, sheet));
+    void submit(context, target, exercises, updateStatus).then(() => reloadAfterSend(context));
   });
 
   const cards = exercises.map((exercise) => exerciseCard(exercise, key, results.get(key), updateStatus));
@@ -182,14 +148,8 @@ function draw(container: HTMLElement, context: LogContext, view: View, selection
 }
 
 /** Nach dem Senden zeigt der Tab selbst, was steht. */
-async function reloadAfterSend(container: HTMLElement, context: LogContext, sheet: string): Promise<void> {
-  if (message === 'Senden fehlgeschlagen') return;
-  if (sheet === context.analysisSheet) {
-    await context.reload();
-    return;
-  }
-  await loadSheetRows(context, sheet);
-  show(container, context);
+async function reloadAfterSend(context: LogContext): Promise<void> {
+  if (message !== 'Senden fehlgeschlagen') await context.reload();
 }
 
 function chips(label: string, names: readonly string[], active: number, onPick: (index: number) => void): HTMLElement {
