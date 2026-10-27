@@ -3,7 +3,7 @@ import mealsJson from '../../data/meals.json';
 import rotationJson from '../../data/rotation.json';
 import shoppingItemsJson from '../../data/shopping_items.json';
 import prepJson from '../../data/prep.json';
-import type { Food, Meal, PrepSession, Rotation, ShoppingItem } from './types';
+import type { Food, Meal, MealStep, PrepSession, Rotation, ShoppingItem } from './types';
 import { SLOTS, WEEKDAYS } from './types';
 
 /**
@@ -13,10 +13,42 @@ import { SLOTS, WEEKDAYS } from './types';
  * Ob die Daten in sich stimmig sind, prueft `validatePlan`.
  */
 export const FOODS = foodsJson as unknown as Food[];
-export const MEALS = mealsJson as unknown as Meal[];
+export const MEALS = (mealsJson as unknown as Meal[]).map(withParsedSteps);
 export const ROTATION = rotationJson as unknown as Rotation;
 export const SHOPPING_ITEMS = shoppingItemsJson as unknown as ShoppingItem[];
 export const PREP_SESSIONS = prepJson as unknown as PrepSession[];
+
+function positiveNumberOrNull(value: unknown): number | null {
+  return typeof value === 'number' && Number.isFinite(value) && value > 0 ? value : null;
+}
+
+/** Ein Schritt aus unbekannter Quelle, ohne brauchbaren Text `null`. */
+export function parseMealStep(raw: unknown): MealStep | null {
+  if (typeof raw !== 'object' || raw === null) return null;
+  const entry = raw as Record<string, unknown>;
+  const text = typeof entry['text'] === 'string' ? entry['text'].trim() : '';
+  if (text === '') return null;
+  const device = typeof entry['device'] === 'string' && entry['device'].trim() !== '' ? entry['device'].trim() : null;
+  const foods = Array.isArray(entry['foods']) ? entry['foods'].filter((id): id is string => typeof id === 'string') : [];
+  return {
+    text,
+    device,
+    minutes: positiveNumberOrNull(entry['minutes']),
+    temperatureC: positiveNumberOrNull(entry['temperatureC']),
+    foods,
+  };
+}
+
+/** Kaputte Schritte fallen weg, ein fehlendes Feld heisst keine Schritte. */
+export function parseMealSteps(raw: unknown): MealStep[] {
+  if (!Array.isArray(raw)) return [];
+  return raw.map(parseMealStep).filter((step): step is MealStep => step !== null);
+}
+
+function withParsedSteps(meal: Meal): Meal {
+  if (meal.steps === undefined) return meal;
+  return { ...meal, steps: parseMealSteps(meal.steps) };
+}
 
 export interface PlanData {
   foods: Food[];

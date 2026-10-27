@@ -43,12 +43,24 @@ export interface AddToSlot extends Ingredient {
   slot: Slot;
 }
 
+/** Ein Zubereitungsschritt. Geraet, Zeit und Temperatur nur, wo sie gelten. */
+export interface MealStep {
+  text: string;
+  device: string | null;
+  minutes: number | null;
+  temperatureC: number | null;
+  /** `foodId` der Zutaten, die der Schritt nennt. Alle gehoeren zum Gericht. */
+  foods: string[];
+}
+
 export interface Meal {
   id: string;
   slot: Slot;
   name: string;
   ingredients: Ingredient[];
   addToSlot?: AddToSlot;
+  /** Fehlt bei Gerichten aus einem generierten Plan. */
+  steps?: MealStep[];
 }
 
 export type Rotation = Record<Weekday, Record<Slot, string>>;

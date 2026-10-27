@@ -28,6 +28,47 @@
         "foodId": "stevia",
         "grams": 0
       }
+    ],
+    "steps": [
+      {
+        "text": "Haferflocken mit 200 ml Wasser in einer großen Schüssel verrühren.",
+        "device": null,
+        "minutes": null,
+        "temperatureC": null,
+        "foods": [
+          "oats"
+        ]
+      },
+      {
+        "text": "Abgedeckt garen, nach der Hälfte umrühren.",
+        "device": "Mikrowelle",
+        "minutes": 2,
+        "temperatureC": null,
+        "foods": [
+          "oats"
+        ]
+      },
+      {
+        "text": "Whey mit einem Schuss kaltem Wasser glatt rühren und unter den Brei ziehen, Zimt und Stevia dazu.",
+        "device": null,
+        "minutes": null,
+        "temperatureC": null,
+        "foods": [
+          "whey_vanilla",
+          "cinnamon",
+          "stevia"
+        ]
+      },
+      {
+        "text": "Beeren gefroren unterheben, Erdnussbutter oben drauf.",
+        "device": null,
+        "minutes": null,
+        "temperatureC": null,
+        "foods": [
+          "berries_frozen",
+          "peanut_butter"
+        ]
+      }
     ]
   },
   {
@@ -74,6 +115,38 @@
       {
         "foodId": "chives_frozen",
         "grams": 0
+      }
+    ],
+    "steps": [
+      {
+        "text": "Egg Muffins aus der Prep vom Sonntag nehmen.",
+        "device": null,
+        "minutes": null,
+        "temperatureC": null,
+        "foods": [
+          "egg_m",
+          "cottage_cheese",
+          "turkey_coldcut",
+          "spinach_frozen",
+          "bell_pepper"
+        ]
+      },
+      {
+        "text": "Abgedeckt erwärmen.",
+        "device": "Mikrowelle",
+        "minutes": 1,
+        "temperatureC": null,
+        "foods": []
+      },
+      {
+        "text": "Mit Brot essen, Schnittlauch nach Geschmack.",
+        "device": null,
+        "minutes": null,
+        "temperatureC": null,
+        "foods": [
+          "wholegrain_bread",
+          "chives_frozen"
+        ]
       }
     ]
   },
@@ -122,6 +195,61 @@
         "foodId": "chili_flakes",
         "grams": 0
       }
+    ],
+    "steps": [
+      {
+        "text": "Eier mit Frischkäse, Salz und Pfeffer verquirlen, Paprika klein würfeln.",
+        "device": null,
+        "minutes": null,
+        "temperatureC": null,
+        "foods": [
+          "egg_m",
+          "cottage_cheese",
+          "salt",
+          "pepper",
+          "bell_pepper"
+        ]
+      },
+      {
+        "text": "Eimasse in einer Schüssel stocken lassen, nach 1 Minute umrühren.",
+        "device": "Mikrowelle",
+        "minutes": 2,
+        "temperatureC": null,
+        "foods": [
+          "egg_m"
+        ]
+      },
+      {
+        "text": "Wrap mit Senf bestreichen, Ei, Aufschnitt und Paprika darauf, Chiliflocken nach Geschmack, fest einrollen.",
+        "device": null,
+        "minutes": null,
+        "temperatureC": null,
+        "foods": [
+          "wholegrain_wrap",
+          "mustard",
+          "turkey_coldcut",
+          "bell_pepper",
+          "chili_flakes"
+        ]
+      },
+      {
+        "text": "Wrap mit der Naht nach unten knusprig grillen.",
+        "device": "OptiGrill",
+        "minutes": 3,
+        "temperatureC": 200,
+        "foods": [
+          "wholegrain_wrap"
+        ]
+      },
+      {
+        "text": "Apfel dazu.",
+        "device": null,
+        "minutes": null,
+        "temperatureC": null,
+        "foods": [
+          "apple"
+        ]
+      }
     ]
   },
   {
@@ -168,6 +296,49 @@
       {
         "foodId": "salt",
         "grams": 0
+      }
+    ],
+    "steps": [
+      {
+        "text": "Reis und Hähnchen aus der Prep in eine Schale geben.",
+        "device": null,
+        "minutes": null,
+        "temperatureC": null,
+        "foods": [
+          "basmati",
+          "chicken_breast"
+        ]
+      },
+      {
+        "text": "Brokkoli in Röschen mit 2 EL Wasser abgedeckt garen.",
+        "device": "Mikrowelle",
+        "minutes": 4,
+        "temperatureC": null,
+        "foods": [
+          "broccoli"
+        ]
+      },
+      {
+        "text": "Alles zusammen abgedeckt erwärmen.",
+        "device": "Mikrowelle",
+        "minutes": 2,
+        "temperatureC": null,
+        "foods": [
+          "basmati",
+          "chicken_breast",
+          "broccoli"
+        ]
+      },
+      {
+        "text": "Olivenöl darüber, Skyr mit Sojasauce verrühren und als Soße dazu.",
+        "device": null,
+        "minutes": null,
+        "temperatureC": null,
+        "foods": [
+          "olive_oil",
+          "skyr",
+          "soy_sauce"
+        ]
       }
     ]
   },
@@ -220,6 +391,38 @@
         "foodId": "salt",
         "grams": 0
       }
+    ],
+    "steps": [
+      {
+        "text": "Chili und Reis aus der Prep vom Mittwoch in eine Schale geben.",
+        "device": null,
+        "minutes": null,
+        "temperatureC": null,
+        "foods": [
+          "beef_mince_5",
+          "kidney_beans",
+          "passata",
+          "bell_pepper",
+          "basmati"
+        ]
+      },
+      {
+        "text": "Abgedeckt erwärmen, nach der Hälfte umrühren.",
+        "device": "Mikrowelle",
+        "minutes": 3,
+        "temperatureC": null,
+        "foods": []
+      },
+      {
+        "text": "Nach Geschmack mit Chili und Salz nachwürzen.",
+        "device": null,
+        "minutes": null,
+        "temperatureC": null,
+        "foods": [
+          "chili",
+          "salt"
+        ]
+      }
     ]
   },
   {
@@ -262,6 +465,52 @@
       {
         "foodId": "herbs_frozen",
         "grams": 0
+      }
+    ],
+    "steps": [
+      {
+        "text": "Hähnchen aus der Prep in Streifen schneiden, Paprika in Streifen.",
+        "device": null,
+        "minutes": null,
+        "temperatureC": null,
+        "foods": [
+          "chicken_breast",
+          "bell_pepper"
+        ]
+      },
+      {
+        "text": "Skyr mit Knoblauch, Kräutern und Sriracha verrühren.",
+        "device": null,
+        "minutes": null,
+        "temperatureC": null,
+        "foods": [
+          "skyr",
+          "garlic_granulated",
+          "herbs_frozen",
+          "sriracha"
+        ]
+      },
+      {
+        "text": "Wrap mit der Soße bestreichen, Hähnchen, Paprika und Käse darauf, einrollen.",
+        "device": null,
+        "minutes": null,
+        "temperatureC": null,
+        "foods": [
+          "wholegrain_wrap",
+          "chicken_breast",
+          "bell_pepper",
+          "eatlean_cheese"
+        ]
+      },
+      {
+        "text": "Mit etwas Öl bepinselt kurz grillen, bis der Käse schmilzt.",
+        "device": "OptiGrill",
+        "minutes": 3,
+        "temperatureC": 200,
+        "foods": [
+          "olive_oil",
+          "eatlean_cheese"
+        ]
       }
     ]
   },
@@ -306,6 +555,42 @@
         "foodId": "chives_frozen",
         "grams": 0
       }
+    ],
+    "steps": [
+      {
+        "text": "Thunfisch abtropfen lassen und mit Skyr, Senf, Zitronensaft und Pfeffer verrühren.",
+        "device": null,
+        "minutes": null,
+        "temperatureC": null,
+        "foods": [
+          "tuna_natural",
+          "skyr",
+          "mustard",
+          "lemon_juice",
+          "pepper"
+        ]
+      },
+      {
+        "text": "Avocado auf dem Brot zerdrücken.",
+        "device": null,
+        "minutes": null,
+        "temperatureC": null,
+        "foods": [
+          "avocado",
+          "wholegrain_bread"
+        ]
+      },
+      {
+        "text": "Thunfischcreme darauf, Schnittlauch darüber, Paprika in Streifen dazu.",
+        "device": null,
+        "minutes": null,
+        "temperatureC": null,
+        "foods": [
+          "tuna_natural",
+          "chives_frozen",
+          "bell_pepper"
+        ]
+      }
     ]
   },
   {
@@ -326,7 +611,19 @@
       "slot": "M2",
       "foodId": "chicken_breast",
       "grams": 50
-    }
+    },
+    "steps": [
+      {
+        "text": "Riegel und Apfel, sonst nichts.",
+        "device": null,
+        "minutes": null,
+        "temperatureC": null,
+        "foods": [
+          "protein_bar",
+          "apple"
+        ]
+      }
+    ]
   },
   {
     "id": "m4a",
@@ -364,6 +661,50 @@
       {
         "foodId": "pepper",
         "grams": 0
+      }
+    ],
+    "steps": [
+      {
+        "text": "Kartoffeln in Spalten schneiden und backen, nach der Hälfte schütteln.",
+        "device": "Airfryer",
+        "minutes": 20,
+        "temperatureC": 200,
+        "foods": [
+          "potato"
+        ]
+      },
+      {
+        "text": "Lachs gefroren mit Zitronensaft, Salz und Pfeffer würzen, nach 10 Minuten zu den Kartoffeln in den Korb legen.",
+        "device": "Airfryer",
+        "minutes": 10,
+        "temperatureC": 200,
+        "foods": [
+          "salmon_frozen",
+          "lemon_juice",
+          "salt",
+          "pepper"
+        ]
+      },
+      {
+        "text": "Zucchini in Scheiben in den letzten 6 Minuten dazugeben.",
+        "device": "Airfryer",
+        "minutes": 6,
+        "temperatureC": 200,
+        "foods": [
+          "zucchini"
+        ]
+      },
+      {
+        "text": "Skyr mit Dill, Salz und Zitronensaft verrühren und als Soße dazu.",
+        "device": null,
+        "minutes": null,
+        "temperatureC": null,
+        "foods": [
+          "skyr",
+          "dill_frozen",
+          "salt",
+          "lemon_juice"
+        ]
       }
     ]
   },
@@ -411,6 +752,42 @@
       {
         "foodId": "salt",
         "grams": 0
+      }
+    ],
+    "steps": [
+      {
+        "text": "Pute und Wedges mit Gemüse aus der Prep in eine Schale geben.",
+        "device": null,
+        "minutes": null,
+        "temperatureC": null,
+        "foods": [
+          "turkey_breast",
+          "potato",
+          "zucchini",
+          "bell_pepper"
+        ]
+      },
+      {
+        "text": "Wedges knusprig aufbacken, Pute in den letzten 3 Minuten dazu.",
+        "device": "Airfryer",
+        "minutes": 6,
+        "temperatureC": 180,
+        "foods": [
+          "potato",
+          "turkey_breast"
+        ]
+      },
+      {
+        "text": "Skyr mit Knoblauch, Paprika geräuchert und Salz als Dip verrühren.",
+        "device": null,
+        "minutes": null,
+        "temperatureC": null,
+        "foods": [
+          "skyr",
+          "garlic_granulated",
+          "paprika_smoked",
+          "salt"
+        ]
       }
     ]
   }

@@ -2,7 +2,7 @@
   {
     "stepId": "sunday-rice",
     "device": "Mikrowelle",
-    "instruction": "Reis mit doppelter Menge Wasser abgedeckt bei 800 W garen.",
+    "instruction": "Reis in einem Sieb kalt abspülen. Mit der doppelten Menge Wasser und einer Prise Salz in eine große, mikrowellenfeste Schüssel geben, mit Deckel oder Teller abdecken und bei 800 W garen. Beim Halt umrühren. Danach 5 Minuten abgedeckt ziehen lassen, auflockern und auf die Dosen verteilen.",
     "minutes": 18,
     "hold": {
       "afterMinutes": 10,
@@ -12,28 +12,28 @@
   {
     "stepId": "sunday-egg-muffins",
     "device": "Airfryer",
-    "instruction": "Alle Zutaten verquirlen, in Silikonformen füllen und backen.",
+    "instruction": "Eier mit Frischkäse, Salz, Pfeffer und Paprikapulver verquirlen. Spinat auftauen und gut ausdrücken, Paprika und Aufschnitt klein schneiden, mit Schnittlauch unter die Eimasse rühren. In Silikonformen zu drei Vierteln füllen und backen, bis die Mitte fest ist. Abkühlen lassen und gekühlt lagern.",
     "temperatureC": 160,
     "minutes": 15
   },
   {
     "stepId": "sunday-chicken",
     "device": "OptiGrill",
-    "instruction": "Filets mit Sojasauce und Gewürzen einreiben und in zwei Durchgängen grillen.",
+    "instruction": "Filets trocken tupfen, dicke Stellen flach klopfen. Für die Bowl mit Sojasauce, Curry, Kurkuma, Knoblauch und Salz einreiben, für die Wraps nur mit Knoblauch und Kräutern. In zwei Durchgängen grillen, bis der Kern durch ist. 5 Minuten ruhen lassen, dann aufschneiden und getrennt verpacken.",
     "temperatureC": 210,
     "minutes": 8
   },
   {
     "stepId": "sunday-turkey",
     "device": "OptiGrill",
-    "instruction": "Filets würzen und grillen.",
+    "instruction": "Filets trocken tupfen und mit Paprika geräuchert, Knoblauch und Salz einreiben. Grillen, bis der Kern durch ist, 5 Minuten ruhen lassen und in Scheiben schneiden.",
     "temperatureC": 210,
     "minutes": 7
   },
   {
     "stepId": "sunday-wedges",
     "device": "Airfryer",
-    "instruction": "Kartoffelspalten mit Öl und Rosmarin backen, Gemüse beim Halt dazugeben.",
+    "instruction": "Kartoffeln waschen, ungeschält in Spalten schneiden, mit der Hälfte des Öls und Rosmarin mischen und backen. Zucchini und Paprika in grobe Stücke schneiden und mit dem restlichen Öl mischen. Beim Halt Gemüse zugeben, Korb schütteln und fertig backen.",
     "temperatureC": 200,
     "minutes": 22,
     "hold": {
@@ -44,7 +44,7 @@
   {
     "stepId": "wednesday-chili",
     "device": "Mikrowelle",
-    "instruction": "Hack in großer Schüssel garen, dann alle Zutaten unterrühren und abgedeckt bei 800 W fertig garen.",
+    "instruction": "Hack mit Öl in eine große, mikrowellenfeste Schüssel geben und abgedeckt garen. Beim Halt das Hack mit einer Gabel zerteilen, Passata, abgetropfte Kidneybohnen, gewürfelte Paprika, Kreuzkümmel, Paprikapulver, Chili, Knoblauch und Salz unterrühren. Abgedeckt fertig garen, dabei einmal umrühren. Abschmecken und auf die Dosen verteilen.",
     "minutes": 25,
     "hold": {
       "afterMinutes": 8,
@@ -54,7 +54,7 @@
   {
     "stepId": "wednesday-rice",
     "device": "Mikrowelle",
-    "instruction": "Reis mit doppelter Menge Wasser abgedeckt bei 800 W garen.",
+    "instruction": "Reis in einem Sieb kalt abspülen. Mit der doppelten Menge Wasser abgedeckt bei 800 W garen, beim Halt umrühren. Danach 5 Minuten abgedeckt ziehen lassen und auflockern.",
     "minutes": 15,
     "hold": {
       "afterMinutes": 8,
@@ -64,21 +64,21 @@
   {
     "stepId": "wednesday-chicken",
     "device": "OptiGrill",
-    "instruction": "Filets mit Knoblauch und Kräutern würzen und grillen.",
+    "instruction": "Filets trocken tupfen, mit Knoblauch und Kräutern würzen und grillen, bis der Kern durch ist. 5 Minuten ruhen lassen, in Streifen schneiden.",
     "temperatureC": 210,
     "minutes": 7
   },
   {
     "stepId": "wednesday-turkey",
     "device": "OptiGrill",
-    "instruction": "Filets würzen und grillen.",
+    "instruction": "Filets trocken tupfen und mit Paprika geräuchert, Knoblauch und Salz einreiben. Grillen, bis der Kern durch ist, ruhen lassen und in Scheiben schneiden.",
     "temperatureC": 210,
     "minutes": 7
   },
   {
     "stepId": "wednesday-wedges",
     "device": "Airfryer",
-    "instruction": "Kartoffelspalten mit Öl und Rosmarin backen, Gemüse beim Halt dazugeben.",
+    "instruction": "Kartoffeln waschen, ungeschält in Spalten schneiden, mit der Hälfte des Öls und Rosmarin mischen und backen. Zucchini und Paprika in grobe Stücke schneiden und mit dem restlichen Öl mischen. Beim Halt Gemüse zugeben, Korb schütteln und fertig backen.",
     "temperatureC": 200,
     "minutes": 22,
     "hold": {

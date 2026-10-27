@@ -1,4 +1,4 @@
-import type { Meal, PrepSession, Rotation } from '../nutrition/types';
+import type { Meal, MealStep, PrepSession, Rotation } from '../nutrition/types';
 import { SLOTS, WEEKDAYS } from '../nutrition/types';
 import type { Proposal } from './response';
 
@@ -28,7 +28,13 @@ function exportMeal(meal: Meal): Meal {
     slot: meal.slot,
     name: meal.name,
     ingredients: meal.ingredients.map((ing) => ({ foodId: ing.foodId, grams: ing.grams })),
+    // Schritte nur, wo es sie gibt: Vorschlaege der KI haben keine, die Seed Gerichte schon.
+    ...(meal.steps ? { steps: meal.steps.map(exportStep) } : {}),
   };
+}
+
+function exportStep(step: MealStep): MealStep {
+  return { text: step.text, device: step.device, minutes: step.minutes, temperatureC: step.temperatureC, foods: [...step.foods] };
 }
 
 /** Tage und Slots in fester Reihenfolge, unabhaengig von der Reihenfolge der Antwort. */

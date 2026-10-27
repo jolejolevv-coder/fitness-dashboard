@@ -1,6 +1,6 @@
 # Phase 16: Zubereitung je Gericht
 
-Status: Entwurf 27.10.2026, nicht freigegeben.
+Status: freigegeben 27.10.2026.
 
 ## Goal
 
@@ -39,7 +39,8 @@ Out of scope:
 
 ## Acceptance criteria
 
-* [ ] Alle zehn Gerichte in `data/meals.json` haben drei bis sechs Schritte
+* [ ] Alle zehn Gerichte in `data/meals.json` haben drei bis sechs Schritte,
+      ausser `Riegel-Option` mit einem Schritt (Annahme 27.10.2026)
 * [ ] Jeder Schritt nennt nur Zutaten, die das Gericht auch hat
 * [ ] Alle zehn Prep Schritte haben ausfuehrlichere Texte, die Kochansicht
       laeuft unveraendert (Timer, Halte, Mise en place)
@@ -63,3 +64,19 @@ Out of scope:
 ## Open questions
 
 * Keine
+
+## Stand 16.2 und 16.3
+
+Gebaut:
+
+* `MealStep` und optionales `steps` am Typ `Meal`. `parseMealSteps` in `src/nutrition/plan.ts` wirft kaputte Eintraege weg, ein fehlendes Feld ergibt keine Schritte. Der Seed wird beim Laden darueber geleitet.
+* `exportMeal` behaelt `steps`, wenn vorhanden. Vorschlaege der KI haben keine Schritte und bleiben gueltig, der Seed Roundtrip ist zeichengleich.
+* Datentest `test/meal-steps.test.ts`: Schrittzahl, Zutaten je Schritt gehoeren zum Gericht, Text nicht leer, dazu Parsertests.
+* Oberflaeche `src/ui/plan.ts`: In `Heute` zeigt die bestehende aufklappbare Karte jetzt Zutaten und darunter die Schritte als nummerierte Liste mit Tags fuer Geraet, `8 min`, `200 °C`. In `Woche` ist die Slot Nummer ein Knopf (`aria-expanded`), der Zutaten und Schritte unter der Zeile aufklappt. Auswahl und Riegel Schalter bleiben ausserhalb des Knopfes. Offen Zustand liegt im Modulzustand `openMeals` und wird von beiden Ansichten geteilt.
+* Ohne Schritte steht die Basiszeile `Zubereitung 0 von 1`.
+
+Annahmen:
+
+* Zutaten und Gramm kommen aus dem aktiven Plan (`planned.ingredients`), Schritte aus dem aktiven Gericht, nicht aus dem Seed.
+* Die Spalte `Woche` hatte keine Aufklappkarte, daher der Knopf an der Slot Nummer statt einer ganzen Karte als Tippflaeche.
+* Kein eigener Plan Chunk vorhanden, `plan.ts` liegt im Hauptchunk. Pruefung bei 375 px steht noch aus (16.3 Abnahme im Browser).

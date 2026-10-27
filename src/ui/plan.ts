@@ -19,7 +19,7 @@ import {
   withBar,
   withSwap,
 } from '../nutrition/state';
-import type { Food, Ingredient, Macros, Meal, Slot, Weekday } from '../nutrition/types';
+import type { Food, Ingredient, Macros, Meal, MealStep, Slot, Weekday } from '../nutrition/types';
 import type { PlanSource } from '../generator/source';
 import { roundedDayValues } from '../generator/check';
 import { byId } from './dom';
@@ -200,6 +200,35 @@ function mealName(planned: PlannedSlot): string {
   return context.mealsById.get(planned.mealId)?.name ?? planned.mealId;
 }
 
+const formatMinutes = (minutes: number): string => `${integer(minutes)} min`;
+const formatTemperature = (celsius: number): string => `${integer(celsius)} °C`;
+
+/** Zutaten mit Gramm aus dem aktiven Plan, danach die Gewuerze als Zeile. */
+function ingredientRows(grouped: Grouped): HTMLElement[] {
+  const rows = grouped.items.map((item) => {
+    const name = item.food.kind === 'sauce' ? `${item.food.name} (Soße)` : item.food.name;
+    return el('div', { class: 'ing' }, [span('', name), span('', grams(item.grams))]);
+  });
+  if (grouped.spices.length > 0) {
+    rows.push(el('div', { class: 'ing-note', text: `Gewürze ${grouped.spices.map((f) => f.name).join(', ')}` }));
+  }
+  return rows;
+}
+
+function stepItem(step: MealStep): HTMLElement {
+  const tags = [step.device, step.minutes !== null ? formatMinutes(step.minutes) : null, step.temperatureC !== null ? formatTemperature(step.temperatureC) : null]
+    .filter((text): text is string => text !== null)
+    .map((text) => span('tag', text));
+  return el('li', { class: 'meal-step' }, [span('meal-step-text', step.text), tags.length > 0 ? el('span', { class: 'meal-step-tags' }, tags) : null]);
+}
+
+/** Schritte als nummerierte Liste, ohne Schritte die Basiszeile. */
+function prepRows(mealId: string): HTMLElement[] {
+  const steps = context.mealsById.get(mealId)?.steps ?? [];
+  if (steps.length === 0) return [el('div', { class: 'card-basis', text: 'Zubereitung 0 von 1' })];
+  return [el('ol', { class: 'meal-steps' }, steps.map(stepItem))];
+}
+
 /** Mahlzeit zum Aufklappen: geschlossen Name, Protein und Kalorien, offen Zutaten und Auswahl. */
 function mealCard(day: PlannedDay, planned: PlannedSlot): HTMLElement {
   const macros = sumIngredients(planned.ingredients, FOODS_BY_ID);
@@ -215,13 +244,7 @@ function mealCard(day: PlannedDay, planned: PlannedSlot): HTMLElement {
   ]);
 
   const body = el('div', { class: 'meal-body' }, [el('div', { class: 'ing-note', text: macroLine(macros) })]);
-  for (const item of grouped.items) {
-    const name = item.food.kind === 'sauce' ? `${item.food.name} (Soße)` : item.food.name;
-    body.appendChild(el('div', { class: 'ing' }, [span('', name), span('', grams(item.grams))]));
-  }
-  if (grouped.spices.length > 0) {
-    body.appendChild(el('div', { class: 'ing-note', text: `Gewürze ${grouped.spices.map((f) => f.name).join(', ')}` }));
-  }
+  body.append(...ingredientRows(grouped), ...prepRows(planned.mealId));
   body.appendChild(mealSelect(day.day, planned));
   const bar = barToggle(day, planned);
   if (bar) body.appendChild(bar);
@@ -235,16 +258,42 @@ function mealCard(day: PlannedDay, planned: PlannedSlot): HTMLElement {
   return card;
 }
 
-/** Kompakte Mahlzeit im Wochenplan: Nummer, Auswahl und Kalorien in einer Zeile. */
+/** Kompakte Mahlzeit im Wochenplan: Nummer als Aufklappknopf, Auswahl und Kalorien in einer Zeile. */
 function mealRow(day: PlannedDay, planned: PlannedSlot): HTMLElement[] {
   const macros = sumIngredients(planned.ingredients, FOODS_BY_ID);
+  const key = `${day.day}-${planned.slot}`;
+  const open = openMeals.has(key);
+  const toggle = el('button', {
+    class: 'slot slot-toggle',
+    text: planned.slot,
+    attrs: {
+      type: 'button',
+      'aria-expanded': String(open),
+      'aria-label': `Zubereitung ${mealName(planned)}`,
+      [FOCUS_ATTR]: `week-meal-${key}`,
+    },
+  });
+  toggle.addEventListener('click', () => {
+    if (open) openMeals.delete(key);
+    else openMeals.add(key);
+    rerender();
+  });
   const nodes: HTMLElement[] = [el('div', { class: 'meal-row' }, [
-    span('slot', planned.slot),
+    toggle,
     mealSelect(day.day, planned),
     el('span', { class: 'meal-kcal', text: integer(macros.kcal) }, [el('small', { text: 'kcal' })]),
   ])];
-  const seasoning = seasoningText(groupIngredients(planned.ingredients));
-  if (seasoning) nodes.push(el('div', { class: 'meal-row-note', text: seasoning }));
+  const grouped = groupIngredients(planned.ingredients);
+  if (open) {
+    nodes.push(el('div', { class: 'meal-body meal-row-body' }, [
+      el('div', { class: 'ing-note', text: macroLine(macros) }),
+      ...ingredientRows(grouped),
+      ...prepRows(planned.mealId),
+    ]));
+  } else {
+    const seasoning = seasoningText(grouped);
+    if (seasoning) nodes.push(el('div', { class: 'meal-row-note', text: seasoning }));
+  }
   const bar = barToggle(day, planned);
   if (bar) nodes.push(bar);
   return nodes;

@@ -654,6 +654,13 @@ body.no-sheet .settings-export { display: none; }
 /* Kompakte Mahlzeit im Wochenplan: Nummer, Auswahl, Kalorien. */
 .meal-row { display: grid; grid-template-columns: 34px minmax(0, 1fr) auto; gap: 10px; align-items: center; margin-top: 8px; }
 .meal-row .pick { margin-top: 0; }
+.slot-toggle { border: 0; cursor: pointer; padding: 0; }
+.slot-toggle[aria-expanded='true'] { background: var(--ink); color: var(--card); }
+.meal-row-body { margin: 6px 0 0 44px; padding: 4px 12px 10px; border-radius: 10px; }
+.meal-steps { margin: 8px 0 0; padding: 0 0 0 20px; font-size: 15px; }
+.meal-step { padding: 4px 0; overflow-wrap: anywhere; }
+.meal-step-tags { display: block; }
+.meal-body > .card-basis { margin-top: 8px; }
 .meal-row-note { margin: 4px 0 0 44px; font-size: 13px; color: var(--ink-3); }
 .meal-row + .check, .meal-row-note + .check { margin-left: 38px; }
 
