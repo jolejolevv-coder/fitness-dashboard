@@ -10,53 +10,7 @@ Notizen und offene Punkte des Nutzers (Anfrage Muskelmarkt, Dauerpreise) in
 
 ## Phase 12 Mobile App
 
-Spec `specs/features/mobile-app.md` und ADR 0006 freigegeben 26.10.2026.
-Branch `claude/mobile-app-b71746` (Worktree `.claude/worktrees/mobile-app-b71746`),
-abgezweigt von `claude/mobile-app-spec` (`233c9c5`, enthaelt `origin/main`).
-Merge Ziel ist `origin/main`, nie das lokale `main` im Hauptordner.
-
-Entscheidungen (26.10.2026):
-* PWA mit Service Worker ueber `vite-plugin-pwa`, rein lesend, cached nur die
-  App Huelle der eigenen Herkunft, nie `googleapis.com` oder `anthropic.com`
-* Eine Oberflaeche mobile first, vier Ziele unten, ab 900 px Navigation links
-* Chart.js als nachgeladener Chunk
-* Freigabe 12.1 (26.10.2026): Richtung Trainerboard, Icon B (Verlauf mit
-  Magnet auf Schiefer), hell und dunkel nach Systemeinstellung. Damit gilt
-  auch `PRODUCT.md` als bestaetigt
-* Die installierte App auf dem iPhone hat einen eigenen localStorage,
-  Zugangsdaten dort einmal neu eintragen
-
-12.0 bis 12.3 erledigt 26.10.2026, 12.4 Kueche `0cb300f`. Einzelheiten in
-`docs/uebergabe-archiv-2026-10-26.md`. Messweg: `npm run build`, gzip Spalte.
-Gebauten Stand ansehen mit Eintrag `build-preview`, Dev Server mit `dev` der
-lokalen `.claude/launch.json` (nicht committet). Fixtures aus
-`public/preview/*.json` nur in localStorage `fitness_cache_v1`.
-
-Rest 12.4 erledigt 27.10.2026, Einzelheiten in `docs/uebergabe-archiv-2026-10-26.md`.
-
-12.5 PWA erledigt 27.10.2026 (`6a6eb92`), Einzelheiten und Annahmen in
-`docs/uebergabe-archiv-2026-10-26.md`.
-
-12.6 Abschluss 27.10.2026: Branch per Vorspulen nach `origin/main`
-gepusht (`5e3f3cd..9baa8af`), Deploy gruen. Live geprueft: `sw.js`,
-`manifest.webmanifest`, Icons und `registerSW.js` liefern 200, CSP live mit
-`worker-src` und `manifest-src`, Service Worker aktiv mit Scope
-`/fitness-dashboard/`, Cache Storage nur eigene URLs (Precache 19, `data` 2),
-keine Konsolenfehler. Lighthouse 12.8.2 mobil live ohne Sheet: Performance,
-Accessibility, Best Practices je 100. Lighthouse 12 kennt keine PWA Kategorie
-mehr. `git diff origin/main -- src/analytics src/parse` war vor dem Merge leer.
-
-Test des Nutzers auf dem iPhone (offene Acceptance criteria der Spec):
-1. Safari, me.nahobinoco.com/fitness-dashboard/, Teilen, Zum Home Bildschirm
-2. App starten, Zugangsdaten in Einstellungen neu eintragen (eigener Speicher)
-3. Vollbild ohne Browserleiste, Statusleiste und Home Indikator verdecken
-   nichts, im hellen und im dunklen Schema
-4. Einmal alle vier Ziele oeffnen, dann Flugmodus, App ganz schliessen und neu
-   starten: letzte Werte mit Alter, Plan, Einkauf, Kochen
-5. Kochansicht: Wake Lock, Ton, Vibration
-6. Optional am Mac: Chrome DevTools, Application, Manifest ohne Warnung
-Ein Update wird aktiv, wenn die App ganz geschlossen war. Bei Fehlern: Befund
-in eine neue Sitzung, Rueckfall ueber `selfDestroying` (ADR 0006).
+Live. Notizen in `docs/uebergabe-archiv-2026-10-26.md`.
 
 ## Phase 13 Heute und Training eintragen
 
@@ -157,12 +111,12 @@ Phase 15 Gewicht und Schritte automatisch: Spec
 `specs/features/daily-weight-steps.md`, Fragen beantwortet (Kurzbefehl mit
 Tippen, morgens fuer gestern, Schritte nur Zepp, `Makros.gs` laeuft nicht
 mehr), freigegeben. 15.1 und 15.2 erledigt, Script unveraendert, Anleitung
-`docs/daily-import-setup.md`. Offen: 15.3 Einrichtung durch den Nutzer, eine
+`docs/daily-import-setup.md`. Live auf main (`ae91803`). Offen: 15.3 Einrichtung durch den Nutzer, eine
 Woche Betrieb, Retro.
 
-## Phase 11 Kochansicht
-
-Abgeschlossen und live, Notizen in `docs/uebergabe-archiv-2026-10-26.md`.
+Neu 27.10.2026: Nutzer vermisst Zubereitung je Gericht. Heute gibt es nur die
+Prep Schritte (`data/recipes.json`, je ein Satz, Kochansicht unter Kueche Prep),
+`data/meals.json` hat keine Anweisungen. Naechster Schritt: Spec Phase 16.
 
 ## Phase 9 Plangenerator
 
