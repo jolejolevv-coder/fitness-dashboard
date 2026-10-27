@@ -386,3 +386,46 @@ Bekannt: Muskelgruppen im Volumendiagramm haben 14 feste Toene (in
 `DESIGN.md` als Ausnahme benannt). Mit der Fixture ergeben 14 und 30 Tage
 keine Waegungen und zeigen die bestehende Fehlermeldung, kein Rueckschritt.
 
+
+## Aus der Uebergabe verschoben 27.10.2026 (Phase 13.3)
+
+## Wo wir stehen
+
+Dashboard live, Phasen 0 bis 6 fertig (siehe `specs/roadmap.md`). Neu: Modul
+Ernaehrung und Einkauf als Phase 8, uebernommen aus einem Claude Chat.
+
+* Handoff: `docs/HANDOFF.md` (vollstaendig, Seed Daten und Preis Pipeline)
+* Spec: `specs/features/nutrition-shopping.md`, freigegeben, Konflikte 1 bis 5
+  am 25.10.2026 entschieden, Mission angepasst (mobil, zweite Datenquelle)
+* ADR: `docs/adr/0002-preise-ueber-actions-cron.md`, angenommen
+* pstack ist fuer dieses Projekt aktiv seit 25.10.2026, Modelle in
+  `.claude/rules/pstack-models.md`. Freigabeprozess des Nutzers geht vor
+
+## Naechster Schritt
+
+Phase 8 ist abgeschlossen und live seit 25.10.2026 (Merge `nutrition` nach
+`main`). Erster manueller Lauf von `prices.yml` erfolgreich: 12 Angebote,
+9 Dauerpreise gesammelt, Reiter Einkauf live bei 375 px geprueft. Ein
+Fehltreffer (Aufschnitt als Haehnchenbrustfilet) ist behoben. Cron laeuft ab
+jetzt Sonntag 18:00 Berlin.
+
+Offen beim Nutzer:
+1. Anfrage an info@muskelmarkt.de
+2. Dauerpreis Startwerte in `public/data/regular_prices.json` mit
+   `source: "manual"` eintragen
+3. Nachzuholen aus Phase 6: Lighthouse Messung
+
+
+## Phase 10 Daily Import
+
+Spec `specs/features/daily-import.md` und ADR 0005 freigegeben 25.10.2026.
+10.0 erledigt: Mission und `CLAUDE.md` nennen den Daily Import als eigenen
+Schreibweg, die Leseregel gilt dem Dashboard. Script wird unter `apps-script/`
+versioniert. Naechster Schritt 10.1: reine Kernfunktionen `findDateRow`,
+`mapHeaders`, `planWrites`, `validateRequest` in
+`apps-script/daily-import-core.js`, Tests per Vitest und `node:vm`, synthetische
+Tabellen unter `test/fixtures/daily-import/`. Vorher Open question 7 (Format von
+`Time` und `Sleep`) am Rohexport in `testdata/` klaeren, keine Werte daraus
+committen. Offen beim Nutzer: Open questions 3 bis 6, 8 und 9 der Spec.
+
+Pruefung des Handoffs aus Phase 8 und alte Notizen: `docs/uebergabe-archiv-2026-10-26.md`.
