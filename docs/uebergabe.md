@@ -13,6 +13,39 @@ Logbuch Spalten in `TrainingSets`: `id`, `date` (`YYYY-MM-DD`), `tag`
 (`Tag 1` bis `Tag 4`), `exercise`, `muscle`, `set`, `kg` (Zahl), `reps` (Zahl),
 nur abgehakte Saetze. Quelle: `gym-logbook/apps-script/Code.gs`.
 
+18.1 bis 18.3 erledigt 05.11.2026 auf Branch `claude/training-from-logbook`
+(`fbfbf9e` Parser, `4429094` Quelle und Umschalter), nicht gepusht, nicht
+gemergt. `src/parse/trainingSets.ts` mit Fixture
+`test/fixtures/training-sets/` (in `.gitignore` freigegeben), Einstellungen
+`input-logbook-sheet-id` und `input-logbook-sheet-name`, Cache Feld `logbook`
+in `fitness_cache_v1`, Umschalter `#t-source`. 571 Tests, Haupt Chunk 40,20
+auf 41,61 kB gzip, CSS gleich. Geprueft im Dev Server bei 375 px mit Fixture
+im localStorage: Logbuch, Umschalter, fehlende Spalte `reps`, ohne Logbuch ID
+wieder `Eintragen`, kein waagerechter Seitenlauf.
+
+Annahmen 18.1 bis 18.3:
+* Saetze und `repsActual` einer Woche kommen aus der Einheit (Datum) mit dem
+  schwersten Satz, bei Gleichstand die erste. Zwei Einheiten derselben Uebung
+  in einer Woche werden nicht zusammengezaehlt
+* Ein Satz zaehlt nur mit Datum, `tag`, `exercise`, Zahl in `kg` und `reps`
+  ueber null. 0 kg zaehlt (Koerpergewicht), geht aber nicht in die Progression
+* `date` wird als `YYYY-MM-DD` oder `d.m.yyyy` gelesen, weil die Sheets API
+  den angezeigten Wert liefert und das Sheet ISO Text als Datum formatieren
+  kann. In 18.4 am echten Tab pruefen
+* `muscle` und `set` sind optional, ohne `set` gilt die Zeilenfolge
+* `Analyse` und Export lesen keine Uebungsdaten, nur Daily, daher dort keine
+  Umstellung. Die Abnahmerate in den Zielwerten kommt weiter aus dem
+  Mesocycle Tab, der deshalb auch mit Logbuch geladen wird
+* Die Wahl im Umschalter gilt fuer die Sitzung, nicht gespeichert. Nach dem
+  Speichern der Einstellungen steht sie wieder auf `Logbuch`
+* Scheitert der Abruf des Logbuchs, bleiben gecachte Saetze derselben Quelle
+  stehen, die Statuszeile nennt den Fehler; ohne Cache steht der Fehler im
+  Abschnitt Training
+
+Offen 18.4 (Nutzer): Logbuch Tabelle per Link lesbar freigeben, Sheet ID in
+den Einstellungen eintragen, Live Test (Datumsformat, Spalten, Werte gegen das
+Logbuch), Retro, dann Push und Merge nach Freigabe.
+
 Stand 27.10.2026, Phase 12 live, offen nur der iPhone Test des Nutzers. Phase 13 freigegeben, 13.1 bis 13.4 erledigt, naechster Schritt 13.5 mit dem Nutzer.
 
 ## Wo wir stehen
@@ -27,90 +60,10 @@ Live. Notizen in `docs/uebergabe-archiv-2026-10-26.md`.
 
 ## Phase 13 Heute und Training eintragen
 
-Wunsch des Nutzers nach dem ersten Blick am Handy (27.10.2026): `Heute` auf das
-Wichtigste, `Verlauf` bleibt, unter `Training` Werte eines Tags eintippen, die
-im Sheet landen. Kueche spaeter. Entschieden: Apps Script als Schreibweg, Felder
-Load, Reps Ist, Notes, nur leere Zellen, auf `Heute` nur Gewicht und Trend.
-Spec `specs/features/training-log.md` und ADR 0007 freigegeben 27.10.2026,
-Open questions 1 bis 3 wie vorgeschlagen (eigenes `TRAINING_TOKEN`, Vorauswahl
-erste Woche ohne `Reps Ist`, Segmente `Eintragen` und `Auswertung`), 4 (CORS
-der Web App) wird in 13.3 als erstes geprueft. 13.0 erledigt: harte Regel in
-`CLAUDE.md` und `specs/mission.md` auf zwei Schreibwege ueber das Apps Script
-umgestellt. Gearbeitet wird weiter im Worktree `.claude/worktrees/mobile-app-b71746`
-auf Branch `claude/mobile-app-b71746` (Stand `origin/main` plus Phase 13 Doku),
-Merge nach `origin/main` nur nach Freigabe des Nutzers.
-
-13.1 (`0513e2d`) und 13.2 (`3e80c01`) erledigt 27.10.2026, Einzelheiten und
-Annahmen in `docs/uebergabe-archiv-2026-10-26.md`. Annahme aus 13.2 bleibt
-offen: ob `Mesocycle 1` eine Spalte `Notes` hat, wird in 13.5 am echten Tab
-geprueft.
-
-13.3 erledigt 27.10.2026: `apps-script/daily-import.js` mit `doPost`,
-Aktionen `daily` (Vorgabe ohne `action`, schliesst 10.2 ab) und `training`,
-je eigenes Token aus den Script Properties, Pruefung vor der Sperre,
-`LockService`, Antwort JSON mit `version` (`SCRIPT_VERSION`), Ausnahmen als
-`internal` ohne Details, kein Log. Neu im Kern `sheetValue`: reine Dezimalzahl
-als Zahl, alles andere mit Apostroph als Text (kein Datum aus `9-9`, keine
-Formel aus `=`). Test `test/web-app.test.ts` mit nachgebauten Diensten, 453
-Tests. Anleitung `apps-script/README.md` mit Test gegen Kopie `Mesocycle 99`
-und CORS Probe. Bereitstellung und CORS Probe (Open question 4) macht der
-Nutzer, siehe README.
-
-13.4 erledigt 27.10.2026: Unter `Training` die Segmente `Auswertung` und
-`Eintragen` (`#training/eintragen`); `Eintragen` erscheint nur mit Apps Script
-URL und Token aus den Einstellungen (localStorage `fitness_log_access_v1`, nur
-URLs ab `https://script.google.com/`). Chunk `log` (`src/log/`): liest den
-Mesocycle Tab wie das Script, Chips fuer Woche und Tag, Vorauswahl erste Woche
-ohne `Reps Ist`, je Uebung Soll und die Felder `Load`, `Reps Ist`, `Notes`
-(nur mit Spalte), belegte Zellen gesperrt mit Wert. Entwurf sofort im
-localStorage `fitness_log_draft_v1`. `Senden` ohne Content Type, offline
-gesperrt; Antwort je Feld `geschrieben`, `belegt` oder Fehlercode, danach
-Neuladen der Daten. Ist die Antwort nicht lesbar (CORS), meldet die App nur
-den Versand und laedt neu. CSP `connect-src` um `script.google.com` und
-`script.googleusercontent.com`, beide mit Test, ebenso die Vorbeileitung im
-Service Worker. 471 Tests. Bundle gzip: Haupt Chunk 36,29 kB (+0,58), `log`
-2,98 kB, CSS 5,32 kB. Geprueft im Build bei 375 px hell und dunkel mit
-erfundenem Endpunkt, ohne Senden.
-Annahmen: Summenzeilen unter den Uebungen zaehlen nicht (erste Leerzeile
-beendet den Block, Befund an den Vorschaudaten, in der Spec nachgetragen);
-Vorauswahl gilt fuer den zuerst gewaehlten Tag, danach je Tagwechsel neu;
-Offline Sperre nur im Code geprueft, nicht im Browser.
-
-Startprompt 13.5 (Ordner dieses Worktrees): Lies CLAUDE.md, specs/roadmap.md,
-docs/uebergabe.md (Abschnitt Phase 13), `specs/features/training-log.md` und
-`apps-script/README.md`. 13.5 braucht den Nutzer: Script bereitstellen, CORS
-Probe, Test gegen Kopie `Mesocycle 99` (README), dann App gegen die Kopie
-(Einstellungen URL und Token, ein Senden, zweites Senden `belegt`), offene
-Kriterien der Spec abhaken, Freigabe zum Merge nach `origin/main` einholen,
-nach Merge Live Test im Studio, Retro Phase 13 in `specs/roadmap.md`. Nicht
-ohne Freigabe pushen.
-
-Stand 13.5 (27.10.2026): Script als eigenes Projekt auf script.google.com
-(`97489cd`, Blatt ueber Script Property `SHEET_ID`, weil das Blatt schon ein
-gebundenes Projekt mit eigenem `doPost` hat, `Makros.gs`, Gewichtsimport aus
-Health Auto Export, bleibt unberuehrt). Nutzer hat die drei Dateien per
-Zwischenablage eingefuegt und bereitgestellt. Doppelter Inhalt im Projekt behoben, neue Version
-bereitgestellt. Probe mit falschem Token: `unauthorized`, Version `13.5`. CORS
-geprueft aus dem gebauten Stand auf localhost mit CSP: Antwort lesbar (Open
-question 4 erledigt). Kopie Test bestanden gegen `Mesocycle 99`: leere Zellen
-`written`, zweites Senden `occupied`, falsches Token `unauthorized`, Notes
-einmal `written` dann `occupied`. Zellvergleich mit `Mesocycle 3` zeigt nur
-die geschriebenen Zellen. Offline sperrt `Senden`, Entwurf bleibt.
-Panne: die lokale App stand auf Trainingstab `Mesocycle 1`, das Senden aus der
-App schrieb deshalb `60` und `8,8` in `Mesocycle 1`, W9, Day 1, Pulldown
-(Zellen CY34 und CZ34). Kein Fehler im Code, falscher Tab in den
-Einstellungen. Nutzer hat die zwei Zellen geleert, `Mesocycle 99` geloescht
-und ein neues `TRAINING_TOKEN` gesetzt. Nach Freigabe am 27.10.2026 nach
-`origin/main` gepusht (`c7fb5e8`), Deploy gruen, live mit Chunk `log` und
-CSP Hosts. Offen: Live Test im Studio durch den Nutzer (neues Token in der
-App eintragen), danach Retro Phase 13 in `specs/roadmap.md`.
-Phase 13.6 (Mesocycle Chips im Segment Eintragen, Spec
-`specs/features/log-tab-choice.md`) umgesetzt und lokal geprueft, Push nach
-Freigabe. Annahmen siehe Spec, Abschnitt Stand. Live
-getestet, danach Nachtrag: Auswertung folgt dem Chip, Tageswechsel behaelt
-die Woche, Cache traegt seinen Trainingstab. Eintragen steht unter Training
-links und ist Vorgabe (`46ab072`). Alles live auf main. Offen: Retro
-Phase 13 in `specs/roadmap.md`, sobald der Nutzer den Studio Test bestaetigt.
+Live auf main, auch 13.6. Einzelheiten, Annahmen und die Panne aus 13.5 in
+`docs/uebergabe-archiv-2026-11-05.md`. Offen: Retro Phase 13, sobald der
+Nutzer den Studio Test bestaetigt. Mit Logbuch (Phase 18) ist `Eintragen`
+ausgeblendet.
 
 Dauerpreise: Aldi Sued Bon vom 27.10.2026 als `source: manual` in
 `public/data/regular_prices.json` (`32d6147`, live). Falle: der Sonntagslauf

@@ -1,6 +1,6 @@
 # Training aus dem Gym Logbuch
 
-Status: freigegeben 05.11.2026, Open questions 1 bis 4 wie vorgeschlagen. ADR 0008.
+Status: freigegeben 05.11.2026, Open questions 1 bis 4 wie vorgeschlagen. ADR 0008. 18.1 bis 18.3 gebaut 05.11.2026 auf Branch `claude/training-from-logbook` (`fbfbf9e`, `4429094`), 18.4 beim Nutzer.
 
 ## Goal
 Das Dashboard liest Trainingsdaten künftig aus der Tabelle des Gym Logbuchs (Tab `TrainingSets`), Daily Check-in (Gewicht, Ernährung, Schlaf, Schritte) weiter aus dem bisherigen Sheet.
@@ -23,13 +23,13 @@ Das Dashboard liest Trainingsdaten künftig aus der Tabelle des Gym Logbuchs (Ta
   * Zusammenführen alter Mesocycle Blöcke mit Logbuch Daten (siehe Open questions).
 
 ## Acceptance criteria
-- [ ] Mit eingetragener Logbuch Sheet ID zeigt `Training > Auswertung` die Übungen aus `TrainingSets`, Daily Werte kommen weiter aus dem alten Sheet.
-- [ ] Fehlt eine der Spalten `date`, `tag`, `exercise`, `kg`, `reps`, erscheint eine sichtbare Fehlermeldung mit dem Spaltennamen.
-- [ ] Kommazahlen (`7,5`) und leere Wdh werden korrekt behandelt, leere Sätze zählen nicht.
-- [ ] Gleicher Übungsname an zwei Trainingstagen bleibt getrennt (`Tag 2||Leg Extensions`, `Tag 4||Leg Extensions`).
-- [ ] Ohne Logbuch Sheet ID verhält sich das Dashboard wie bisher.
-- [ ] Sheet Inhalte gehen per `textContent` ins DOM, keine Zugangsdaten im Repo.
-- [ ] Tests, Lint, Typprüfung und Build grün; geprüft bei 375 px.
+- [x] Mit eingetragener Logbuch Sheet ID zeigt `Training > Auswertung` die Übungen aus `TrainingSets`, Daily Werte kommen weiter aus dem alten Sheet. Geprüft mit Fixture Daten, live in 18.4.
+- [x] Fehlt eine der Spalten `date`, `tag`, `exercise`, `kg`, `reps`, erscheint eine sichtbare Fehlermeldung mit dem Spaltennamen.
+- [x] Kommazahlen (`7,5`) und leere Wdh werden korrekt behandelt, leere Sätze zählen nicht.
+- [x] Gleicher Übungsname an zwei Trainingstagen bleibt getrennt (`Tag 2||Leg Extensions`, `Tag 4||Leg Extensions`).
+- [x] Ohne Logbuch Sheet ID verhält sich das Dashboard wie bisher.
+- [x] Sheet Inhalte gehen per `textContent` ins DOM, keine Zugangsdaten im Repo.
+- [x] Tests, Lint, Typprüfung und Build grün; geprüft bei 375 px.
 
 ## Implementation plan
 Phase 18.0: Diese Spec und ADR 0008 (zweite Tabelle als Trainingsquelle) freigeben.
