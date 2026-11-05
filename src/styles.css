@@ -244,7 +244,7 @@ button, select, input, textarea { font: inherit; color: inherit; }
 .chips::-webkit-scrollbar { display: none; }
 .chip {
   flex: none;
-  min-height: 40px;
+  min-height: var(--tap);
   padding: 0 14px;
   border: 1px solid var(--rail-edge);
   border-radius: var(--radius-s);

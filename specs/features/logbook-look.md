@@ -1,6 +1,6 @@
 # Dashboard im Look des Recomp Logbuchs
 
-Status: freigegeben 05.11.2026, Open questions 1 bis 3 wie vorgeschlagen, 4 gleicher Look wie vorgeschlagen. ADR 0009.
+Status: freigegeben 05.11.2026, Open questions 1 bis 3 wie vorgeschlagen, 4 gleicher Look wie vorgeschlagen. ADR 0009. Gebaut 05.11.2026 auf Branch `claude/logbook-look`. Offen: Vergleich am Handy neben dem Logbuch, Merge, Retro. Alte Hexwerte nur noch im App Symbol (out of scope).
 
 ## Goal
 Das ganze Dashboard bekommt den Look des Recomp Logbuchs (`gym-logbook`), damit beide Seiten aussehen wie aus einem Guss.
@@ -22,14 +22,14 @@ Das ganze Dashboard bekommt den Look des Recomp Logbuchs (`gym-logbook`), damit 
   * App Symbol (bleibt, eigener Schritt bei Bedarf).
 
 ## Acceptance criteria
-- [ ] Hintergrund ist auf allen Zielen reines Schwarz, Flächen, Linien, Akzent, Grün und Amber haben die Werte des Logbuchs.
-- [ ] Überschriften und große Zahlen in Barlow Condensed fett, Fließtext in Barlow. Die Schrift lädt auch offline.
-- [ ] Karten mit 1 px Rand und Radius 12 px, ohne Schatten. Gewählte Kapseln und Segmente invertiert wie die Tagesknöpfe im Logbuch.
-- [ ] Diagramme lesbar auf Schwarz, keine Farbe mehr aus der alten Palette (Prüfung per Suche nach den alten Hexwerten).
-- [ ] Kontrast Text zu Hintergrund mindestens 4,5 zu 1, Tippflächen mindestens 44 px.
+- [x] Hintergrund ist auf allen Zielen reines Schwarz, Flächen, Linien, Akzent, Grün und Amber haben die Werte des Logbuchs.
+- [x] Überschriften und große Zahlen in Barlow Condensed fett, Fließtext in Barlow. Die Schrift lädt auch offline.
+- [x] Karten mit 1 px Rand und Radius 12 px, ohne Schatten. Gewählte Kapseln und Segmente invertiert wie die Tagesknöpfe im Logbuch.
+- [x] Diagramme lesbar auf Schwarz, keine Farbe mehr aus der alten Palette (Prüfung per Suche nach den alten Hexwerten).
+- [x] Kontrast Text zu Hintergrund mindestens 4,5 zu 1, Tippflächen mindestens 44 px.
 - [ ] Nebeneinander bei 375 px: Dashboard Training und Logbuch wirken gleich (Farben, Schrift, Karten, Kapseln). Vergleichsbilder liegen dem Abschluss bei.
-- [ ] Keine Aussage, kein Wert und keine Verweigerung verschwindet oder ändert sich (bestehende Tests grün, Sichtprüfung je Ziel).
-- [ ] Tests, Lint, Typprüfung und Build grün. CSS bleibt unter 8 kB gzip. Geprüft bei 375 px und 1280 px, kein waagerechter Seitenlauf.
+- [x] Keine Aussage, kein Wert und keine Verweigerung verschwindet oder ändert sich (bestehende Tests grün, Sichtprüfung je Ziel).
+- [x] Tests, Lint, Typprüfung und Build grün. CSS bleibt unter 8 kB gzip. Geprüft bei 375 px und 1280 px, kein waagerechter Seitenlauf.
 
 ## Implementation plan
 Phase 19.0: Diese Spec freigeben, Open questions beantworten, bei Entscheidung 2 ADR 0009 (Schrift).

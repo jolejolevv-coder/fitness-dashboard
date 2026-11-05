@@ -1,392 +1,198 @@
 ---
 name: Body Recomp
-description: Trainerboard. Magnetkarten mit je einer Zahl auf ruhiger Emaille, dunkel als Schiefertafel.
+description: Recomp Logbuch. OLED Schwarz, Haarlinien, Orange als einzige Akzentfarbe, Barlow Condensed in Grossbuchstaben.
 colors:
-  board: "#eceeed"
-  card: "#fbfcfb"
-  card-sunk: "#f1f3f2"
-  rail: "#dfe3e2"
-  rail-edge: "#c9cfcd"
-  ink: "#1b1e20"
-  ink-2: "#555c60"
-  ink-3: "#636a6e"
-  blue: "#1d5fc4"
-  blue-wash: "#e3ecf9"
-  red: "#c4372d"
-  red-wash: "#fbefed"
-  green: "#1d7f48"
-  green-wash: "#ecf6f0"
-  tape: "#2a2f33"
-  board-dark: "#181b1d"
-  card-dark: "#24292c"
-  card-sunk-dark: "#1e2225"
-  rail-dark: "#2b3034"
-  rail-edge-dark: "#3a4044"
-  ink-dark: "#eef1f0"
-  ink-2-dark: "#aab2b5"
-  ink-3-dark: "#959da1"
-  blue-dark: "#6aa3ff"
-  blue-wash-dark: "#1d2b40"
-  red-dark: "#ff7a6e"
-  red-wash-dark: "#3a2422"
-  green-dark: "#5fd394"
-  green-wash-dark: "#1b3326"
-  tape-dark: "#d6dbd9"
+  board: "#000000"
+  card: "#0d0f11"
+  card-sunk: "#000000"
+  rail: "#0d0f11"
+  rail-edge: "#252a30"
+  ink: "#eef1f3"
+  ink-2: "#9ba5ae"
+  ink-3: "#8a949d"
+  accent: "#ff6b2c"
+  accent-ink: "#160800"
+  accent-wash: "#2a1206"
+  red: "#ff7a6e"
+  red-wash: "#2a1210"
+  green: "#5fd47a"
+  green-wash: "#0b2213"
+  warn: "#ffc65c"
+  warn-wash: "#1c1606"
+  tape: "#eef1f3"
 typography:
   display:
-    fontFamily: "ui-rounded, 'SF Pro Rounded', system-ui, -apple-system, sans-serif"
-    fontSize: "54px"
+    fontFamily: "'Barlow Condensed', 'Arial Narrow', Arial, sans-serif"
+    fontSize: "60px"
     fontWeight: 700
-    lineHeight: 1.05
-    letterSpacing: "-0.025em"
+    lineHeight: 1
     fontFeature: "tnum"
   headline:
-    fontFamily: "ui-rounded, 'SF Pro Rounded', system-ui, -apple-system, sans-serif"
-    fontSize: "30px"
+    fontFamily: "'Barlow Condensed', 'Arial Narrow', Arial, sans-serif"
+    fontSize: "26px"
     fontWeight: 700
-    lineHeight: 1.05
-    letterSpacing: "-0.01em"
-    fontFeature: "tnum"
+    lineHeight: 1
+    letterSpacing: "0.02em"
+    textTransform: "uppercase"
   title:
-    fontFamily: "ui-rounded, 'SF Pro Rounded', system-ui, -apple-system, sans-serif"
-    fontSize: "20px"
+    fontFamily: "'Barlow Condensed', 'Arial Narrow', Arial, sans-serif"
+    fontSize: "22px"
     fontWeight: 700
-    lineHeight: 1.2
-  value-sm:
-    fontFamily: "ui-rounded, 'SF Pro Rounded', system-ui, -apple-system, sans-serif"
-    fontSize: "17px"
+    lineHeight: 1.1
+    letterSpacing: "0.03em"
+    textTransform: "uppercase"
+  value:
+    fontFamily: "'Barlow Condensed', 'Arial Narrow', Arial, sans-serif"
+    fontSize: "34px"
     fontWeight: 700
-    lineHeight: 1.2
+    lineHeight: 1
     fontFeature: "tnum"
-  body:
-    fontFamily: "system-ui, -apple-system, 'SF Pro Text', 'Helvetica Neue', sans-serif"
+  label:
+    fontFamily: "'Barlow Condensed', 'Arial Narrow', Arial, sans-serif"
     fontSize: "15px"
+    fontWeight: 600
+    lineHeight: 1.2
+    letterSpacing: "0.04em"
+    textTransform: "uppercase"
+  body:
+    fontFamily: "'Barlow', -apple-system, 'Segoe UI', Arial, sans-serif"
+    fontSize: "16px"
     fontWeight: 400
     lineHeight: 1.4
   body-strong:
-    fontFamily: "system-ui, -apple-system, 'SF Pro Text', 'Helvetica Neue', sans-serif"
-    fontSize: "16px"
+    fontFamily: "'Barlow', -apple-system, 'Segoe UI', Arial, sans-serif"
+    fontSize: "17px"
     fontWeight: 600
     lineHeight: 1.25
-  label:
-    fontFamily: "system-ui, -apple-system, 'SF Pro Text', 'Helvetica Neue', sans-serif"
-    fontSize: "13px"
-    fontWeight: 600
-    lineHeight: 1.4
   caption:
-    fontFamily: "system-ui, -apple-system, 'SF Pro Text', 'Helvetica Neue', sans-serif"
+    fontFamily: "'Barlow', -apple-system, 'Segoe UI', Arial, sans-serif"
     fontSize: "13px"
     fontWeight: 400
     lineHeight: 1.4
-    fontFeature: "tnum"
-  nav:
-    fontFamily: "system-ui, -apple-system, 'SF Pro Text', 'Helvetica Neue', sans-serif"
-    fontSize: "11px"
-    fontWeight: 600
-    lineHeight: 1.2
 rounded:
-  bar: "4px"
-  inset: "8px"
-  puck: "9px"
-  field: "10px"
-  control: "12px"
-  card: "14px"
-  pill: "999px"
+  card: "12px"
+  control: "8px"
+  tag: "4px"
 spacing:
-  2xs: "4px"
-  xs: "8px"
-  sm: "10px"
-  md: "12px"
-  lg: "16px"
-  xl: "26px"
   tap: "44px"
-  row: "64px"
-components:
-  card:
-    backgroundColor: "{colors.card}"
-    textColor: "{colors.ink}"
-    rounded: "{rounded.card}"
-    padding: "14px 16px 15px"
-  metric-number:
-    textColor: "{colors.ink}"
-    typography: "{typography.headline}"
-  metric-number-hero:
-    textColor: "{colors.ink}"
-    typography: "{typography.display}"
-  metric-basis:
-    textColor: "{colors.ink-3}"
-    typography: "{typography.caption}"
-  refusal-gap:
-    textColor: "{colors.ink-2}"
-    typography: "{typography.label}"
-    rounded: "{rounded.inset}"
-    padding: "6px 8px"
-    height: "34px"
-  mark-off:
-    backgroundColor: "{colors.red-wash}"
-    textColor: "{colors.red}"
-    typography: "{typography.label}"
-    rounded: "{rounded.pill}"
-    padding: "3px 9px 3px 7px"
-  mark-ok:
-    backgroundColor: "{colors.green-wash}"
-    textColor: "{colors.green}"
-    typography: "{typography.label}"
-    rounded: "{rounded.pill}"
-    padding: "3px 9px 3px 7px"
-  top-bar:
-    textColor: "{colors.ink}"
-    typography: "{typography.headline}"
-    height: "52px"
-  icon-button:
-    textColor: "{colors.blue}"
-    rounded: "{rounded.control}"
-    size: "44px"
-  icon-button-active:
-    backgroundColor: "{colors.blue-wash}"
-    textColor: "{colors.blue}"
-  segment:
-    backgroundColor: "{colors.rail}"
-    textColor: "{colors.ink-2}"
-    rounded: "{rounded.control}"
-    padding: "3px"
-  segment-item:
-    textColor: "{colors.ink-2}"
-    rounded: "{rounded.puck}"
-    padding: "0 12px"
-    height: "38px"
-  segment-puck:
-    backgroundColor: "{colors.card}"
-    textColor: "{colors.ink}"
-    rounded: "{rounded.puck}"
-  chip:
-    backgroundColor: "{colors.card}"
-    textColor: "{colors.ink-2}"
-    rounded: "{rounded.pill}"
-    padding: "0 14px"
-    height: "36px"
-  chip-selected:
-    backgroundColor: "{colors.ink}"
-    textColor: "{colors.card}"
-    rounded: "{rounded.pill}"
-  nav:
-    backgroundColor: "{colors.rail}"
-    textColor: "{colors.ink-2}"
-    typography: "{typography.nav}"
-    padding: "6px 8px 30px"
-  nav-item-active:
-    textColor: "{colors.blue}"
-    height: "54px"
-  list:
-    backgroundColor: "{colors.card}"
-    rounded: "{rounded.card}"
-  list-row:
-    textColor: "{colors.ink}"
-    typography: "{typography.body-strong}"
-    padding: "12px 16px"
-    height: "64px"
-  pick-row:
-    backgroundColor: "{colors.card}"
-    textColor: "{colors.blue}"
-    rounded: "{rounded.field}"
-    padding: "0 12px"
-    height: "44px"
-  button-primary:
-    backgroundColor: "{colors.ink}"
-    textColor: "{colors.card}"
-    rounded: "{rounded.card}"
-    height: "52px"
-    width: "100%"
-  progress-bar:
-    backgroundColor: "{colors.card-sunk}"
-    rounded: "{rounded.bar}"
-    height: "8px"
+  field: "52px"
 ---
-
 # Design System: Body Recomp
 
 ## Overview
 
-**Creative North Star: "Das Trainerboard"**
+**Creative North Star: "Das Recomp Logbuch"**
 
-Die App ist die Tafel im Studio und am Kuehlschrank. Eine ruhige Emailleflaeche traegt Magnetkarten, jede mit genau einer Zahl und ihrer Datenbasis darunter. Der Alurahmen der Tafel ist die Navigation, ein blauer Magnet markiert das Aktive. Hell ist Emaille, dunkel ist Schiefer; das System des Geraets entscheidet ueber `prefers-color-scheme`.
+Das Dashboard sieht aus wie das Recomp Logbuch (`gym-logbook`), damit beide Seiten wie aus einem Guss wirken. Grund ist reines Schwarz fuer OLED, Flaechen heben sich kaum davon ab und werden von einer Haarlinie begrenzt statt von einem Schatten. Orange ist die einzige Akzentfarbe und heisst Bedienung, Fortschritt und das Naechste. Ueberschriften, Zahlen und Bedienelemente stehen in Barlow Condensed, fett und in Grossbuchstaben, Fliesstext in Barlow.
 
-Die Dichte ist die eines Whiteboards, nicht die einer Tabelle. Gruppiert wird ueber Abstand und Flaechen, nie ueber Trennlinien zwischen Zeilen. Farbe ist Markerfarbe mit fester Bedeutung, kein Schmuck. Ziffern sind rund und tabellarisch, damit nichts springt, wenn sich ein Wert aendert. Es gibt keine Erklaertexte: Zahl und Datenbasis, sonst nichts.
+Es gibt nur das dunkle Schema, unabhaengig von der Systemeinstellung (Spec 19, Entscheidung 1). Es gibt keine Erklaertexte: Zahl und Datenbasis, sonst nichts.
 
-Verworfen wurden der Laborbefund (eine Tabelle, genau der Look, der weg soll) und ein Nachbau von iOS Health (vertraut, aber ohne eigene Handschrift).
+Abgeloest wurde der Look „Trainerboard“ (Emaille, Blau, SF Pro Rounded, Schatten). Er steht in der Git Historie bis Commit `b598654`.
 
 **Key Characteristics:**
-- Eine Zahl je Karte, darunter klein die Datenbasis
-- Markerfarben schwarz, blau, rot, gruen mit fester Bedeutung
-- Runde Systemziffern, keine Webfonts, kein zusaetzliches Byte
-- Ein blauer Magnet je Leiste markiert das Aktive und gleitet per `transform`
-- Hell als Grundform, dunkel nach System, jedes Token mit dunklem Gegenstueck
+* Eine Zahl je Karte, darunter klein die Datenbasis
+* OLED Schwarz, Karten `#0d0f11` mit 1 px Rand `#252a30`, Radius 12 px
+* Orange fuer Bedienung und Fortschritt, Gruen fuer getroffen, Rot fuer daneben, Amber fuer Warnung
+* Gewaehlte Segmente und Kapseln invertiert, hell auf schwarz wie die Tagesknoepfe im Logbuch
+* Schrift selbst mitgeliefert unter `public/fonts/` (ADR 0009), laedt auch offline
 
 ## Colors
 
-Neutrale Emaille und Aluminium mit vier Markerfarben, deren Bedeutung nie wechselt. Jedes Token existiert als CSS Custom Property auf `:root` (`--board`, `--card`, ...) und wird im dunklen Schema unter `@media (prefers-color-scheme: dark)` mit dem Wert des Tokens mit Suffix `-dark` belegt. Komponenten referenzieren immer die Custom Property, nie einen Hexwert.
+Jedes Token existiert als CSS Custom Property auf `:root` in `src/styles.css`. Komponenten referenzieren immer die Custom Property, nie einen Hexwert. `color-scheme: dark` ist fest gesetzt.
 
-### Primary
-- **Markerblau** (`blue`, dunkel `blue-dark`): Bedienung. Aktives Navigationsziel, Symbolknoepfe der oberen Leiste, Auswahlzeile fuer Gerichte, Prognoselinie im Verlauf. Der Magnet (`--magnet`) ist ein Alias auf dieselbe Farbe und kein eigener Ton.
-- **Blaue Spur** (`blue-wash`, dunkel `blue-wash-dark`): Druckzustand der Symbolknoepfe und Textauswahl.
+### Akzent
+* **Orange** (`accent`): aktives Navigationsziel, Hauptaktion, Fortschrittsbalken, Markierung der laufenden Zeile, Prognoselinie und Bedienung in Diagrammen. `--magnet` ist ein Alias.
+* **Orange Tinte** (`accent-ink`): Schrift auf orangem Grund.
+* **Orange Spur** (`accent-wash`): Druckzustand der Textknoepfe.
 
-### Secondary
-- **Markergruen** (`green`, dunkel `green-dark`): getroffen. Abweichung im Zielbereich, Progression im Training, Angebot im Einkauf, abgehakter Eintrag.
-- **Markerrot** (`red`, dunkel `red-dark`): daneben. Abweichung ausserhalb des Ziels, steigende Woche im Wochenbalken.
-- **Gruene und rote Spur** (`green-wash`, `red-wash` und ihre dunklen Gegenstuecke): nur als Grund der Markierungskapsel.
+### Bedeutung
+* **Gruen** (`green`): getroffen. Abweichung im Ziel, Progression, Angebot, abgehakt.
+* **Rot** (`red`): daneben. Abweichung ausserhalb des Ziels, Fehler.
+* **Amber** (`warn`): Warnung, etwa unplausible Werte.
+* **Spuren** (`green-wash`, `red-wash`, `warn-wash`): nur als Grund einer Markierung.
 
 ### Neutral
-- **Emaille** (`board`, dunkel Schiefer `board-dark`): Grund jeder Ansicht, auch die Fuge zwischen Listenzeilen.
-- **Magnetkarte** (`card`, dunkel `card-dark`): Flaeche jeder Karte, Liste, Kapsel und des Pucks.
-- **Eingelassene Flaeche** (`card-sunk`, dunkel `card-sunk-dark`): Bahn des Fortschrittsbalkens, aufgeklappte Zutaten, Kreis der Mahlzeitennummer.
-- **Alurahmen** (`rail`, dunkel `rail-dark`): Navigationsleiste und Segmentleiste.
-- **Rahmenkante** (`rail-edge`, dunkel `rail-edge-dark`): obere Kante der Navigation, Innenkante der Segmentleiste, gestrichelter Rand der Verweigerung, Ring der Abhakfelder, Nulllinie im Wochenbalken.
-- **Markerschwarz** (`ink`, dunkel `ink-dark`): Daten. Zahlen, Verlaufslinie, Balken, Hauptaktion.
-- **Zweite Tinte** (`ink-2`, dunkel `ink-2-dark`): Bezeichnung der Karte, Einheiten, Text der Verweigerung.
-- **Dritte Tinte** (`ink-3`, dunkel `ink-3-dark`): Datenbasis, Datenalter, Achsen, Chevron. Die inaktive Navigation steht in `ink-2`.
-- **Klebeband** (`tape`, dunkel `tape-dark`): Zielmarke auf dem Fortschrittsbalken.
+* **Schwarz** (`board`, `card-sunk`): Grund jeder Ansicht und eingelassener Felder.
+* **Flaeche** (`card`, `rail`): Karten, Listen, Kapseln, Navigation.
+* **Haarlinie** (`rail-edge`): Rand jeder Flaeche, Trenner in Listen, Bahn des Fortschrittsbalkens.
+* **Tinte** (`ink`): Daten und Text. Gewaehlte Kapseln haben `ink` als Grund.
+* **Zweite und dritte Tinte** (`ink-2`, `ink-3`): Bezeichnungen, Einheiten, Datenbasis, Achsen.
+* **Klebeband** (`tape`): Zielmarke auf dem Fortschrittsbalken.
 
 ### Named Rules
-**The Marker Rule.** Schwarz heisst Daten, blau heisst Bedienung, gruen heisst getroffen, rot heisst daneben. Keine Markerfarbe traegt je eine zweite Bedeutung, und keine Zahl wird blau, nur weil sie wichtig ist.
+**The Accent Rule.** Orange heisst Bedienung und Fortschritt, gruen getroffen, rot daneben, amber Warnung. Keine Farbe traegt eine zweite Bedeutung.
 
-**The Wash Rule.** Die Spuren (`*-wash`) erscheinen nur hinter einer Markierungskapsel oder als Druckzustand. Eine Karte wird nie flaechig eingefaerbt.
+**The Readable Basis Rule.** Text mit Aussage erreicht mindestens 4,5 zu 1. `ink-3` auf `card` liegt bei etwa 6 zu 1, Orange Tinte auf Orange deutlich darueber.
 
-**The Readable Basis Rule.** Text, der eine Aussage traegt, erreicht mindestens 4,5 zu 1 auf seinem Grund. `ink-3` ist dafuer gegenueber dem Entwurf abgedunkelt (hell 4,7 zu 1 auf `board`, dunkel 4,8 zu 1 auf `rail`). Die inaktive Navigation steht in `ink-2`, die Spuren hinter den Markierungskapseln sind so hell, dass Rot und Gruen 4,5 zu 1 halten.
-
-**The Canvas Rule.** Diagramme lesen ihre Farben zur Zeichenzeit aus denselben Custom Properties (`src/ui/palette.ts`), Halbtransparenz wird daraus berechnet. Wechselt das Schema, werden die Diagramme neu gezeichnet. Einzige Ausnahme sind die Muskelgruppen im Volumendiagramm, die eine feste Reihe unterscheidbarer Toene brauchen.
+**The Canvas Rule.** Diagramme lesen ihre Farben zur Zeichenzeit ueber `COLORS` (`src/ui/palette.ts`) aus denselben Custom Properties. Die Datenlinie ist helle Tinte mit Transparenz, Prognose und Bedienung orange. Ausnahme bleiben die Muskelgruppen im Volumendiagramm mit fester Tonreihe.
 
 ## Typography
 
-**Display Font:** `ui-rounded` (SF Pro Rounded, Rueckfall `system-ui`)
-**Body Font:** `system-ui` (SF Pro Text, Rueckfall Helvetica Neue)
-
-**Character:** Runde Ziffern wie mit dem Marker geschrieben, darunter nuechterne Systemschrift fuer Bezeichnung und Basis. Beide kommen vom Geraet, die App laedt keine Schrift.
+**Display:** Barlow Condensed 500, 600, 700. **Text:** Barlow 400, 500, 600. Beide als woff2, nur lateinische Untermenge, vom Service Worker vorgehalten.
 
 ### Hierarchy
-- **Display** (700, 54px, 1.05, `-0.025em`): die Hauptzahl einer Ansicht, hoechstens eine je Ziel, etwa die Wochenrate oder die Tageskalorien. Einheit in `small` mit 19px.
-- **Headline** (700, 30px, 1.05, `-0.01em`): Zahl einer Magnetkarte und Titel der oberen Leiste. Einheit 15px, Gewicht 600, `ink-2`. Ein Wort statt Zahl (Zustand wie `Keins`) steht in 24px.
-- **Title** (700, 20px, 1.2): Abschnittsueberschrift zwischen Kartengruppen, ebenso die Zahl rechts in einer Listenzeile.
-- **Value Small** (700, 17px): Kalorien einer Mahlzeit, Makrowerte, Preise in 16px.
-- **Body Strong** (600, 16px, 1.25): Name einer Mahlzeit oder eines Einkaufspostens; Uebungsnamen in 15px.
-- **Body** (400, 15px, 1.4): Beobachtungen und Zutaten.
-- **Label** (600, 13px): Bezeichnung oben auf der Karte, Markierungskapsel, Kategorie im Einkauf.
-- **Caption** (400, 13px, `tabular-nums`): Datenbasis unter der Zahl, Datenalter, Unterzeile in Listen. Hervorgehobene Werte darin in 600 und `ink-2`.
-- **Nav** (600, 11px): Wort unter dem Symbol der Navigation; Achsenbeschriftung in 11px, 500.
+* **Seitentitel** (`headline`): obere Leiste und Einstellungen, Grossbuchstaben.
+* **Gruppentitel** (`title`): Abschnitte innerhalb eines Ziels.
+* **Grosse Zahl** (`display`): Hauptzahl von Heute. Kartenwerte als `value`.
+* **Bezeichnung** (`label`): Kartenkopf, Gruppenlabel, Segmente, Kapseln, Knoepfe, Navigation.
+* **Uebungs und Gerichtname** (`body-strong`): hell, nicht als Etikett.
+* **Datenbasis** (`caption`): in `ink-3`.
 
 ### Named Rules
-**The Round Numerals Rule.** Jede Zahl steht in `--num` mit `font-variant-numeric: tabular-nums`. Text steht in `--text`. Eine Zahl in Textschrift oder ein Satz in Rundschrift ist ein Fehler.
-
-**The One Number Rule.** Eine Karte traegt eine grosse Zahl. Was sonst gesagt werden muss, steht in der Datenbasis darunter, nie als zweite grosse Zahl daneben.
+**The Tabular Rule.** Alle Zahlen mit festen Ziffernbreiten (`tnum`), damit nichts springt.
 
 ## Layout
 
-Eine Spalte bei 375px Breite, Seitenrand 16px. Karten stehen im Abstand von 10px, als Einzelkarte oder im zweispaltigen Raster mit 10px Fuge. Abschnitte beginnen mit 26px Abstand nach oben. Unter dem Inhalt bleibt Platz fuer die Navigation (120px Polster am Ende der Scrollflaeche).
-
-Die obere Leiste ist 52px hoch: Titel des Ziels links, rechts Datenalter und Symbolknoepfe. Darunter folgen, wo das Ziel sie hat, die Segmentleiste und eine waagerecht scrollende Reihe von Filterkapseln, die bis an den Bildschirmrand laeuft.
-
-Ab 900px wandert die Navigation in eine linke Leiste von 96px Breite (Alurahmen, Kante rechts in `rail-edge`, Magnet oben auf dem aktiven Ziel), der Seitenrand waechst auf 32px, `.stack` laeuft zweispaltig. Dieselbe Struktur, kein zweiter Codepfad.
-
-Jede Tippflaeche misst mindestens 44px. Listenzeilen sind mindestens 64px hoch.
-
-### Named Rules
-**The Space Not Lines Rule.** Zwischen Zeilen und Karten steht Abstand oder Emaille, nie eine Trennlinie. In einer Liste trennt eine 6px breite Fuge in `board` die Zeilen. Kanten gibt es nur am Rahmen (Navigation, Segmentleiste) und als Nulllinie in Diagrammen.
+Einspaltig bis Tablet, ab Desktop Seitenleiste fuer die Navigation und Kartenraster. Seitenrand 16 px. Kein waagerechter Seitenlauf bei 375 px und 1280 px. Lange Segmentleisten scrollen in sich.
 
 ## Elevation & Depth
 
-Zwei Ebenen. Karten, Kapseln und der Puck liegen als Magnete mit einem weichen, kurzen Schatten auf der Tafel. Der Alurahmen ist eingelassen und traegt eine innere Kante oben (`inset 0 1px 0 rail-edge`). Eingelassene Flaechen (`card-sunk`) bilden Bahnen innerhalb einer Karte.
-
-### Shadow Vocabulary
-- **Magnet** (`--shadow`, hell `0 1px 1px rgba(27,30,32,0.06), 0 3px 8px rgba(27,30,32,0.07)`, dunkel `0 1px 1px rgba(0,0,0,0.3), 0 3px 8px rgba(0,0,0,0.25)`): jede Karte, Liste, Filterkapsel, Auswahlzeile, der Puck.
-- **Rahmenkante innen** (`inset 0 1px 0 var(--rail-edge)`): Segmentleiste.
-- **Navigationsmagnet** (`0 1px 2px rgba(0,0,0,0.3)`): nur der kleine Magnetpunkt der Navigation.
-
-### Named Rules
-**The Magnet Card Rule.** Eine Flaeche liegt entweder als Magnet auf der Tafel (mit `--shadow`) oder ist in sie eingelassen (ohne Schatten). Ein gewaehlter Filter wird schwarz und verliert seinen Schatten. Es gibt keine dritte, hoehere Ebene im Ruhezustand.
+Keine Schatten. Tiefe entsteht nur aus Flaeche gegen Schwarz und der Haarlinie. Die einzige Innenkante ist die orange Markierung links an der laufenden Zeile.
 
 ## Shapes
 
-Weich gerundete Rechtecke wie Magnetkarten: Karten und Listen 14px, Segmentleiste und Symbolknoepfe 12px, Puck 9px, Auswahlzeile 10px, Verweigerungsfeld 8px, Balken 4px. Kapseln (Filter, Markierung) sind voll gerundet. Kreise fuer Magnetpunkt (6px), Mahlzeitennummer (34px) und Abhakfeld (26px Ring in 44px Tippflaeche). Symbole sind Linienzeichnungen mit 1.8px Strich, runden Enden und Ecken, 24px gross, in der Navigation 26px. Die Verweigerung hat als einziges Element einen gestrichelten Rand (1.5px).
+Karten und Listen 12 px (`--radius`), Bedienelemente und Felder 8 px (`--radius-s`), Markierungen 4 px wie die Tags im Logbuch.
 
 ## Components
 
-### Magnetkarte
-Ruhige Flaeche mit einer Zahl.
-- **Aufbau:** Bezeichnung (Label, `ink-2`), darunter die Zahl (Headline oder Display) mit kleiner Einheit, darunter die Datenbasis (Caption, `ink-3`), etwa `Basis 14 Tage`.
-- **Flaeche:** `card`, Radius 14px, `--shadow`, Polster `14px 16px 15px`.
-- **Abweichung:** die Zahl selbst wird `green` oder `red`, oder eine Markierungskapsel mit Punkt steht unter der Basis.
+### Karte
+Flaeche `card`, 1 px `rail-edge`, Radius 12 px. Kopf als `label`, Wert als `value`, Datenbasis als `caption`.
 
 ### Verweigerung
-Die Karte verweigert die Aussage an der Stelle der Zahl.
-- **Stil:** Feld mit 1.5px gestricheltem Rand in `rail-edge`, Radius 8px, mindestens 34px hoch, zentrierter Text in Label, `ink-2`, tabellarische Ziffern. Inhalt ist die Zahlenzeile, etwa `Basis 11 von 14 Tagen`.
-- **Darunter:** Caption `keine Aussage`. Keine Erklaerung, kein Symbol.
+Gestrichelter Rand in `rail-edge`, Text `Basis x von y Tagen`, keine Erklaerung.
 
-### Markierungskapsel
-- **Stil:** Kapsel mit Spur als Grund und 7px Punkt in Markerfarbe vor dem Text, Label 13px, Polster `3px 9px 3px 7px`.
-- **Varianten:** `off` (rot) und `ok` (gruen). Keine blaue oder neutrale Variante.
+### Markierung
+Radius 4 px, Condensed Grossbuchstaben, Punkt in der Textfarbe, Grund aus der passenden Spur.
 
 ### Fortschrittsbalken
-- **Stil:** 8px Bahn in `card-sunk`, Fuellung in `ink`, Radius 4px. Die Zielmarke ist ein 3px breiter Streifen Klebeband (`tape`), der 4px ueber und unter die Bahn ragt.
+6 px hoch, Bahn `rail-edge`, Fuellung orange, Zielmarke als Klebeband.
 
-### Obere Leiste
-- **Stil:** 52px hoch, Titel in Headline, Datenalter in Caption `ink-3` mit tabellarischen Ziffern, rechts Symbolknoepfe Aktualisieren und Einstellungen.
-- **Symbolknopf:** 44px, Radius 12px, Symbol in `blue`, gedrueckt mit `blue-wash` als Grund.
-
-### Segmentleiste mit Magnet
-Das Signaturelement: ein Puck mit blauem Magnetpunkt gleitet auf dem Alurahmen.
-- **Leiste:** `rail`, Radius 12px, Polster 3px, Innenkante oben, waagerecht scrollbar ohne sichtbaren Balken.
-- **Eintrag:** mindestens 38px hoch, Polster `0 12px`, 14px 600, `ink-2`, aktiv `ink` mit `aria-current`.
-- **Puck:** `card` mit `--shadow`, Radius 9px, rechts oben ein 6px Magnetpunkt in `--magnet`.
-- **Bewegung:** `transform: translateX()` mit 240ms und `--ease`; die Textfarbe wechselt in 200ms. Die Breite des Pucks wird beim Wechsel gesetzt, nicht animiert.
-
-### Filterkapseln
-- **Ruhe:** `card`, `--shadow`, 36px hoch, Polster `0 14px`, 14px 600, `ink-2`.
-- **Gewaehlt:** `ink` als Grund, Text in `card`, ohne Schatten, mit `aria-pressed`.
-- **Einsatz:** Zeitraum und Gewichtsdarstellung im Verlauf, Trainingstag im Training. Genau eine gewaehlt.
+### Segmentleiste und Kapseln
+Einzelne Rahmenknoepfe mit 6 px Abstand, Grund `card`, Rand `rail-edge`, Condensed 16 bis 17 px in Grossbuchstaben. Gewaehlt: Grund `ink`, Schrift `board`. Kein gleitender Puck mehr.
 
 ### Navigation
-Der Alurahmen unten, ab 900px links.
-- **Stil:** `rail`, obere Kante 1px `rail-edge`, vier gleich breite Ziele mit Symbol (26px) und Wort (Nav, 11px 600).
-- **Zustand:** inaktiv `ink-2`, aktiv `blue` mit `aria-current="page"`. Ueber dem aktiven Ziel sitzt ein 6px Magnetpunkt in `--magnet` auf der Kante.
-- **Bewegung:** der Magnetpunkt gleitet per `transform`, wie der Puck.
+Leiste unten, auf Desktop links. Symbol plus Condensed Bezeichnung in Grossbuchstaben, aktiv orange mit Punkt.
 
-### Liste und Listenzeile
-- **Liste:** eine Karte (`card`, 14px, `--shadow`) mit Zeilen, getrennt durch 6px Fugen in `board`.
-- **Zeile:** mindestens 64px, Polster `12px 16px`, links Name (Body Strong) und Unterzeile (Caption), rechts die Zahl (Title, rechtsbuendig) mit Basis darunter.
-- **Abhakzeile im Einkauf:** links 44px Tippflaeche mit 26px Ring in `rail-edge`, abgehakt gefuellt `green` mit Haken in `card`, Name dann `ink-3` durchgestrichen. Preis rechts in Value Small, Streichpreis darunter 12px `ink-3` durchgestrichen, Angebot in der Unterzeile `green`.
-
-### Mahlzeit zum Aufklappen
-- **Kopf:** mindestens 64px, Raster aus Nummernkreis (34px, `card-sunk`, Rundziffern 13px), Name und Protein, Kalorien rechts, Chevron in `ink-3`.
-- **Offen:** Chevron dreht in 220ms um 180 Grad, Zutaten auf `card-sunk`, Mengen rechts in `ink-2` mit tabellarischen Ziffern, Gewuerze in 13px `ink-3`.
-- **Auswahlzeile:** volle Breite, 44px, `card`, Radius 10px, `--shadow`, Text 14px 600 in `blue`, rechts ein Auf und Ab Symbol.
+### Liste
+Eine Karte, Zeilen durch Haarlinien getrennt. Laufende Zeile mit 3 px orangem Innenrand links.
 
 ### Hauptaktion
-- **Stil:** volle Breite, 52px, Radius 14px, `ink` als Grund, Text 17px 700 in `card`, Symbol links. Eine je Ansicht, im Entwurf nur `Kochen`.
+Grund orange, Schrift `accent-ink`, 52 px hoch, Radius 8 px, Condensed 19 px in Grossbuchstaben. Eine je Ansicht.
 
-### Vollbildblatt
-Einstellungen oeffnen als `dialog` mit `showModal` ueber dem Ziel: eine eigene Tafel (`board`, auch als Hintergrund), Kopf 52px mit Titel in Headline und Knopf Schliessen, Inhalte als Magnetkarten bis 560px Breite, Felder 44px auf `card-sunk`.
+### Felder
+Grund schwarz, 1 px `rail-edge`, Radius 8 px, Fokus mit 2 px orangem Umriss. Lastfelder beim Eintragen 52 px hoch in Condensed 22 px.
 
-### Named Rules
-**The Transform Magnet Rule.** Puck und Navigationsmagnet bewegen sich ausschliesslich ueber `transform`, nie ueber `left` oder `width`. Dauer 240ms mit `--ease` (`cubic-bezier(0.22, 1, 0.36, 1)`). Bei `prefers-reduced-motion: reduce` entfallen alle Uebergaenge.
-
-**The One Magnet Rule.** Je Leiste gibt es genau einen blauen Magneten, und er sitzt auf dem Aktiven. Im Verlauf markiert derselbe Magnet den heutigen Punkt der Linie.
-
-**The Refusal In Place Rule.** Eine Verweigerung steht dort, wo die Zahl stuende, als Zahlenzeile im gestrichelten Feld. Sie rutscht nicht in eine Fussnote und verschwindet nicht.
+### Kochansicht
+Gleicher Look, Zeitanzeige in Condensed 40 px wie der Pausentimer im Logbuch.
 
 ## Do's and Don'ts
 
 ### Do:
-- **Do** eine Zahl je Karte setzen, Einheit klein daneben, Datenbasis in Caption darunter, etwa `00,0 kg` ueber `Basis 14 Tage`.
-- **Do** jede Farbe ueber die Custom Property beziehen, damit hell und dunkel ohne zweiten Codepfad wechseln.
-- **Do** Zahlen in `--num` mit `tabular-nums` setzen, auch in Achsen, Preisen und Datenbasis.
-- **Do** Fokus sichtbar halten: 2px Umriss in `blue`, 2px Abstand.
-- **Do** Tippflaechen von mindestens 44px und Listenzeilen von mindestens 64px.
-- **Do** Navigation mit Symbol und Wort, Aktives mit `aria-current` und Magnet.
+* Farben nur ueber Custom Properties, nie als Hexwert in Komponenten
+* Haarlinie statt Schatten, Abstand statt Schmuck
+* Inhalte aus dem Sheet per `textContent`
 
 ### Don't:
-- **Don't** Trennlinien zwischen Zeilen oder Karten ziehen, und keine Tabelle als Grundbaustein.
-- **Don't** Markerfarben fuer etwas anderes einsetzen als Daten, Bedienung, getroffen und daneben.
-- **Don't** Puck oder Magnet ueber `left` oder `width` animieren.
-- **Don't** Webfonts laden; Ziffern und Text kommen vom System.
-- **Don't** Erklaertexte, Hinweise oder Tooltips mit Erklaerung in die Oberflaeche setzen.
-- **Don't** kleine Ueberschriften ueber Abschnittstiteln oder Karten setzen; die Bezeichnung der Karte ist die einzige Zeile ueber der Zahl.
-- **Don't** einer Karte einen hoeheren Schatten geben als `--shadow`.
+* Keinen hellen Modus und keine zweite Akzentfarbe einfuehren
+* Keine Webfonts von fremden Hosts laden, die CSP bleibt bei `font-src 'self'`
+* Keine Erklaertexte in der Oberflaeche

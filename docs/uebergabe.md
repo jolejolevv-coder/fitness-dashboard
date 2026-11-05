@@ -2,15 +2,25 @@
 
 ## Phase 19 Look des Recomp Logbuchs (05.11.2026)
 
-Wunsch des Nutzers: das ganze Dashboard sieht aus wie das Recomp Logbuch
-(`gym-logbook/index.html`, OLED Schwarz, Orange, Barlow). Spec
-`specs/features/logbook-look.md` als Entwurf, wartet auf Freigabe. Gebaut wird
-erst danach, auf eigenem Branch.
-Freigegeben 05.11.2026: nur dunkel, Barlow selbst mitgeliefert (ADR 0009,
-`public/fonts/`, 131 kB statt geschaetzter 60 kB), Orange ersetzt Blau,
-Kochansicht gleicher Look. Branch `claude/logbook-look` ab `f54794c`. Stand:
-19.0 erledigt, naechster Schritt 19.1 Tokens und Schrift in `src/styles.css`
-(Diagramme lesen Tokens ueber `COLORS` in `src/ui/palette.ts`).
+Spec `specs/features/logbook-look.md` freigegeben: nur dunkel, Barlow selbst
+mitgeliefert (ADR 0009, `public/fonts/`, 131 kB), Orange ersetzt Blau,
+Kochansicht gleicher Look. Branch `claude/logbook-look` ab `f54794c`, nicht
+gepusht.
+
+Stand: 19.0 bis 19.3 erledigt, 19.4 bis auf Nutzerschritte. Commits `4e4ee3e`
+(Tokens, Schrift), `fc30c2e` (Bausteine), `0a6e768` (Training, Felder), danach
+19.4 mit `DESIGN.md` neu. CSS 5,66 kB gzip, Kontraste ab 6,2 zu 1, Tippflaechen
+ab 44 px, kein waagerechter Seitenlauf bei 375 und 1280 px. Heute, Verlauf,
+Kueche samt Kochansicht und Einstellungen geprueft, Kueche ohne eigene
+Aenderung. Alte Hexwerte nur noch in `public/icon.svg` (App Symbol, out of scope).
+
+Offen fuer den Nutzer: Freigabe zum Merge auf `main` und Push, danach Live
+Pruefung am Handy neben dem Logbuch (Vergleichsbilder), dann Retro in der Roadmap.
+
+Annahmen 19: Uebungsname im Eintragen Formular hell 17 px statt grauem Etikett
+wie im Logbuch. Lastfelder 52 px in Condensed 22 px, Notizfeld bleibt Barlow
+16 px. Markierungen Radius 4 px wie die Tags im Logbuch. Segmentpuck entfaellt,
+Segmente sind Einzelknoepfe. Kapseln 44 px hoch statt 36 px.
 
 ## Phase 18 Training aus dem Gym Logbuch (05.11.2026)
 
