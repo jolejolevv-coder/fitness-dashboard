@@ -42,9 +42,15 @@ Annahmen 18.1 bis 18.3:
   stehen, die Statuszeile nennt den Fehler; ohne Cache steht der Fehler im
   Abschnitt Training
 
-Offen 18.4 (Nutzer): Logbuch Tabelle per Link lesbar freigeben, Sheet ID in
-den Einstellungen eintragen, Live Test (Datumsformat, Spalten, Werte gegen das
-Logbuch), Retro, dann Push und Merge nach Freigabe.
+Stand 18.4 (05.11.2026): Tabelle `Gym Logbuch` nach Zusage des Nutzers per
+Link lesbar (Betrachter), oeffentlicher CSV Abruf liefert 200. Kopfzeile
+passt, `date` kommt als ISO Text. `TrainingSets` traegt bisher nur die Zeile
+`verbindungstest` mit 0 Wdh, der Parser verwirft sie, Training zeigt also
+`Keine Trainingsdaten`, bis echte Saetze geloggt sind. Branch nach Zusage per
+Fast Forward auf main gepusht (`1f74d65`), Deploy gruen, live. Sheet ID steht
+nicht im Repo, nur in den Einstellungen der App.
+Offen beim Nutzer: Sheet ID in den Einstellungen eintragen, nach der ersten
+geloggten Einheit Werte gegen das Logbuch pruefen, dann Retro Phase 18.
 
 Stand 27.10.2026, Phase 12 live, offen nur der iPhone Test des Nutzers. Phase 13 freigegeben, 13.1 bis 13.4 erledigt, naechster Schritt 13.5 mit dem Nutzer.
 

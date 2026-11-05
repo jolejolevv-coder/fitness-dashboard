@@ -1,6 +1,6 @@
 # Training aus dem Gym Logbuch
 
-Status: freigegeben 05.11.2026, Open questions 1 bis 4 wie vorgeschlagen. ADR 0008. 18.1 bis 18.3 gebaut 05.11.2026 auf Branch `claude/training-from-logbook` (`fbfbf9e`, `4429094`), 18.4 beim Nutzer.
+Status: freigegeben 05.11.2026, Open questions 1 bis 4 wie vorgeschlagen. ADR 0008. 18.1 bis 18.3 gebaut 05.11.2026 auf Branch `claude/training-from-logbook` (`fbfbf9e`, `4429094`), live auf main 05.11.2026, Tabelle per Link lesbar. Offen: Sheet ID eintragen, Pruefung mit echten Saetzen, Retro.
 
 ## Goal
 Das Dashboard liest Trainingsdaten künftig aus der Tabelle des Gym Logbuchs (Tab `TrainingSets`), Daily Check-in (Gewicht, Ernährung, Schlaf, Schritte) weiter aus dem bisherigen Sheet.
