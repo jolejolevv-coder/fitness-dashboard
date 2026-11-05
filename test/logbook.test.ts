@@ -1,13 +1,15 @@
 import { readFileSync } from 'node:fs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { getLogbookAccess, saveLogbookAccess } from '../src/config/logbookAccess';
-import { parsePlan } from '../src/parse/plan';
+import { parsePlan, parsePlanSettings } from '../src/parse/plan';
 import { readLoggedHistory } from '../src/parse/trainingSets';
 import {
   buildRows, defaultDay, doneCount, ensureSets, isRangeFull, loadSession, markSent, newSession, pruneSessions,
   rangeFor, rangeTop, saveSession, sessionId, KEEP_SENT_DAYS, type Session,
 } from '../src/logbook/session';
 import { flushPending, sendSession } from '../src/logbook/sync';
+import { formatClock } from '../src/logbook/timer';
+import { roundToStep, warmupLine } from '../src/logbook/warmup';
 
 /** Logbuch Formular, Logik ohne DOM (Phase 20.2), synthetische Daten. */
 
@@ -198,5 +200,49 @@ describe('Letztes Mal aus TrainingSets', () => {
   it('schliesst die laufende Einheit nur aus, wenn ihr Datum genannt wird', () => {
     expect(readLoggedHistory(rows).last.get('Tag 1||Bench Press')!.date).toBe('2026-11-05');
     expect(readLoggedHistory([]).latest).toBeNull();
+  });
+});
+
+describe('Aufwaermhinweis (20.3)', () => {
+  const settings = parsePlanSettings(fixture('plan/plan-settings'));
+  const last = (kg: number) => ({ date: '2026-11-03', sets: [{ kg, reps: 7 }] });
+  // Tag 1: Bench (Chest/push), Fly (Chest/push), Rear Fly (pull), Curl (Biceps/pull).
+
+  it('gibt der ersten Uebung des Tages zwei Stufen auf Basis des letzten Mals', () => {
+    expect(warmupLine(settings, day1, 0, last(70))).toBe('35 kg × 8, 52,5 kg × 3, dann Arbeitssatz');
+  });
+
+  it('rundet auf den Lastschritt, nie darunter', () => {
+    expect(roundToStep(71, 2.5)).toBe(70);
+    expect(roundToStep(0.4, 2.5)).toBe(2.5);
+    expect(warmupLine(settings, day1, 0, last(33))).toBe('17,5 kg × 8, 25 kg × 3, dann Arbeitssatz');
+  });
+
+  it('gibt der ersten Uebung einer neuen Region eine Stufe und uebergeht die zweite der Region', () => {
+    expect(warmupLine(settings, day1, 2, last(30))).toBe('1 Satz 17,5 kg × 5');
+    expect(warmupLine(settings, day1, 1, last(20))).toBeNull(); // Chest wie Bench
+    expect(warmupLine(settings, day1, 3, last(12))).toBeNull(); // Biceps gehoert zu pull wie Rear Fly
+  });
+
+  it('nimmt ohne letztes Mal lastLoad aus dem Plan, sonst Worte', () => {
+    expect(warmupLine(settings, day1, 0, null)).toBe('35 kg × 8, 52,5 kg × 3, dann Arbeitssatz');
+    expect(warmupLine(settings, day1, 2, null)).toBe('1 Satz: leicht × 5'); // Rear Fly ohne lastLoad
+  });
+
+  it('laesst Regionen ohne Aufwaermen aus', () => {
+    expect(warmupLine(settings, plan.days[1]!, 1, null)).toBeNull(); // Abs
+  });
+
+  it('ist ohne Einstellungen oder ohne Lastschritt aus', () => {
+    expect(warmupLine(parsePlanSettings([]), day1, 0, last(70))).toBeNull();
+    expect(warmupLine({ ...settings, loadStep: null }, day1, 0, last(70))).toBeNull();
+  });
+});
+
+describe('Timer (20.3)', () => {
+  it('formatiert Sekunden als Minuten und Sekunden', () => {
+    expect(formatClock(150)).toBe('2:30');
+    expect(formatClock(5)).toBe('0:05');
+    expect(formatClock(0)).toBe('0:00');
   });
 });

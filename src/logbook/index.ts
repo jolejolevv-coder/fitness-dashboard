@@ -1,6 +1,6 @@
 import { getLogbookAccess, type LogbookAccess } from '../config/logbookAccess';
 import { MissingColumnsError } from '../parse/columns';
-import { parsePlan, parsePlanSettings, PlanError, type Plan, type PlanDay, type PlanExercise, type PlanSettings } from '../parse/plan';
+import { generalTextFor, parsePlan, parsePlanSettings, PlanError, type Plan, type PlanDay, type PlanExercise, type PlanSettings } from '../parse/plan';
 import { exerciseKey } from '../parse/training';
 import { readLoggedHistory, type LastSession, type LoggedHistory } from '../parse/trainingSets';
 import type { SheetValues } from '../types';
@@ -8,10 +8,12 @@ import { el } from '../ui/build';
 import { refusalCard } from '../ui/cards';
 import { loadPlanCache, savePlanCache, type PlanRows } from './planCache';
 import {
-  defaultDay, doneCount, ensureSets, formatKg, hasData, isNumeric, loadSession, loadSessions, newSession,
+  defaultDay, doneCount, ensureSets, formatKg, hasData, isNumeric, isRangeFull, loadSession, loadSessions, newSession,
   pruneSessions, rangeFor, rangeTop, saveSession, sessionId, todayIso, type Session, type SetState,
 } from './session';
 import { flushPending, NETWORK_ERROR } from './sync';
+import { createOverlay, formatClock, unlockAudio, type Overlay } from './timer';
+import { warmupLine } from './warmup';
 
 /**
  * Segment `Eintragen`, Logbuch Formular (Phase 20, ADR 0010), als Chunk `logbook`.
@@ -63,6 +65,7 @@ const state: State = {
 
 let shell: HTMLElement | null = null;
 let view: HTMLElement | null = null;
+let overlay: Overlay | null = null;
 let sendTimer: number | undefined;
 let refreshStatus: (() => void) | null = null;
 
@@ -91,7 +94,8 @@ export function renderLogbook(container: HTMLElement, context: LogbookContext): 
 function ensureShell(container: HTMLElement): void {
   if (shell && shell.parentElement === container) return;
   view = el('div', { class: 'logbook' });
-  shell = el('div', { class: 'logbook-shell' }, [view]);
+  overlay = createOverlay();
+  shell = el('div', { class: 'logbook-shell' }, [view, overlay.element]);
   container.replaceChildren(shell);
 }
 
@@ -253,10 +257,18 @@ function draw(): void {
     status.textContent = statusText(day);
   };
 
-  const cards = day.exercises.map((exercise) => exerciseCard(day, exercise, session));
+  const cards = day.exercises.map((exercise, index) => exerciseCard(day, exercise, index, session));
+  const general = generalTextFor(state.settings, day.label);
+  const generalBox = general
+    ? el('details', { class: 'lb-note', attrs: { ...(doneCount(session, day).done === 0 ? { open: '' } : {}) } }, [
+      el('summary', { text: 'Aufwärmen allgemein' }),
+      el('p', { text: general }),
+    ])
+    : null;
   view.replaceChildren(
     dayChips,
     el('div', { class: 'card-label logbook-day', text: day.label }),
+    ...(generalBox ? [generalBox] : []),
     el('div', { class: 'stack' }, cards),
     status,
   );
@@ -277,12 +289,18 @@ function lastText(exercise: PlanExercise, last: LastSession | null): string {
   return 'Keine Daten';
 }
 
-function exerciseCard(day: PlanDay, exercise: PlanExercise, session: Session): HTMLElement {
+function exerciseCard(day: PlanDay, exercise: PlanExercise, index: number, session: Session): HTMLElement {
   const sets = ensureSets(session, exercise);
   const last = lastFor(day, exercise);
   const doneSets = sets.filter((s) => s.done).length;
 
-  const tags = [el('span', { class: 'mark', text: exercise.muscle })];
+  const tags = [
+    exercise.ss ? el('span', { class: 'mark is-ok', text: `Supersatz ${exercise.ss}` }) : null,
+    el('span', { class: 'mark', text: exercise.muscle }),
+    exercise.rest ? el('span', { class: 'mark', text: `Pause ${formatClock(exercise.rest)}` }) : null,
+  ];
+  const warmup = warmupLine(state.settings, day, index, last);
+  const rangeFull = state.settings.rangeFullText && isRangeFull(exercise, last) ? state.settings.rangeFullText : '';
   const specs = [exercise.rir && `RIR ${exercise.rir}`, exercise.tempo && `Tempo ${exercise.tempo}`].filter(Boolean).join(', ');
 
   return el('div', { class: doneSets >= exercise.sets ? 'card log-card is-done' : 'card log-card', attrs: { id: `ex-${exercise.id}` } }, [
@@ -290,7 +308,10 @@ function exerciseCard(day: PlanDay, exercise: PlanExercise, session: Session): H
     el('div', { class: 'lb-tags' }, [...tags, el('span', { class: 'card-basis', text: `${doneSets}/${exercise.sets}` })]),
     specs ? el('div', { class: 'card-basis', text: specs }) : null,
     el('div', { class: 'card-basis', text: lastText(exercise, last) }),
-    el('div', { class: 'lb-sets' }, sets.map((set, index) => setRow(day, exercise, set, index, last))),
+    rangeFull ? el('div', { class: 'card-basis is-ok', text: rangeFull }) : null,
+    warmup ? el('div', { class: 'card-basis', text: `Aufwärmen: ${warmup}` }) : null,
+    el('div', { class: 'lb-sets' }, sets.map((set, k) => setRow(day, exercise, set, k, last))),
+    exercise.tip ? el('details', { class: 'lb-note' }, [el('summary', { text: 'Hinweis' }), el('p', { text: exercise.tip })]) : null,
   ]);
 }
 
@@ -330,7 +351,9 @@ function setRow(day: PlanDay, exercise: PlanExercise, set: SetState, index: numb
     attrs: { type: 'button', 'aria-pressed': String(set.done), 'aria-label': `Satz ${index + 1} erledigt` },
   });
   check.addEventListener('click', () => {
-    if (set.done) set.done = false;
+    unlockAudio();
+    const wasDone = set.done;
+    if (wasDone) set.done = false;
     else {
       // Ein leeres Feld nimmt den Platzhalter, wie im Logbuch.
       if (!set.kg && isNumeric(placeholder.kg)) set.kg = placeholder.kg.replace(',', '.');
@@ -340,6 +363,7 @@ function setRow(day: PlanDay, exercise: PlanExercise, set: SetState, index: numb
     }
     commit(day);
     draw();
+    if (!wasDone) afterCheck(day, exercise);
   });
 
   return el('div', { class: set.done ? 'lb-set is-on' : 'lb-set' }, [
@@ -351,3 +375,23 @@ function setRow(day: PlanDay, exercise: PlanExercise, set: SetState, index: numb
 }
 
 export type { LogbookAccess };
+
+/** Nach einem Haken: Supersatz Hinweis statt Pause, sonst Pausentimer. Dann zur naechsten offenen Uebung. */
+function afterCheck(day: PlanDay, exercise: PlanExercise): void {
+  const session = currentSession(day);
+  if ((session.sets[exercise.id] ?? []).every((s) => s.done)) scrollToNextOpen(day, exercise);
+  if (exercise.ss.startsWith('A')) {
+    const partner = day.exercises.find((e) => e.ss === `B${exercise.ss.slice(1)}`);
+    overlay?.stopTimer();
+    overlay?.toast(`Weiter ohne Pause: ${partner?.name ?? 'B Übung'}`);
+  } else if (exercise.rest) overlay?.startTimer(exercise.rest, exercise.name);
+}
+
+function scrollToNextOpen(day: PlanDay, exercise: PlanExercise): void {
+  const session = currentSession(day);
+  const from = day.exercises.indexOf(exercise);
+  const next = day.exercises.slice(from + 1).find((e) => !(session.sets[e.id] ?? []).every((s) => s.done) || !session.sets[e.id]);
+  if (!next) return;
+  const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+  document.getElementById(`ex-${next.id}`)?.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
+}

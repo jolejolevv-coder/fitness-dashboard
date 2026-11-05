@@ -1,5 +1,34 @@
 # Uebergabe
 
+## Phase 20 Logbuch im Dashboard (05.11.2026)
+
+Spec `specs/features/logbook-in-dashboard.md` und ADR 0010 freigegeben, Branch
+`claude/logbook-in-dashboard` ab main `89b3a04`. 20.0 erledigt (`9e15ab7`,
+dritter Schreibweg in `CLAUDE.md`). Phase 19 ist live auf main.
+
+Befund: Das Logbuch Artifact schreibt nur in die Artifact Datenbank (wenn
+`window.claude` da ist, wird das Sheet nie benutzt). Einzige echte Einheit:
+03.11. Tag 1, 6 Saetze, als Einfuegezeilen in `testdata/logbuch-2026-11-03.tsv`.
+Pages Fassung `me.nahobinoco.com/gym-logbook/` hat denselben Plan.
+
+20.1 bis 20.3 erledigt (Commits `8e07292`, `e855d9b`, 20.3 danach), nicht gepusht.
+Neu: `src/parse/plan.ts`, `src/logbook/` (session, sync, planCache, warmup,
+timer, index), `src/config/logbookAccess.ts` (Schluessel
+`fitness_logbook_access_v1`), Fixture `test/fixtures/plan/`. Plan Tabs `Plan`
+und `PlanSettings` nach `testdata/Plan.tsv`, `PlanSettings.tsv`. Eintragen
+zeigt mit Logbuch Sheet ID nur das Logbuch Formular, Mesocycle Code bleibt.
+Offen fuer 20.4: 375 px Pruefung, Live Satz, 03.11. ins Sheet, Plan Tabs im
+Sheet anlegen, Logbuch Script URL und Token in den Einstellungen.
+
+Annahmen 20: Plan Pflichtspalten ohne typ, lastReps, kind. Satzzahl keine Zahl
+gibt PlanError mit Zeilennummer. Ohne `rest` kein Timer (kein Standardwert).
+Ohne `load_step` kein Aufwaermhinweis. Ohne Gewicht Worte leicht, mittel,
+schwer. Tagesvorwahl ueber den Wochentag im Label (`Montag · ...`), sonst Tag
+nach der letzten Einheit. Sitzungen ohne Plantag oder Daten gelten als gesendet.
+Gesendete Sitzungen bleiben 7 Tage lokal. Plan wird gecacht, Redraw nicht
+waehrend der Eingabe. Eintragen erscheint mit Logbuch ID auch ohne Script
+Zugang, Status dann `kein Zugang`. Hinweis Label immer `Hinweis`.
+
 ## Phase 19 Look des Recomp Logbuchs (05.11.2026)
 
 Spec `specs/features/logbook-look.md` freigegeben: nur dunkel, Barlow selbst
