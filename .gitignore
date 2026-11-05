@@ -18,6 +18,7 @@ test/fixtures/*
 !test/fixtures/daily-import/
 !test/fixtures/training-log/
 !test/fixtures/receipt/
+!test/fixtures/training-sets/
 test/golden/
 
 # Handoff aus dem Chat: enthaelt Klarname, Sheet ID und Filialadressen, bleibt lokal
