@@ -122,7 +122,7 @@ button, select, input, textarea { font: inherit; color: inherit; }
   width: 44px;
   height: 44px;
   border: none;
-  border-radius: 12px;
+  border-radius: var(--radius);
   background: none;
   color: var(--ink-2);
   cursor: pointer;
@@ -311,9 +311,11 @@ button, select, input, textarea { font: inherit; color: inherit; }
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 3px 9px 3px 7px;
-  border-radius: 999px;
-  font: 600 13px/1.4 var(--text);
+  padding: 3px 8px 3px 7px;
+  border-radius: 4px;
+  font: 600 13px/1.3 var(--num);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 .mark::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
 .mark.is-off { background: var(--red-wash); }
@@ -363,10 +365,12 @@ button, select, input, textarea { font: inherit; color: inherit; }
   min-height: 44px;
   padding: 0 12px;
   border: none;
-  border-radius: 12px;
+  border-radius: var(--radius-s);
   background: none;
   color: var(--accent);
-  font: 600 14px/1.2 var(--text);
+  font: 700 15px/1.2 var(--num);
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
   cursor: pointer;
   transition: background var(--duration) var(--ease);
 }
@@ -406,16 +410,20 @@ button, select, input, textarea { font: inherit; color: inherit; }
 }
 .log-field { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
 .log-field.is-wide { grid-column: 1 / -1; }
+.log-field.is-wide input { font: 400 16px/1.3 var(--text); }
+/* Uebungsname wie im Logbuch: hell, nicht als graues Etikett. */
+.log-card > .card-label { font: 600 17px/1.25 var(--text); letter-spacing: 0; text-transform: none; color: var(--ink); }
 .log-field-name { color: var(--ink-3); font: 600 12px/1.2 var(--text); }
 .log-field input {
   width: 100%;
-  min-height: 44px;
+  min-height: 52px;
   padding: 0 12px;
-  border: none;
+  border: 1px solid var(--rail-edge);
   border-radius: var(--radius-s);
   background: var(--card-sunk);
   color: var(--ink);
-  font-size: 16px;
+  font: 700 22px/1 var(--num);
+  font-variant-numeric: tabular-nums;
 }
 .log-field input:disabled { color: var(--ink-3); }
 .log-field .mark { align-self: flex-start; }
@@ -453,7 +461,7 @@ button, select, input, textarea { font: inherit; color: inherit; }
 .receipt-controls select, .receipt-size input {
   min-height: 44px;
   padding: 0 10px;
-  border: none;
+  border: 1px solid var(--rail-edge);
   border-radius: var(--radius-s);
   background: var(--card-sunk);
   color: var(--ink);
@@ -557,7 +565,7 @@ body.no-sheet .settings-export { display: none; }
   min-height: 44px;
   margin-bottom: 8px;
   padding: 0 12px;
-  border: none;
+  border: 1px solid var(--rail-edge);
   border-radius: var(--radius-s);
   background: var(--card-sunk);
   color: var(--ink);
@@ -572,10 +580,12 @@ body.no-sheet .settings-export { display: none; }
   border-radius: var(--radius-s);
   background: var(--accent);
   color: var(--accent-ink);
-  font-weight: 700;
+  font: 700 17px/1 var(--num);
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
   cursor: pointer;
 }
-#config-banner button.secondary { background: none; color: var(--accent); font-weight: 600; }
+#config-banner button.secondary { background: none; color: var(--accent); }
 
 /* ── Kueche ────────────────────────────────────────────────────────────────── */
 
@@ -709,7 +719,7 @@ body.no-sheet .settings-export { display: none; }
 .gen-wish {
   width: 100%;
   padding: 10px 12px;
-  border: none;
+  border: 1px solid var(--rail-edge);
   border-radius: var(--radius-s);
   background: var(--card-sunk);
   color: var(--ink);
@@ -738,7 +748,7 @@ body.no-sheet .settings-export { display: none; }
 .sk-track { height: 4px; margin: 30px 0; }
 .sk-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; margin-bottom: 40px; }
 .sk-block { height: 48px; }
-.sk-chart { height: 260px; border-radius: 12px; }
+.sk-chart { height: 260px; border-radius: var(--radius); }
 .status-note { margin-top: 28px; font-size: 13px; color: var(--ink-3); }
 #status .err { color: var(--red); margin-bottom: 14px; font-size: 14px; }
 #status .spinner {
