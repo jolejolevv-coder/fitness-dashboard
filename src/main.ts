@@ -2,7 +2,6 @@ import './styles.css';
 
 import type { DailyEntry, ParsedTraining, SheetValues, WeekBlock } from './types';
 import { parseDaily } from './parse/daily';
-import { parseTraining } from './parse/training';
 import { parseTrainingSets } from './parse/trainingSets';
 import { parseGoals, type Goals } from './parse/goals';
 import { MissingColumnsError } from './parse/columns';
@@ -65,7 +64,6 @@ const SECTION_NAMES = ['overview', 'nutrition', 'wellness', 'weeks', 'training',
 let allDaily: DailyEntry[] = [];
 let allWeekBlocks: WeekBlock[] = [];
 let goals: Goals | null = null;
-let training: ParsedTraining | null = null;
 /** Saetze aus dem Gym Logbuch (ADR 0008). Null ohne Logbuch oder ohne gueltigen Satz. */
 let logbookTraining: ParsedTraining | null = null;
 /** Grund, warum das Logbuch nicht auswertbar ist, sichtbar im Abschnitt Training. */
@@ -175,8 +173,9 @@ function handleSaveConfig(): void {
  * mit Zugang fuer Mesocycle Tabs (ADR 0007). Mit Logbuch ersetzt das Logbuch
  * Formular das Mesocycle Formular, dessen Code bleibt.
  */
+/** Mesocycle ist ausgeblendet (Spec 20, Q10): Eintragen gibt es nur mit Logbuch. */
 function canLogTraining(): boolean {
-  return logbookSource(getCredentials()) !== null || getLogAccess() !== null;
+  return logbookSource(getCredentials()) !== null;
 }
 
 // ── Status ───────────────────────────────────────────────────────────────────
@@ -283,20 +282,18 @@ function chartRendererFor(name: string): ((charts: Charts) => void) | undefined 
   return sections?.[name];
 }
 
-/** Quelle, die unter Training gilt. Ohne Logbuch immer der Mesocycle Tab. */
-function activeTrainingSource(): TrainingSource {
-  return logbookSource(getCredentials()) ? trainingSource : 'mesocycle';
-}
+/** Grund, wenn Training nichts zeigen kann (Spec 20, Q11). */
+const NO_LOGBOOK_TEXT = 'Logbuch Sheet ID fehlt';
 
+/**
+ * Training zeigt nur das Logbuch. Mesocycle wird weiter geladen (Zielwerte),
+ * ist aber ausgeblendet (Spec 20, Q10).
+ */
 function renderTrainingSection(charts: Charts): void {
   const hasLogbook = logbookSource(getCredentials()) !== null;
-  const source = activeTrainingSource();
-  renderTrainingSource({ visible: hasLogbook, active: source, onChange: setTrainingSource });
-  if (source === 'logbook') {
-    renderTraining(logbookTraining, charts, { scope: 'im Logbuch', emptyText: logbookError });
-  } else {
-    renderTraining(training, charts, { scope: 'im Mesozyklus', emptyText: null });
-  }
+  renderTrainingSource({ visible: false, active: 'logbook', onChange: setTrainingSource });
+  const emptyText = hasLogbook ? logbookError : NO_LOGBOOK_TEXT;
+  renderTraining(hasLogbook ? logbookTraining : null, charts, { scope: 'im Logbuch', emptyText });
 }
 
 function setTrainingSource(source: TrainingSource): void {
@@ -371,9 +368,9 @@ async function renderLogSection(): Promise<void> {
 
   const hasLogbook = logbookSource(credentials) !== null;
   const mesocycleAccess = getLogAccess();
-  if (!hasLogbook && !mesocycleAccess) return;
-  // Mit Logbuch Sheet ID gibt es nur das Logbuch Formular, sonst das Mesocycle Formular.
-  const mode = hasLogbook ? 'logbook' : 'mesocycle';
+  if (!hasLogbook) return;
+  // Nur das Logbuch Formular, das Mesocycle Formular bleibt im Code (Spec 20, Q10).
+  const mode: 'logbook' | 'mesocycle' = 'logbook';
   const body = container;
 
   try {
@@ -519,7 +516,6 @@ function applyParsed(
   allDaily = parsed.daily;
   allWeekBlocks = parsed.weekBlocks;
   goals = parseGoals(raw, rawTraining);
-  training = rawTraining.length ? parseTraining(rawTraining) : null;
   trainingRows = rawTraining;
   applyLogbook(logbook, logbookFetchError);
   dataTimestamp = timestamp;
