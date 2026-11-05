@@ -19,11 +19,12 @@ Geprueft bei 375 px mit Fixturedaten im localStorage: Eintragen mit Letztes
 Mal, Plan Vorbelegung, Aufwaermzeile, Supersatz, Timer nach Haken, lokale
 Sitzung `pending`; Auswertung ohne Umschalter; kein waagerechter Lauf.
 
-Offen beim Nutzer (20.4): Tabs `Plan` und `PlanSettings` aus `testdata/*.tsv`
-per Datei, Importieren anlegen, Umwandlung von Text in Zahlen und Daten
-abgewaehlt (sonst wird `5-7` ein Datum). Einheit 03.11. einfuegen. In den
-Einstellungen Logbuch Script URL, Token und Logbuch Sheet ID. Ein echter Satz
-live, danach Freigabe zum Merge auf `main` und Push, Retros 18 bis 20.
+Im Sheet erledigt (05.11.): Tabs `Plan` (32 Uebungen) und `PlanSettings`
+als Nur Text angelegt, Einheit 03.11. in `TrainingSets` (6 Saetze) und
+`TrainingLog` ab Zeile 3, Zeile `verbindungstest` unberuehrt.
+Offen beim Nutzer (20.4): in den Einstellungen Logbuch Script URL, Token und
+Logbuch Sheet ID. Ein echter Satz live, danach Freigabe zum Merge auf `main`
+und Push, Retros 18 bis 20.
 
 Annahmen 20: Plan Pflichtspalten ohne typ, lastReps, kind. Ohne `rest` kein
 Timer, ohne `load_step` kein Aufwaermhinweis. Tagesvorwahl ueber den Wochentag
