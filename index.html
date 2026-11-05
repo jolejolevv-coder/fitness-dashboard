@@ -62,6 +62,8 @@
   <input type="password" id="input-api-key" placeholder="Google API Key" />
   <input type="text" id="input-sheet-name" placeholder="Tab mit den Tagesdaten" value="Daily Tracking" />
   <input type="text" id="input-training-sheet-name" placeholder="Tab mit dem Mesozyklus" value="Mesocycle 1" />
+  <input type="text" id="input-logbook-sheet-id" placeholder="Logbuch Sheet ID, optional" autocomplete="off" />
+  <input type="text" id="input-logbook-sheet-name" placeholder="Logbuch Tab" value="TrainingSets" />
   <input type="password" id="input-anthropic-key" placeholder="Anthropic API Key, optional" autocomplete="off" />
   <input type="number" step="0.1" id="input-target-weight" placeholder="Zielgewicht in kg, optional" />
   <input type="url" id="input-log-endpoint" placeholder="Apps Script URL, optional" autocomplete="off" />
@@ -215,6 +217,7 @@
   </div>
 
   <div class="section" id="training">
+    <div class="chips" id="t-source" role="group" aria-label="Trainingsquelle" style="display:none"></div>
     <div id="t-no-data" class="refusal" style="display:none">Keine Trainingsdaten</div>
     <div id="t-content" style="display:none">
       <div class="grid2" id="t-cards"></div>

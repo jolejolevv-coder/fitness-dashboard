@@ -30,7 +30,29 @@ interface State {
   charts: Charts;
 }
 
+/** Herkunft der Trainingsdaten (ADR 0008). */
+export type TrainingSource = 'logbook' | 'mesocycle';
+
+const SOURCE_LABELS: Record<TrainingSource, string> = { logbook: 'Logbuch', mesocycle: 'Mesocycle' };
+
+/** Ohne Sheet Inhalt die bisherige Zeile. */
+const NO_DATA_TEXT = 'Keine Trainingsdaten';
+
+export interface TrainingView {
+  /** Unterzeile der Kachel `Übungen`, etwa `im Logbuch`. */
+  scope: string;
+  /** Statt `Keine Trainingsdaten`, etwa eine fehlende Spalte. */
+  emptyText: string | null;
+}
+
+export interface SourceToggle {
+  visible: boolean;
+  active: TrainingSource;
+  onChange: (source: TrainingSource) => void;
+}
+
 let state: State | null = null;
+let scope = 'im Mesozyklus';
 /** Gewaehlter Trainingstag, leer heisst alle. */
 let dayFilter = '';
 /** Schluessel der Uebung in der Detailansicht. */
@@ -49,8 +71,35 @@ function volumeOf(exercise: Exercise, weekIndex: number): number {
   return (week.sets || FALLBACK_SETS) * (avgRepsFromStr(week.repsActual) ?? FALLBACK_REPS) * load;
 }
 
-export function renderTraining(parsed: ParsedTraining | null, charts: Charts): void {
+/** Umschalter `Logbuch` und `Mesocycle`, nur mit eingetragenem Logbuch sichtbar. */
+export function renderTrainingSource(toggle: SourceToggle): void {
+  const container = byId('t-source');
+  if (!container) return;
+  show('t-source', toggle.visible, 'flex');
+  if (!toggle.visible) {
+    container.replaceChildren();
+    return;
+  }
+  const sources: TrainingSource[] = ['logbook', 'mesocycle'];
+  container.replaceChildren(...sources.map((source) => {
+    const chip = el('button', {
+      class: 'chip',
+      text: SOURCE_LABELS[source],
+      attrs: { type: 'button', 'aria-pressed': String(source === toggle.active) },
+    });
+    chip.addEventListener('click', () => toggle.onChange(source));
+    return chip;
+  }));
+}
+
+export function renderTraining(
+  parsed: ParsedTraining | null,
+  charts: Charts,
+  view: TrainingView = { scope: 'im Mesozyklus', emptyText: null },
+): void {
+  scope = view.scope;
   if (!parsed || !Object.keys(parsed.exercises).length) {
+    setText('t-no-data', view.emptyText ?? NO_DATA_TEXT);
     show('t-no-data', true, 'grid');
     show('t-content', false);
     state = null;
@@ -159,7 +208,7 @@ function renderCards(): void {
 
   container.replaceChildren(
     card('Aktuelle Woche', valueNode(String(state.currentWeek)), [`von ${state.weekCount} Wochen`]),
-    card('Übungen', valueNode(String(Object.keys(state.exercises).length)), ['im Mesozyklus']),
+    card('Übungen', valueNode(String(Object.keys(state.exercises).length)), [scope]),
     card('Volumen aktuelle Woche', valueNode(integer(weekVolume()), 'kg'), [`Woche ${state.currentWeek}`]),
     topCard,
   );

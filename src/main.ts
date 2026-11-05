@@ -3,18 +3,23 @@ import './styles.css';
 import type { DailyEntry, ParsedTraining, SheetValues, WeekBlock } from './types';
 import { parseDaily } from './parse/daily';
 import { parseTraining } from './parse/training';
+import { parseTrainingSets } from './parse/trainingSets';
 import { parseGoals, type Goals } from './parse/goals';
 import { MissingColumnsError } from './parse/columns';
-import { fetchDailySheet, fetchSheetTitles, fetchTrainingSheet } from './sheets';
+import { fetchDailySheet, fetchLogbookSheet, fetchSheetTitles, fetchTrainingSheet } from './sheets';
 import {
   DEFAULT_DAILY_SHEET,
+  DEFAULT_LOGBOOK_SHEET,
   DEFAULT_TRAINING_SHEET,
   getCredentials,
   hasCredentials,
   loadCache,
+  logbookSource,
+  logbookSourceKey,
   saveCache,
   saveCredentials,
   type Credentials,
+  type LogbookRows,
 } from './config/credentials';
 import { getTargets, saveTargets } from './config/targets';
 import { loadApiKey, saveApiKey } from './generator/state';
@@ -25,7 +30,7 @@ import { renderHero } from './ui/hero';
 import { renderCoach } from './ui/coach';
 import { renderMetrics } from './ui/metrics';
 import type { WeightMode } from './charts/weight';
-import { renderTraining } from './ui/training';
+import { renderTraining, renderTrainingSource, type TrainingSource } from './ui/training';
 import { closeSettings, currentRoute, navigate, openSettings, setCanLog, setHasSheet, setupRangeButtons, setupShell } from './ui/shell';
 import { getLogAccess, isValidEndpoint, saveLogAccess } from './config/logAccess';
 import { takeLegacyLogTab } from './config/logTab';
@@ -58,6 +63,12 @@ let allDaily: DailyEntry[] = [];
 let allWeekBlocks: WeekBlock[] = [];
 let goals: Goals | null = null;
 let training: ParsedTraining | null = null;
+/** Saetze aus dem Gym Logbuch (ADR 0008). Null ohne Logbuch oder ohne gueltigen Satz. */
+let logbookTraining: ParsedTraining | null = null;
+/** Grund, warum das Logbuch nicht auswertbar ist, sichtbar im Abschnitt Training. */
+let logbookError: string | null = null;
+/** Gewaehlte Quelle unter Training. Mit Logbuch ist `logbook` die Vorgabe. */
+let trainingSource: TrainingSource = 'logbook';
 /** Rohzeilen des Mesocycle Tabs, das Segment `Eintragen` liest sie selbst. */
 let trainingRows: SheetValues = [];
 let sections: SectionRenderers | null = null;
@@ -87,6 +98,8 @@ function showConfig(): void {
   set('input-api-key', credentials.apiKey ?? '');
   set('input-sheet-name', credentials.sheetName ?? DEFAULT_DAILY_SHEET);
   set('input-training-sheet-name', credentials.trainingSheetName ?? DEFAULT_TRAINING_SHEET);
+  set('input-logbook-sheet-id', credentials.logbookSheetId ?? '');
+  set('input-logbook-sheet-name', credentials.logbookSheetName ?? DEFAULT_LOGBOOK_SHEET);
   set('input-anthropic-key', loadApiKey() ?? '');
   const target = getTargets().targetWeightKg;
   set('input-target-weight', target === null ? '' : String(target));
@@ -103,6 +116,8 @@ function handleSaveConfig(): void {
     apiKey: input('input-api-key')?.value.trim() ?? '',
     sheetName: input('input-sheet-name')?.value.trim() || DEFAULT_DAILY_SHEET,
     trainingSheetName: input('input-training-sheet-name')?.value.trim() || DEFAULT_TRAINING_SHEET,
+    logbookSheetId: input('input-logbook-sheet-id')?.value.trim() ?? '',
+    logbookSheetName: input('input-logbook-sheet-name')?.value.trim() || DEFAULT_LOGBOOK_SHEET,
   };
   if (!credentials.sheetId || !credentials.apiKey) {
     alert('Bitte Sheet ID und API Key eingeben.');
@@ -131,10 +146,19 @@ function handleSaveConfig(): void {
   saveApiKey(input('input-anthropic-key')?.value ?? null);
   saveLogAccess(logEndpoint, logToken);
   dirty.add('log');
-  setCanLog(getLogAccess() !== null);
+  trainingSource = 'logbook';
+  setCanLog(canLogTraining());
   closeSettings();
   if (goals) renderShared();
   void loadData(true);
+}
+
+/**
+ * `Eintragen` schreibt in Mesocycle Tabs. Mit Logbuch wird dort nicht mehr
+ * gepflegt, das Segment verschwindet (ADR 0008), der Code bleibt.
+ */
+function canLogTraining(): boolean {
+  return getLogAccess() !== null && logbookSource(getCredentials()) === null;
 }
 
 // ── Status ───────────────────────────────────────────────────────────────────
@@ -237,8 +261,31 @@ function markAllDirty(): void {
 const CHART_SECTIONS: ReadonlySet<string> = new Set(['overview', 'nutrition', 'wellness', 'weeks', 'training']);
 
 function chartRendererFor(name: string): ((charts: Charts) => void) | undefined {
-  if (name === 'training') return (charts) => renderTraining(training, charts);
+  if (name === 'training') return renderTrainingSection;
   return sections?.[name];
+}
+
+/** Quelle, die unter Training gilt. Ohne Logbuch immer der Mesocycle Tab. */
+function activeTrainingSource(): TrainingSource {
+  return logbookSource(getCredentials()) ? trainingSource : 'mesocycle';
+}
+
+function renderTrainingSection(charts: Charts): void {
+  const hasLogbook = logbookSource(getCredentials()) !== null;
+  const source = activeTrainingSource();
+  renderTrainingSource({ visible: hasLogbook, active: source, onChange: setTrainingSource });
+  if (source === 'logbook') {
+    renderTraining(logbookTraining, charts, { scope: 'im Logbuch', emptyText: logbookError });
+  } else {
+    renderTraining(training, charts, { scope: 'im Mesozyklus', emptyText: null });
+  }
+}
+
+function setTrainingSource(source: TrainingSource): void {
+  if (source === trainingSource) return;
+  trainingSource = source;
+  dirty.add('training');
+  renderActiveSection();
 }
 
 function rendererFor(name: string): (() => void) | undefined {
@@ -400,13 +447,36 @@ function setWeightMode(mode: WeightMode): void {
   renderActiveSection();
 }
 
-function applyParsed(raw: SheetValues, rawTraining: SheetValues, timestamp: number, fromCache: boolean): void {
+/**
+ * Logbuch Saetze in das Trainingsmodell. Eine fehlende Spalte trifft nur den
+ * Abschnitt Training, Daily bleibt sichtbar (zwei Quellen, zwei Fehlerbilder).
+ */
+function applyLogbook(logbook: LogbookRows | null, fetchError: string | null): void {
+  logbookTraining = null;
+  logbookError = fetchError;
+  if (!logbook) return;
+  try {
+    logbookTraining = parseTrainingSets(logbook.rows);
+  } catch (error) {
+    logbookError = describe(error);
+  }
+}
+
+function applyParsed(
+  raw: SheetValues,
+  rawTraining: SheetValues,
+  timestamp: number,
+  fromCache: boolean,
+  logbook: LogbookRows | null = null,
+  logbookFetchError: string | null = null,
+): void {
   const parsed = parseDaily(raw);
   allDaily = parsed.daily;
   allWeekBlocks = parsed.weekBlocks;
   goals = parseGoals(raw, rawTraining);
   training = rawTraining.length ? parseTraining(rawTraining) : null;
   trainingRows = rawTraining;
+  applyLogbook(logbook, logbookFetchError);
   dataTimestamp = timestamp;
   dataFromCache = fromCache;
 
@@ -426,6 +496,30 @@ function describe(error: unknown): string {
 
 // ── Laden ────────────────────────────────────────────────────────────────────
 
+interface LogbookResult {
+  rows: LogbookRows | null;
+  error: string | null;
+}
+
+/** Logbuch Tab, falls eingetragen. Ein Fehler hier haelt Daily nicht auf. */
+async function fetchLogbook(apiKey: string): Promise<LogbookResult> {
+  const source = logbookSource(getCredentials());
+  if (!source) return { rows: null, error: null };
+  try {
+    const rows = await fetchLogbookSheet(source.sheetId, apiKey, source.sheetName);
+    return { rows: { rows, source: logbookSourceKey(source) }, error: null };
+  } catch (error) {
+    return { rows: null, error: describe(error) };
+  }
+}
+
+/** Gecachte Logbuch Zeilen, nur wenn sie zur eingetragenen Quelle gehoeren. */
+function cachedLogbook(cached: LogbookRows | undefined): LogbookRows | null {
+  const source = logbookSource(getCredentials());
+  if (!source || !cached || cached.source !== logbookSourceKey(source)) return null;
+  return cached;
+}
+
 export async function loadData(force = false): Promise<void> {
   const credentials = getCredentials();
   if (!hasCredentials(credentials)) {
@@ -444,7 +538,7 @@ export async function loadData(force = false): Promise<void> {
         statusSuffix = ' · aktualisiere';
         // Trainingszeilen eines anderen Tabs wuerden Eintragen und Auswertung falsch vorbelegen.
         const sameTab = cache.trainingSheet === (credentials.trainingSheetName || DEFAULT_TRAINING_SHEET);
-        applyParsed(cache.raw, sameTab ? cache.rawTraining : [], cache.ts, true);
+        applyParsed(cache.raw, sameTab ? cache.rawTraining : [], cache.ts, true, cachedLogbook(cache.logbook));
       } catch {
         // Ein unlesbarer Cache darf den frischen Abruf nicht verhindern.
       }
@@ -455,18 +549,22 @@ export async function loadData(force = false): Promise<void> {
   }
 
   lastFetchAt = Date.now();
+  const source = logbookSource(credentials);
   try {
-    const [raw, rawTraining] = await Promise.all([
+    const [raw, rawTraining, logbookResult] = await Promise.all([
       fetchDailySheet(credentials.sheetId, credentials.apiKey, credentials.sheetName || DEFAULT_DAILY_SHEET),
       fetchTrainingSheet(credentials.sheetId, credentials.apiKey, credentials.trainingSheetName || DEFAULT_TRAINING_SHEET)
         .catch((error: unknown) => {
           console.warn('Training fetch:', describe(error));
           return [] as SheetValues;
         }),
+      fetchLogbook(credentials.apiKey),
     ]);
-    saveCache(raw, rawTraining, credentials.trainingSheetName || DEFAULT_TRAINING_SHEET);
-    statusSuffix = '';
-    applyParsed(raw, rawTraining, Date.now(), false);
+    // Scheitert nur das Logbuch, bleiben die zuletzt geladenen Saetze stehen.
+    const logbook = logbookResult.rows ?? (source ? cachedLogbook(loadCache()?.logbook) : null);
+    saveCache(raw, rawTraining, credentials.trainingSheetName || DEFAULT_TRAINING_SHEET, logbook);
+    statusSuffix = logbookResult.error && logbook ? ` · Logbuch nicht geladen: ${logbookResult.error}` : '';
+    applyParsed(raw, rawTraining, Date.now(), false, logbook, logbook ? null : logbookResult.error);
   } catch (error) {
     if (dataTimestamp === null) {
       showError(describe(error));
@@ -498,7 +596,7 @@ function wire(): void {
     button.addEventListener('click', () => setWeightMode((button.dataset['mode'] ?? 'weight') as WeightMode));
   }
 
-  setupShell(showRoute, hasCredentials(getCredentials()), getLogAccess() !== null);
+  setupShell(showRoute, hasCredentials(getCredentials()), canLogTraining());
   // Der Plan wechselt nach einer Uebernahme selbst auf Woche, der Hash zieht nach.
   onPlanViewChange((view) => navigate(kuecheRouteFor(view)));
   setupRangeButtons(applyDateRange);

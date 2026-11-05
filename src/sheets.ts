@@ -21,6 +21,8 @@ const API_BASE = 'https://sheets.googleapis.com/v4/spreadsheets';
  */
 export const DAILY_RANGE = 'A:AD';
 export const TRAINING_RANGE = 'A:FZ';
+/** Logbuch Tab `TrainingSets`: acht Spalten, Luft fuer spaeter ergaenzte. */
+export const LOGBOOK_RANGE = 'A:Z';
 
 interface SheetsErrorBody {
   error?: { message?: string };
@@ -60,6 +62,11 @@ export function fetchDailySheet(sheetId: string, apiKey: string, sheetName: stri
 
 export function fetchTrainingSheet(sheetId: string, apiKey: string, sheetName: string): Promise<SheetValues> {
   return fetchRange(sheetId, apiKey, sheetName, TRAINING_RANGE);
+}
+
+/** Saetze aus der Tabelle des Gym Logbuchs (ADR 0008), nur lesend. */
+export function fetchLogbookSheet(sheetId: string, apiKey: string, sheetName: string): Promise<SheetValues> {
+  return fetchRange(sheetId, apiKey, sheetName, LOGBOOK_RANGE);
 }
 
 /** Titel aller Tabs, fuer die Wahl des Mesocycle beim Eintragen. */
