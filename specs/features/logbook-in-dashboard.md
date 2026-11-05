@@ -1,6 +1,6 @@
 # Logbuch im Dashboard
 
-Status: Entwurf 05.11.2026, Open questions beantwortet, wartet auf Freigabe. ADR 0010 Entwurf.
+Status: freigegeben 05.11.2026. ADR 0010.
 
 ## Goal
 Das Training wird direkt im Dashboard geloggt, mit dem Trainingsplan aus dem Recomp Logbuch, damit keine zweite App mehr nötig ist und jeder Satz im Sheet „Gym Logbuch“ landet.

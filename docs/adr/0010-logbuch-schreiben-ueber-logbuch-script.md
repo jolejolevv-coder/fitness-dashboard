@@ -1,6 +1,6 @@
 # ADR 0010: Training im Dashboard loggen, über das Apps Script des Logbuchs
 
-Status: Entwurf (05.11.2026). Spec: `specs/features/logbook-in-dashboard.md`.
+Status: angenommen (05.11.2026). Spec: `specs/features/logbook-in-dashboard.md`.
 
 ## Kontext
 
@@ -33,6 +33,6 @@ Endpunkt und Token liegen nur im localStorage. Das Script bleibt unverändert.
 
 ## Folgen
 
-* Harte Regel in `CLAUDE.md` wird um diesen dritten Weg ergänzt
+* Harte Regel in `CLAUDE.md` um diesen dritten Weg ergänzt
 * Ein Fehler in der App kann die Satzzeilen der laufenden Einheit
   überschreiben, nicht aber andere Einheiten

@@ -22,11 +22,13 @@ erlaubt.
 ## Harte Regeln
 
 * Kein direkter Schreibzugriff des Dashboards auf das Google Sheet, weder ueber
-  die Sheets API noch per OAuth. Es gibt genau zwei Schreibwege, beide ueber das
-  Apps Script und beide nur in leere Zellen, nichts anhaengen, nichts
+  die Sheets API noch per OAuth. Es gibt genau drei Schreibwege, alle ueber ein
+  Apps Script. Zwei schreiben nur in leere Zellen, nichts anhaengen, nichts
   ueberschreiben: der Daily Import nach ADR 0005 (leere Zellen vorhandener
   Datumszeilen) und Training eintragen nach ADR 0007 (leere Zellen `Load`,
-  `Reps Ist`, `Notes` eines Mesocycle Tabs)
+  `Reps Ist`, `Notes` eines Mesocycle Tabs). Der dritte ist das Logbuch nach
+  ADR 0010: das Apps Script des Gym Logbuchs haengt Zeilen an und ersetzt nur
+  die Zeilen derselben Einheit (`id` aus Datum und Tag), nie andere
 * Token und Endpunkt URL des Apps Script stehen in keiner Datei im Repo, nur in
   den Script Properties, im Shortcut und im localStorage der App
 * Keine Zielwerte, Schwellen oder Konstanten als Literal im Berechnungscode.
