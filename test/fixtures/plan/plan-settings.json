@@ -1,0 +1,57 @@
+{
+ "description": "Synthetischer Tab PlanSettings. Keine echten Daten.",
+ "values": [
+  [
+   "key",
+   "value"
+  ],
+  [
+   "warmup_first",
+   "0.5x8, 0.75x3"
+  ],
+  [
+   "warmup_region",
+   "0.6x5"
+  ],
+  [
+   "load_step",
+   "2.5"
+  ],
+  [
+   "no_warmup_region",
+   "abs"
+  ],
+  [
+   "general_Upper",
+   "Allgemein oben"
+  ],
+  [
+   "general_Lower",
+   "Allgemein unten"
+  ],
+  [
+   "range_full_text",
+   "Range voll"
+  ],
+  [
+   "region_Chest",
+   "push"
+  ],
+  [
+   "region_Rear Delts",
+   "pull"
+  ],
+  [
+   "region_Biceps",
+   "pull"
+  ],
+  [
+   "region_Quads",
+   "legs"
+  ],
+  [
+   "region_Abs",
+   "abs"
+  ]
+ ]
+}
