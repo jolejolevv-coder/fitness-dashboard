@@ -3,53 +3,39 @@
 ## Phase 20 Logbuch im Dashboard (05.11.2026)
 
 Spec `specs/features/logbook-in-dashboard.md` und ADR 0010 freigegeben, Branch
-`claude/logbook-in-dashboard` ab main `89b3a04`. 20.0 erledigt (`9e15ab7`,
-dritter Schreibweg in `CLAUDE.md`). Phase 19 ist live auf main.
+`claude/logbook-in-dashboard` ab main `89b3a04`, nicht gepusht. 20.0 bis 20.3
+erledigt (`9e15ab7`, `8e07292`, `e855d9b`, `ef455a5`), 20.4 Mesocycle
+ausgeblendet (`1e97fa7`). 604 Tests, Build gruen.
 
-Befund: Das Logbuch Artifact schreibt nur in die Artifact Datenbank (wenn
-`window.claude` da ist, wird das Sheet nie benutzt). Einzige echte Einheit:
-03.11. Tag 1, 6 Saetze, als Einfuegezeilen in `testdata/logbuch-2026-11-03.tsv`.
-Pages Fassung `me.nahobinoco.com/gym-logbook/` hat denselben Plan.
+Befund: Das Logbuch Artifact schreibt nur in die Artifact Datenbank, das Sheet
+blieb leer. Einzige echte Einheit 03.11. Tag 1 in `testdata/logbuch-2026-11-03.tsv`.
 
-20.1 bis 20.3 erledigt (Commits `8e07292`, `e855d9b`, 20.3 danach), nicht gepusht.
-Neu: `src/parse/plan.ts`, `src/logbook/` (session, sync, planCache, warmup,
-timer, index), `src/config/logbookAccess.ts` (Schluessel
-`fitness_logbook_access_v1`), Fixture `test/fixtures/plan/`. Plan Tabs `Plan`
-und `PlanSettings` nach `testdata/Plan.tsv`, `PlanSettings.tsv`. Eintragen
-zeigt mit Logbuch Sheet ID nur das Logbuch Formular, Mesocycle Code bleibt.
-Offen fuer 20.4: 375 px Pruefung, Live Satz, 03.11. ins Sheet, Plan Tabs im
-Sheet anlegen, Logbuch Script URL und Token in den Einstellungen.
+Neu: `src/parse/plan.ts`, `src/logbook/`, `src/config/logbookAccess.ts`
+(Schluessel `fitness_logbook_access_v1`), Fixture `test/fixtures/plan/`.
+Training zeigt nur das Logbuch, ohne Logbuch Sheet ID nur `Logbuch Sheet ID
+fehlt`. Mesocycle Code und Abruf bleiben (Zielwerte), Felder unsichtbar.
 
-Annahmen 20: Plan Pflichtspalten ohne typ, lastReps, kind. Satzzahl keine Zahl
-gibt PlanError mit Zeilennummer. Ohne `rest` kein Timer (kein Standardwert).
-Ohne `load_step` kein Aufwaermhinweis. Ohne Gewicht Worte leicht, mittel,
-schwer. Tagesvorwahl ueber den Wochentag im Label (`Montag · ...`), sonst Tag
-nach der letzten Einheit. Sitzungen ohne Plantag oder Daten gelten als gesendet.
-Gesendete Sitzungen bleiben 7 Tage lokal. Plan wird gecacht, Redraw nicht
-waehrend der Eingabe. Eintragen erscheint mit Logbuch ID auch ohne Script
-Zugang, Status dann `kein Zugang`. Hinweis Label immer `Hinweis`.
+Geprueft bei 375 px mit Fixturedaten im localStorage: Eintragen mit Letztes
+Mal, Plan Vorbelegung, Aufwaermzeile, Supersatz, Timer nach Haken, lokale
+Sitzung `pending`; Auswertung ohne Umschalter; kein waagerechter Lauf.
+
+Offen beim Nutzer (20.4): Tabs `Plan` und `PlanSettings` aus `testdata/*.tsv`
+per Datei, Importieren anlegen, Umwandlung von Text in Zahlen und Daten
+abgewaehlt (sonst wird `5-7` ein Datum). Einheit 03.11. einfuegen. In den
+Einstellungen Logbuch Script URL, Token und Logbuch Sheet ID. Ein echter Satz
+live, danach Freigabe zum Merge auf `main` und Push, Retros 18 bis 20.
+
+Annahmen 20: Plan Pflichtspalten ohne typ, lastReps, kind. Ohne `rest` kein
+Timer, ohne `load_step` kein Aufwaermhinweis. Tagesvorwahl ueber den Wochentag
+im Label, sonst Tag nach der letzten Einheit. Sitzungen ohne Plantag gelten als
+gesendet (Risiko: faellt ein Tag aus dem Plan, wird seine offene Sitzung nie
+gesendet). Gesendete Sitzungen bleiben 7 Tage lokal.
 
 ## Phase 19 Look des Recomp Logbuchs (05.11.2026)
 
-Spec `specs/features/logbook-look.md` freigegeben: nur dunkel, Barlow selbst
-mitgeliefert (ADR 0009, `public/fonts/`, 131 kB), Orange ersetzt Blau,
-Kochansicht gleicher Look. Branch `claude/logbook-look` ab `f54794c`, nicht
-gepusht.
-
-Stand: 19.0 bis 19.3 erledigt, 19.4 bis auf Nutzerschritte. Commits `4e4ee3e`
-(Tokens, Schrift), `fc30c2e` (Bausteine), `0a6e768` (Training, Felder), danach
-19.4 mit `DESIGN.md` neu. CSS 5,66 kB gzip, Kontraste ab 6,2 zu 1, Tippflaechen
-ab 44 px, kein waagerechter Seitenlauf bei 375 und 1280 px. Heute, Verlauf,
-Kueche samt Kochansicht und Einstellungen geprueft, Kueche ohne eigene
-Aenderung. Alte Hexwerte nur noch in `public/icon.svg` (App Symbol, out of scope).
-
-Offen fuer den Nutzer: Freigabe zum Merge auf `main` und Push, danach Live
-Pruefung am Handy neben dem Logbuch (Vergleichsbilder), dann Retro in der Roadmap.
-
-Annahmen 19: Uebungsname im Eintragen Formular hell 17 px statt grauem Etikett
-wie im Logbuch. Lastfelder 52 px in Condensed 22 px, Notizfeld bleibt Barlow
-16 px. Markierungen Radius 4 px wie die Tags im Logbuch. Segmentpuck entfaellt,
-Segmente sind Einzelknoepfe. Kapseln 44 px hoch statt 36 px.
+Live auf main `89b3a04`. Spec `specs/features/logbook-look.md`, ADR 0009,
+`DESIGN.md` neu. Offen: Retro. Annahmen 19: Lastfelder 52 px Condensed 22 px,
+Markierungen Radius 4 px, Segmente als Einzelknoepfe, Kapseln 44 px.
 
 ## Phase 18 Training aus dem Gym Logbuch (05.11.2026)
 

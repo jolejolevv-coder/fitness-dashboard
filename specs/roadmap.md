@@ -28,7 +28,8 @@ Phasen 0 bis 6 sowie Redesign, Polish und Oberflaeche nach Systemvorbild sind ab
 * Phase 16 Zubereitung je Gericht: live 27.10.2026 (`ec4d51a`), Retro offen
 * Phase 17 Rezepte statt Prep, Vorschlag ausblenden: Spec `specs/features/recipes-section.md`, live 27.10.2026, Retro offen
 * Phase 18 Training aus dem Gym Logbuch: Spec `specs/features/training-from-logbook.md` und ADR 0008 freigegeben 05.11.2026. Daily weiter aus dem alten Sheet, Training aus Tab `TrainingSets` der Logbuch Tabelle. 18.0 erledigt, 18.1 bis 18.3 gebaut 05.11.2026 auf Branch `claude/training-from-logbook` (571 Tests, Haupt Chunk 41,61 kB gzip), live auf main seit 05.11.2026, Tabelle per Link lesbar. Offen beim Nutzer: Sheet ID eintragen, Pruefung nach der ersten geloggten Einheit, Retro
-* Phase 19 Dashboard im Look des Recomp Logbuchs: Spec `specs/features/logbook-look.md` freigegeben 05.11.2026, ADR 0009. 19.0 bis 19.3 erledigt auf Branch `claude/logbook-look`, `DESIGN.md` neu. Offen: Freigabe zum Merge, Live Pruefung am Handy, Retro
+* Phase 19 Look des Recomp Logbuchs: live auf main seit 05.11.2026 (`89b3a04`), ADR 0009. Offen: Retro
+* Phase 20 Logbuch im Dashboard: Spec `specs/features/logbook-in-dashboard.md`, ADR 0010 freigegeben 05.11.2026. Gebaut auf `claude/logbook-in-dashboard`. Offen: Plan Tabs, Zugang, Live Satz, Merge
 
 ## Naechste Schritte
 

@@ -22,7 +22,7 @@ Das Training wird direkt im Dashboard geloggt, mit dem Trainingsplan aus dem Rec
 * Out of scope:
   * Änderungen am Apps Script und am Logbuch selbst.
   * Plan bearbeiten im Dashboard (der Plan wird im Sheet gepflegt).
-  * Mesocycle Eintragen nach ADR 0007 bleibt für alte Tabs, wird nicht entfernt.
+  * Mesocycle Eintragen nach ADR 0007 bleibt im Code, ist aber ausgeblendet (Entscheidung 6).
 
 ## Acceptance criteria
 - [ ] Unter Training, Eintragen erscheinen die vier Tage aus dem Tab `Plan`, der heutige Wochentag ist vorgewählt.
@@ -45,6 +45,9 @@ Phase 20.4: Prüfung bei 375 px, Live Test mit einem echten Satz, Übergabe, Mer
 2. Plan im neuen Tab `Plan` des Sheets „Gym Logbuch“, befüllt aus dem jetzigen Plan.
 3. Umfang wie das Logbuch, mit Pausentimer und Aufwärmhinweisen.
 4. Logbuch als eigene Seite und Artifact bleiben unberührt.
+5. Grill Runde: Datum immer heute, kein Datumsfeld. Letztes Mal je Trainingstag (Tag und Übung). Speichern automatisch und verzögert, kein Sendeknopf. Bildschirmsperre aus nur während der Timer läuft. Ohne eigene Historie kommt der kg Platzhalter aus `lastLoad` im Plan. Fertig heißt: ein echter Satz liegt in `TrainingSets` und erscheint in der Auswertung, vorher kein Merge.
+6. Mesocycle wird nur ausgeblendet (Q10): kein Umschalter, keine Mesocycle Felder in den Einstellungen, Code und Abruf bleiben für die Zielwerte. Training zeigt nur das Logbuch.
+7. Ohne Logbuch Sheet ID zeigt Training nur `Logbuch Sheet ID fehlt` (Q11).
 
 ## Annahmen
 * Aufwärmstufen (heute 50 und 75 Prozent beim ersten Satz des Tages, 60 Prozent bei einer neuen Muskelregion) und die Zuordnung Muskel zu Region stehen als Werte in einem Tab `PlanSettings`, nicht im Code.
