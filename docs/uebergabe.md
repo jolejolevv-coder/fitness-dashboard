@@ -1,5 +1,12 @@
 # Uebergabe
 
+## Phase 19 Look des Recomp Logbuchs (05.11.2026)
+
+Wunsch des Nutzers: das ganze Dashboard sieht aus wie das Recomp Logbuch
+(`gym-logbook/index.html`, OLED Schwarz, Orange, Barlow). Spec
+`specs/features/logbook-look.md` als Entwurf, wartet auf Freigabe. Gebaut wird
+erst danach, auf eigenem Branch.
+
 ## Phase 18 Training aus dem Gym Logbuch (05.11.2026)
 
 Spec `specs/features/training-from-logbook.md` und ADR 0008 freigegeben,
