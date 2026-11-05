@@ -40,7 +40,7 @@ import { renderShopping } from './ui/shopping';
 import { onPlanSourceChange } from './ui/planSource';
 import { sheetDayGoals } from './nutrition/goals';
 import { attachChartExports, downloadCsv } from './ui/export';
-import { loadCharts, loadedCharts, type Charts } from './ui/charts';
+import { loadCharts, type Charts } from './ui/charts';
 
 /**
  * Ladepolitik.
@@ -604,12 +604,7 @@ function wire(): void {
   onPlanSourceChange(() => dirty.add('shopping'));
   attachChartExports();
 
-  // Diagrammfarben folgen dem Schema, ein Wechsel zeichnet die sichtbaren Diagramme neu.
-  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
-    loadedCharts()?.destroyAllCharts();
-    for (const name of CHART_SECTIONS) dirty.add(name);
-    renderActiveSection();
-  });
+  // Nur dunkel seit Phase 19, ein Wechsel des Systemschemas zeichnet nichts neu.
 
   document.addEventListener('visibilitychange', () => {
     if (!document.hidden) void loadData();

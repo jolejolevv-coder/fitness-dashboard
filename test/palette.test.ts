@@ -16,8 +16,9 @@ describe('Diagrammfarben', () => {
     expect(withAlpha('banane', 0.5)).toBe('banane');
   });
 
-  it('liefert ohne Dokument die hellen Rueckfallwerte', () => {
-    expect(COLORS.blue).toBe('#1d5fc4');
-    expect(COLORS.data).toBe('rgba(27, 30, 32, 0.55)');
+  it('liefert ohne Dokument die Rueckfallwerte des Logbuch Schemas', () => {
+    expect(COLORS.accent).toBe('#ff6b2c');
+    expect(COLORS.data).toBe('rgba(238, 241, 243, 0.55)');
+    expect(COLORS.warn).toBe('#ffc65c');
   });
 });

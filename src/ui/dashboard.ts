@@ -66,7 +66,7 @@ export function renderDashboard(input: DashboardInput): SectionRenderers | null 
   return {
     overview: (charts) => {
       renderLegend(charts.renderWeightChart('weightChart', daily, weightMode, targetWeightKg));
-      charts.barChart('stepsChart', labels, rows.map((r) => r.steps), COLORS.blue);
+      charts.barChart('stepsChart', labels, rows.map((r) => r.steps), COLORS.accent);
       weeklyChart(charts, 'weeklyChart', weekLabels, weekAverages);
     },
     nutrition: (charts) => {
@@ -85,7 +85,7 @@ export function renderDashboard(input: DashboardInput): SectionRenderers | null 
     wellness: (charts) => {
       renderWellnessSparks(charts, daily);
       charts.lineChart('sleepChart', allLabels, daily.map((r) => r.sleep), COLORS.data, true, WELLNESS_REFERENCES.sleepH);
-      charts.lineChart('energyChart', allLabels, daily.map((r) => r.energy), COLORS.blue, true, WELLNESS_REFERENCES.energy);
+      charts.lineChart('energyChart', allLabels, daily.map((r) => r.energy), COLORS.accent, true, WELLNESS_REFERENCES.energy);
       charts.lineChart('stressChart', allLabels, daily.map((r) => r.stress), COLORS.data, true, WELLNESS_REFERENCES.stress);
       charts.lineChart('digestionChart', allLabels, daily.map((r) => r.digestion), COLORS.data, true, WELLNESS_REFERENCES.digestion);
       renderCorrelation(daily);
@@ -203,7 +203,7 @@ function renderMacroChart(charts: Charts, daily: readonly DailyEntry[], goals: G
             Math.round(avg(daily.map((e) => e.carbs)) ?? 0),
             Math.round(avg(daily.map((e) => e.fat)) ?? 0),
           ],
-          backgroundColor: COLORS.blue,
+          backgroundColor: COLORS.accent,
           borderRadius: 3,
           barPercentage: 0.55,
         },

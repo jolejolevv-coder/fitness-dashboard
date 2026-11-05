@@ -3,10 +3,10 @@
  *
  * Chart.js zeichnet auf ein Canvas und kennt kein `var()`. Die Werte werden
  * deshalb bei jedem Zugriff aus dem Wurzelelement gelesen und folgen so dem
- * hellen und dem dunklen Schema. Halbtransparenz entsteht ueber `withAlpha`,
+ * Schema des Recomp Logbuchs (nur dunkel). Halbtransparenz entsteht ueber `withAlpha`,
  * `color-mix` geht im Canvas nicht zuverlaessig.
  *
- * Markerregel: Daten ink, Bedienung und Prognose blau, gut gruen, schlecht rot.
+ * Markerregel: Daten ink, Bedienung und Prognose orange, gut gruen, schlecht rot, Warnung amber.
  */
 
 /** Alpha Stufen der Datenfarbe auf dem Brett. */
@@ -15,16 +15,17 @@ const ALPHA_FAINT = 0.28;
 const ALPHA_LINE = 0.16;
 const ALPHA_WASH = 0.1;
 
-/** Helle Werte, falls kein Dokument da ist (Tests ohne DOM). */
+/** Werte aus `src/styles.css`, falls kein Dokument da ist (Tests ohne DOM). */
 const FALLBACK: Readonly<Record<string, string>> = {
-  '--ink': '#1b1e20',
-  '--ink-2': '#555c60',
-  '--ink-3': '#636a6e',
-  '--blue': '#1d5fc4',
-  '--green': '#1d7f48',
-  '--red': '#c4372d',
-  '--card': '#fbfcfb',
-  '--rail-edge': '#c9cfcd',
+  '--ink': '#eef1f3',
+  '--ink-2': '#9ba5ae',
+  '--ink-3': '#8a949d',
+  '--accent': '#ff6b2c',
+  '--green': '#5fd47a',
+  '--red': '#ff7a6e',
+  '--warn': '#ffc65c',
+  '--card': '#0d0f11',
+  '--rail-edge': '#252a30',
 };
 
 const HEX_SHORT = /^#([0-9a-f])([0-9a-f])([0-9a-f])$/i;
@@ -59,23 +60,21 @@ function token(name: string): string {
 /** Lebendige Sicht: jeder Zugriff liest die aktuellen Custom Properties. */
 export const COLORS = {
   get ink() { return token('--ink'); },
-  get blue() { return token('--blue'); },
-  /** Farbe der Bedienung und der Prognose. */
-  get accent() { return token('--blue'); },
-  get info() { return token('--blue'); },
+  /** Farbe der Bedienung, des Fortschritts und der Prognose. */
+  get accent() { return token('--accent'); },
+  get info() { return token('--accent'); },
   get good() { return token('--green'); },
   get pos() { return token('--green'); },
   get bad() { return token('--red'); },
   get neg() { return token('--red'); },
-  /** Eine eigene Warnfarbe gibt es nicht, daneben heisst rot. */
-  get warn() { return token('--red'); },
+  get warn() { return token('--warn'); },
   /** Haupt Datenzug. */
   get data() { return withAlpha(token('--ink'), ALPHA_DATA); },
   /** Zurueckhaltend, fuer Tageswerte hinter einer Trendlinie. */
   get faint() { return withAlpha(token('--ink'), ALPHA_FAINT); },
   get soft() { return withAlpha(token('--ink'), ALPHA_FAINT); },
   get line() { return withAlpha(token('--ink'), ALPHA_LINE); },
-  get wash() { return withAlpha(token('--blue'), ALPHA_WASH); },
+  get wash() { return withAlpha(token('--accent'), ALPHA_WASH); },
   get muted() { return token('--ink-2'); },
   get dim() { return token('--ink-3'); },
   /** Achsenbeschriftung, Gitter und Tooltip. */
