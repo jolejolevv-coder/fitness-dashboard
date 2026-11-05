@@ -202,3 +202,31 @@ export function formatKg(value: number | string): string {
 export function isNumeric(value: string): boolean {
   return /^\d+([.,]\d+)?$/.test(value.trim());
 }
+
+/** Teil `index` eines Planwerts wie `70 / 60` oder `10-9-9`, sonst der letzte Teil. */
+function planPart(value: string, index: number, separator: RegExp): string {
+  const parts = value.split(separator).map((part) => part.trim()).filter(Boolean);
+  return parts[index] ?? parts[parts.length - 1] ?? '';
+}
+
+/**
+ * Vorschlag fuer kg und Wdh eines Satzes. Erst das letzte Mal, dann der Plan
+ * (`lastLoad`, `lastReps` je Satz), fuer Wdh zuletzt die Obergrenze der Range.
+ */
+export function setPlaceholders(
+  exercise: PlanExercise,
+  index: number,
+  last: LastSession | null,
+): { kg: string; reps: string } {
+  const previous = last ? (last.sets[index] ?? last.sets[last.sets.length - 1]) : null;
+  const fallbackReps = String(rangeTop(rangeFor(exercise, index)) ?? '');
+  if (previous) {
+    return { kg: formatKg(previous.kg), reps: String(previous.reps || fallbackReps) };
+  }
+  const planKg = planPart(exercise.lastLoad, index, /\//);
+  const planReps = planPart(exercise.lastReps, index, /[/-]/);
+  return {
+    kg: isNumeric(planKg) ? formatKg(planKg) : '',
+    reps: isNumeric(planReps) ? planReps : fallbackReps,
+  };
+}

@@ -5,7 +5,7 @@ import { parsePlan, parsePlanSettings } from '../src/parse/plan';
 import { readLoggedHistory } from '../src/parse/trainingSets';
 import {
   buildRows, defaultDay, doneCount, ensureSets, isRangeFull, loadSession, markSent, newSession, pruneSessions,
-  rangeFor, rangeTop, saveSession, sessionId, KEEP_SENT_DAYS, type Session,
+  rangeFor, rangeTop, saveSession, sessionId, setPlaceholders, KEEP_SENT_DAYS, type Session,
 } from '../src/logbook/session';
 import { flushPending, sendSession } from '../src/logbook/sync';
 import { formatClock } from '../src/logbook/timer';
@@ -244,5 +244,34 @@ describe('Timer (20.3)', () => {
     expect(formatClock(150)).toBe('2:30');
     expect(formatClock(5)).toBe('0:05');
     expect(formatClock(0)).toBe('0:00');
+  });
+});
+
+describe('setPlaceholders', () => {
+  const base = { ...bench, r1: '5-7', r2: '6-9' };
+  const last = { date: '2026-11-02', sets: [{ kg: 72.5, reps: 7 }, { kg: 70, reps: 0 }] };
+
+  it('nimmt das letzte Mal je Satz', () => {
+    expect(setPlaceholders(base, 0, last as never)).toEqual({ kg: '72,5', reps: '7' });
+  });
+
+  it('nimmt ohne Wdh im Verlauf die Obergrenze der Range', () => {
+    expect(setPlaceholders(base, 1, last as never).reps).toBe('9');
+  });
+
+  it('teilt lastLoad und lastReps des Plans je Satz', () => {
+    const ex = { ...base, lastLoad: '70 / 60', lastReps: '4 / 7' };
+    expect(setPlaceholders(ex, 0, null)).toEqual({ kg: '70', reps: '4' });
+    expect(setPlaceholders(ex, 1, null)).toEqual({ kg: '60', reps: '7' });
+  });
+
+  it('nimmt fuer mehr Saetze als Planwerte den letzten Planwert', () => {
+    const ex = { ...base, lastLoad: '7.5', lastReps: '10-9-9' };
+    expect(setPlaceholders(ex, 3, null)).toEqual({ kg: '7,5', reps: '9' });
+  });
+
+  it('laesst kg ohne Daten leer und schlaegt Wdh aus der Range vor', () => {
+    const ex = { ...base, lastLoad: '', lastReps: '' };
+    expect(setPlaceholders(ex, 0, null)).toEqual({ kg: '', reps: '7' });
   });
 });

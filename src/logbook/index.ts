@@ -9,7 +9,7 @@ import { refusalCard } from '../ui/cards';
 import { loadPlanCache, savePlanCache, type PlanRows } from './planCache';
 import {
   defaultDay, doneCount, ensureSets, formatKg, hasData, isNumeric, isRangeFull, loadSession, loadSessions, newSession,
-  pruneSessions, rangeFor, rangeTop, saveSession, sessionId, todayIso, type Session, type SetState,
+  pruneSessions, rangeFor, rangeTop, saveSession, setPlaceholders, sessionId, todayIso, type Session, type SetState,
 } from './session';
 import { flushPending, NETWORK_ERROR } from './sync';
 import { createOverlay, formatClock, unlockAudio, type Overlay } from './timer';
@@ -260,10 +260,7 @@ function draw(): void {
   const cards = day.exercises.map((exercise, index) => exerciseCard(day, exercise, index, session));
   const general = generalTextFor(state.settings, day.label);
   const generalBox = general
-    ? el('details', { class: 'lb-note', attrs: { ...(doneCount(session, day).done === 0 ? { open: '' } : {}) } }, [
-      el('summary', { text: 'Aufwärmen allgemein' }),
-      el('p', { text: general }),
-    ])
+    ? noteBox('Vor dem Training', general, false, doneCount(session, day).done === 0)
     : null;
   view.replaceChildren(
     dayChips,
@@ -286,7 +283,7 @@ function lastText(exercise: PlanExercise, last: LastSession | null): string {
     return `Letztes Mal ${dayOfMonth}.${month}.: ${last.sets.map((s) => `${formatKg(s.kg)} × ${s.reps}`).join(', ')}`;
   }
   if (exercise.lastLoad) return `Aus dem Plan: ${formatKg(exercise.lastLoad)} kg × ${exercise.lastReps || '–'}`;
-  return 'Keine Daten';
+  return 'Neue Übung: Startgewicht testen';
 }
 
 function exerciseCard(day: PlanDay, exercise: PlanExercise, index: number, session: Session): HTMLElement {
@@ -311,20 +308,41 @@ function exerciseCard(day: PlanDay, exercise: PlanExercise, index: number, sessi
     rangeFull ? el('div', { class: 'card-basis is-ok', text: rangeFull }) : null,
     warmup ? el('div', { class: 'card-basis', text: `Aufwärmen: ${warmup}` }) : null,
     el('div', { class: 'lb-sets' }, sets.map((set, k) => setRow(day, exercise, set, k, last))),
-    exercise.tip ? el('details', { class: 'lb-note' }, [el('summary', { text: 'Hinweis' }), el('p', { text: exercise.tip })]) : null,
+    exercise.tip
+      ? noteBox(RISK_PATTERN.test(exercise.tip) ? 'Hernie beachten' : 'Hinweis', exercise.tip, RISK_PATTERN.test(exercise.tip), false)
+      : null,
   ]);
 }
 
-/** Platzhalter aus dem letzten Mal, ohne Verlauf aus `lastLoad` des Plans. */
-function placeholders(exercise: PlanExercise, index: number, last: LastSession | null): { kg: string; reps: string } {
-  const previous = last ? (last.sets[index] ?? last.sets[last.sets.length - 1]) : null;
-  if (previous) return { kg: formatKg(previous.kg), reps: String(previous.reps) };
-  return { kg: isNumeric(exercise.lastLoad) ? formatKg(exercise.lastLoad) : '', reps: '' };
+const SVG_NS = 'http://www.w3.org/2000/svg';
+
+/** Pfeil der aufklappbaren Zeilen, wie im Logbuch. */
+function chevron(): SVGSVGElement {
+  const svg = document.createElementNS(SVG_NS, 'svg');
+  svg.setAttribute('class', 'lb-chev');
+  svg.setAttribute('viewBox', '0 0 24 24');
+  svg.setAttribute('fill', 'none');
+  svg.setAttribute('stroke', 'currentColor');
+  svg.setAttribute('stroke-width', '2.5');
+  svg.setAttribute('aria-hidden', 'true');
+  const path = document.createElementNS(SVG_NS, 'path');
+  path.setAttribute('d', 'm6 9 6 6 6-6');
+  svg.append(path);
+  return svg;
+}
+
+/** Hinweise mit Hernie stehen wie im Logbuch als Warnung da. */
+const RISK_PATTERN = /Hernie/;
+
+function noteBox(label: string, text: string, risk: boolean, open: boolean): HTMLElement {
+  const summary = el('summary', {}, [el('span', { text: label })]);
+  summary.append(chevron());
+  return el('details', { class: risk ? 'lb-note is-risk' : 'lb-note', attrs: open ? { open: '' } : {} }, [summary, el('p', { text })]);
 }
 
 function setRow(day: PlanDay, exercise: PlanExercise, set: SetState, index: number, last: LastSession | null): HTMLElement {
   const range = rangeFor(exercise, index);
-  const placeholder = placeholders(exercise, index, last);
+  const placeholder = setPlaceholders(exercise, index, last);
 
   const kg = el('input', {
     class: 'lb-input',

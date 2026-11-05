@@ -927,7 +927,12 @@ body.no-sheet .settings-export { display: none; }
 .log-card.is-done { border-color: var(--accent); }
 
 .lb-note { margin-top: 10px; }
-.lb-note summary { min-height: var(--tap); display: flex; align-items: center; color: var(--ink-2); font: 600 15px/1.2 var(--text); cursor: pointer; }
+.lb-note summary { min-height: var(--tap); display: flex; align-items: center; justify-content: space-between; gap: 8px; list-style: none; color: var(--ink-2); font: 600 15px/1.2 var(--text); cursor: pointer; }
+.lb-note summary::-webkit-details-marker { display: none; }
+.lb-note.is-risk summary { color: var(--warn); }
+.lb-chev { width: 18px; height: 18px; flex: none; color: var(--ink-3); transition: transform .2s; }
+.lb-note[open] > summary .lb-chev { transform: rotate(180deg); }
+@media (prefers-reduced-motion: reduce) { .lb-chev { transition: none; } }
 .lb-note p { margin: 0 0 6px; color: var(--ink-2); font-size: 14px; line-height: 1.4; }
 .logbook-day + .lb-note { margin: 0 0 6px; }
 .lb-timer {

@@ -25,6 +25,13 @@ als Nur Text angelegt, Einheit 03.11. in `TrainingSets` (6 Saetze) und
 Offen beim Nutzer (20.4): in den Einstellungen Logbuch Script URL, Token und
 Logbuch Sheet ID. Ein echter Satz live, dann Retros 18 bis 20.
 
+20.5 (05.11., Branch `claude/logbook-eins-zu-eins`): Nutzer will das Formular
+eins zu eins wie das Logbuch. Platzhalter je Satz aus dem letzten Mal, sonst
+`lastLoad` und `lastReps` des Plans je Satz (`70 / 60`, `10-9-9`), Wdh zuletzt
+Obergrenze der Range (`setPlaceholders`). Hinweis und Vor dem Training mit Pfeil,
+Tipps mit Hernie als `Hernie beachten` in Amber, ohne Daten `Neue Übung:
+Startgewicht testen`. Ohne kg im Plan und ohne Verlauf bleibt kg leer wie im Logbuch.
+
 Annahmen 20: Plan Pflichtspalten ohne typ, lastReps, kind. Ohne `rest` kein
 Timer, ohne `load_step` kein Aufwaermhinweis. Tagesvorwahl ueber den Wochentag
 im Label, sonst Tag nach der letzten Einheit. Sitzungen ohne Plantag gelten als
