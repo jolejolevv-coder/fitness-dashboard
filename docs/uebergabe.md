@@ -6,6 +6,11 @@ Wunsch des Nutzers: das ganze Dashboard sieht aus wie das Recomp Logbuch
 (`gym-logbook/index.html`, OLED Schwarz, Orange, Barlow). Spec
 `specs/features/logbook-look.md` als Entwurf, wartet auf Freigabe. Gebaut wird
 erst danach, auf eigenem Branch.
+Freigegeben 05.11.2026: nur dunkel, Barlow selbst mitgeliefert (ADR 0009,
+`public/fonts/`, 131 kB statt geschaetzter 60 kB), Orange ersetzt Blau,
+Kochansicht gleicher Look. Branch `claude/logbook-look` ab `f54794c`. Stand:
+19.0 erledigt, naechster Schritt 19.1 Tokens und Schrift in `src/styles.css`
+(Diagramme lesen Tokens ueber `COLORS` in `src/ui/palette.ts`).
 
 ## Phase 18 Training aus dem Gym Logbuch (05.11.2026)
 

@@ -35,7 +35,7 @@ function progressiveWebApp(): Plugin[] {
       icons: [...MANIFEST_ICONS],
     },
     injectManifest: {
-      globPatterns: ['**/*.{js,css,html,svg,png,ico}'],
+      globPatterns: ['**/*.{js,css,html,svg,png,ico,woff2}'],
       globIgnores: ['preview/**'],
     },
   });

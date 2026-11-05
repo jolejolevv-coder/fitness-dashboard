@@ -1,6 +1,6 @@
 # Dashboard im Look des Recomp Logbuchs
 
-Status: Entwurf 05.11.2026, wartet auf Freigabe.
+Status: freigegeben 05.11.2026, Open questions 1 bis 3 wie vorgeschlagen, 4 gleicher Look wie vorgeschlagen. ADR 0009.
 
 ## Goal
 Das ganze Dashboard bekommt den Look des Recomp Logbuchs (`gym-logbook`), damit beide Seiten aussehen wie aus einem Guss.
@@ -38,7 +38,13 @@ Phase 19.2: Bausteine. Karten, Kapseln, Segmente, Navigation, Knöpfe, Felder, F
 Phase 19.3: Ziel für Ziel Feinschliff mit Vergleich zum Logbuch bei 375 px: Training, Heute, Woche, Küche, Einstellungen. Je Ziel ein Commit.
 Phase 19.4: `DESIGN.md` neu, Retro, Freigabe zum Merge, Live Prüfung am Handy.
 
-## Open questions
+## Entscheidungen (05.11.2026)
+1. Nur dunkel, heller Modus entfällt.
+2. Barlow und Barlow Condensed selbst mitgeliefert unter `public/fonts/`, ADR 0009.
+3. Orange ersetzt Blau als einzige Akzentfarbe.
+4. Kochansicht im gleichen Look.
+
+## Open questions (Entwurf, beantwortet)
 1. Nur dunkel? Das Logbuch kennt nur OLED Schwarz. „Genau gleich“ heißt: heller Modus entfällt, auch wenn das Handy hell eingestellt ist. Nachteil: draußen in der Sonne schlechter lesbar. Vorschlag: nur dunkel, wie das Logbuch.
 2. Schrift: Das Logbuch lädt Barlow von Google Fonts. Fürs Dashboard schlage ich vor, die Schriftdateien selbst mitzuliefern (`public/fonts/`, Lizenz OFL, etwa 60 kB, vom Service Worker vorgehalten). Gewinn: funktioniert offline, CSP bleibt streng, keine Anfrage an Google. Kosten: einmal etwa 60 kB mehr beim ersten Laden. Alternative: wie das Logbuch von Google Fonts, dann CSP um zwei Hosts erweitern und offline fällt die Schrift auf Arial zurück.
 3. Akzentfarbe: Im Logbuch heißt Orange „Fortschritt und das Nächste“. Im Dashboard ist Blau heute die Farbe für Bedienung und Prognose. Vorschlag: Orange übernimmt beides, Blau entfällt.
