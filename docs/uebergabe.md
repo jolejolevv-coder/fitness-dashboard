@@ -3,7 +3,7 @@
 ## Phase 20 Logbuch im Dashboard (05.11.2026)
 
 Spec `specs/features/logbook-in-dashboard.md` und ADR 0010 freigegeben, Branch
-`claude/logbook-in-dashboard` ab main `89b3a04`, nicht gepusht. 20.0 bis 20.3
+`claude/logbook-in-dashboard`, live auf main seit 05.11.2026 (`ec7f2c4`). 20.0 bis 20.3
 erledigt (`9e15ab7`, `8e07292`, `e855d9b`, `ef455a5`), 20.4 Mesocycle
 ausgeblendet (`1e97fa7`). 604 Tests, Build gruen.
 
@@ -23,8 +23,7 @@ Im Sheet erledigt (05.11.): Tabs `Plan` (32 Uebungen) und `PlanSettings`
 als Nur Text angelegt, Einheit 03.11. in `TrainingSets` (6 Saetze) und
 `TrainingLog` ab Zeile 3, Zeile `verbindungstest` unberuehrt.
 Offen beim Nutzer (20.4): in den Einstellungen Logbuch Script URL, Token und
-Logbuch Sheet ID. Ein echter Satz live, danach Freigabe zum Merge auf `main`
-und Push, Retros 18 bis 20.
+Logbuch Sheet ID. Ein echter Satz live, dann Retros 18 bis 20.
 
 Annahmen 20: Plan Pflichtspalten ohne typ, lastReps, kind. Ohne `rest` kein
 Timer, ohne `load_step` kein Aufwaermhinweis. Tagesvorwahl ueber den Wochentag
