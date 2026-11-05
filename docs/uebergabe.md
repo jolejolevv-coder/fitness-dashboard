@@ -1,5 +1,18 @@
 # Uebergabe
 
+## Phase 18 Training aus dem Gym Logbuch (05.11.2026)
+
+Spec `specs/features/training-from-logbook.md` und ADR 0008 freigegeben,
+Open questions 1 bis 4 wie vorgeschlagen. 18.0 erledigt. Startprompt 18.1 bis
+18.3: Lies CLAUDE.md, specs/roadmap.md, diesen Abschnitt, die Spec und ADR 0008.
+Arbeite auf Branch `claude/training-from-logbook`, nicht auf `main`. Baue 18.1
+bis 18.3 nach der Spec, Tests im selben Schritt, pruefe bei 375 px. Kein Push
+und kein Merge ohne Freigabe. 18.4 braucht den Nutzer (Logbuch Tabelle per
+Link lesbar, Sheet ID eintragen, Live Test).
+Logbuch Spalten in `TrainingSets`: `id`, `date` (`YYYY-MM-DD`), `tag`
+(`Tag 1` bis `Tag 4`), `exercise`, `muscle`, `set`, `kg` (Zahl), `reps` (Zahl),
+nur abgehakte Saetze. Quelle: `gym-logbook/apps-script/Code.gs`.
+
 Stand 27.10.2026, Phase 12 live, offen nur der iPhone Test des Nutzers. Phase 13 freigegeben, 13.1 bis 13.4 erledigt, naechster Schritt 13.5 mit dem Nutzer.
 
 ## Wo wir stehen

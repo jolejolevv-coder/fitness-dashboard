@@ -29,6 +29,7 @@ Stand der Qualitaet: 88 Tests, Lint, Typpruefung und Build sauber. Geprueft bei 
 * Phase 15 Gewicht und Schritte automatisch: Spec `specs/features/daily-weight-steps.md` freigegeben 27.10.2026. 15.1 und 15.2 erledigt (Script unveraendert, Anleitung `docs/daily-import-setup.md`), 15.3 beim Nutzer
 * Phase 16 Zubereitung je Gericht: live 27.10.2026 (`ec4d51a`), Retro offen
 * Phase 17 Rezepte statt Prep, Vorschlag ausblenden: Spec `specs/features/recipes-section.md`, live 27.10.2026, Retro offen
+* Phase 18 Training aus dem Gym Logbuch: Spec `specs/features/training-from-logbook.md` und ADR 0008 freigegeben 05.11.2026. Daily weiter aus dem alten Sheet, Training aus Tab `TrainingSets` der Logbuch Tabelle. 18.0 erledigt, naechster Schritt 18.1 Parser
 
 ## Naechste Schritte
 
