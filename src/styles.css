@@ -891,3 +891,37 @@ body.no-sheet .settings-export { display: none; }
 /* Segment Rezepte: Chips stehen im Fluss der Karten, nicht am Seitenrand. */
 #plan-content .chips { margin-bottom: 6px; }
 #plan-content .meal-body .chips { margin: 0 0 6px; padding-left: 0; padding-right: 0; }
+
+/* ── Logbuch Formular (Phase 20) ───────────────────────────────────────────── */
+
+.logbook-day { margin: 4px 0 0; }
+.lb-tags { display: flex; align-items: center; gap: 8px; margin-top: 6px; }
+.lb-sets { display: grid; gap: 8px; margin-top: 10px; }
+.lb-set { display: grid; grid-template-columns: 24px minmax(0, 1fr) minmax(0, 1fr) var(--tap); gap: 8px; align-items: center; }
+.lb-n { font: 700 17px/1 var(--num); color: var(--ink-3); text-align: center; }
+.lb-field { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.lb-field > span { font: 600 12px/1.2 var(--text); color: var(--ink-3); }
+.lb-input {
+  width: 100%;
+  min-height: 52px;
+  padding: 0 12px;
+  border: 1px solid var(--rail-edge);
+  border-radius: var(--radius-s);
+  background: var(--card-sunk);
+  color: var(--ink);
+  font: 700 22px/1 var(--num);
+  font-variant-numeric: tabular-nums;
+}
+.lb-input::placeholder { color: var(--ink-3); opacity: 0.6; }
+.lb-check {
+  width: var(--tap);
+  height: 52px;
+  border: 1px solid var(--rail-edge);
+  border-radius: var(--radius-s);
+  background: var(--card-sunk);
+  color: var(--accent-ink);
+  font: 700 22px/1 var(--num);
+  cursor: pointer;
+}
+.lb-check.is-on { background: var(--accent); border-color: var(--accent); }
+.log-card.is-done { border-color: var(--accent); }

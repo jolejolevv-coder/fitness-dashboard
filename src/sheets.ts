@@ -69,6 +69,11 @@ export function fetchLogbookSheet(sheetId: string, apiKey: string, sheetName: st
   return fetchRange(sheetId, apiKey, sheetName, LOGBOOK_RANGE);
 }
 
+/** Tabs `Plan` und `PlanSettings` der Logbuch Tabelle (ADR 0010), nur lesend. */
+export function fetchPlanSheet(sheetId: string, apiKey: string, sheetName: string): Promise<SheetValues> {
+  return fetchRange(sheetId, apiKey, sheetName, LOGBOOK_RANGE);
+}
+
 /** Titel aller Tabs, fuer die Wahl des Mesocycle beim Eintragen. */
 export async function fetchSheetTitles(sheetId: string, apiKey: string): Promise<string[]> {
   const url = `${API_BASE}/${sheetId}?fields=sheets.properties.title&key=${apiKey}`;

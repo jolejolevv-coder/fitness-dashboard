@@ -166,3 +166,61 @@ export function parseTrainingSets(rows: SheetValues): ParsedTraining | null {
 
   return { exercises, weekCount, currentWeek, unparsableLoads: [] };
 }
+
+// ── Letztes Mal (Phase 20) ───────────────────────────────────────────────────
+
+export interface LastSet {
+  kg: number;
+  reps: number;
+}
+
+/** Letzte Einheit einer Uebung an einem Trainingstag. */
+export interface LastSession {
+  /** `YYYY-MM-DD`. */
+  date: string;
+  sets: LastSet[];
+}
+
+export interface LoggedHistory {
+  /** Schluessel `tag||exercise`, wie `exerciseKey`. */
+  last: Map<string, LastSession>;
+  /** Jüngste Einheit insgesamt, null ohne gueltigen Satz. */
+  latest: { date: string; tag: string } | null;
+}
+
+function isoDate(date: Date): string {
+  const pad = (n: number): string => String(n).padStart(2, '0');
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+}
+
+/**
+ * Je Uebung und Tag die Saetze der juengsten Einheit, ohne die Einheit vom
+ * Tag `exceptDate` (die laufende Einheit). Wirft `MissingColumnsError` wie
+ * `parseTrainingSets`.
+ */
+export function readLoggedHistory(rows: SheetValues, exceptDate: string | null = null): LoggedHistory {
+  const history: LoggedHistory = { last: new Map(), latest: null };
+  if (!rows.length) return history;
+  const headerIndex = findHeaderRow(rows, REQUIRED_HEADERS);
+  const columns = resolveColumns(rows[Math.max(headerIndex, 0)] ?? [], COLUMNS);
+
+  const byKey = new Map<string, { date: string; sets: LoggedSet[] }>();
+  for (let i = headerIndex + 1; i < rows.length; i++) {
+    const row = rows[i];
+    if (!row) continue;
+    const set = readSet(row, columns, i);
+    if (!set) continue;
+    const date = isoDate(set.date);
+    if (date === exceptDate) continue;
+    if (!history.latest || date > history.latest.date) history.latest = { date, tag: set.day };
+    const key = exerciseKey(set.day, set.name);
+    const entry = byKey.get(key);
+    if (!entry || date > entry.date) byKey.set(key, { date, sets: [set] });
+    else if (date === entry.date) entry.sets.push(set);
+  }
+  for (const [key, entry] of byKey) {
+    const sets = [...entry.sets].sort((a, b) => a.order - b.order).map((s) => ({ kg: s.kg, reps: s.reps }));
+    history.last.set(key, { date: entry.date, sets });
+  }
+  return history;
+}

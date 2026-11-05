@@ -15,6 +15,10 @@ export const DEFAULT_TRAINING_SHEET = 'Mesocycle 1';
 /** Tab des Gym Logbuchs mit einer Zeile je Satz (ADR 0008). */
 export const DEFAULT_LOGBOOK_SHEET = 'TrainingSets';
 
+/** Tabs mit dem Trainingsplan im Gym Logbuch (ADR 0010). */
+export const PLAN_SHEET = 'Plan';
+export const PLAN_SETTINGS_SHEET = 'PlanSettings';
+
 export interface Credentials {
   sheetId: string;
   apiKey: string;

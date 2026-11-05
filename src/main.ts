@@ -6,11 +6,13 @@ import { parseTraining } from './parse/training';
 import { parseTrainingSets } from './parse/trainingSets';
 import { parseGoals, type Goals } from './parse/goals';
 import { MissingColumnsError } from './parse/columns';
-import { fetchDailySheet, fetchLogbookSheet, fetchSheetTitles, fetchTrainingSheet } from './sheets';
+import { fetchDailySheet, fetchLogbookSheet, fetchPlanSheet, fetchSheetTitles, fetchTrainingSheet } from './sheets';
 import {
   DEFAULT_DAILY_SHEET,
   DEFAULT_LOGBOOK_SHEET,
   DEFAULT_TRAINING_SHEET,
+  PLAN_SETTINGS_SHEET,
+  PLAN_SHEET,
   getCredentials,
   hasCredentials,
   loadCache,
@@ -33,6 +35,7 @@ import type { WeightMode } from './charts/weight';
 import { renderTraining, renderTrainingSource, type TrainingSource } from './ui/training';
 import { closeSettings, currentRoute, navigate, openSettings, setCanLog, setHasSheet, setupRangeButtons, setupShell } from './ui/shell';
 import { getLogAccess, isValidEndpoint, saveLogAccess } from './config/logAccess';
+import { getLogbookAccess, saveLogbookAccess } from './config/logbookAccess';
 import { takeLegacyLogTab } from './config/logTab';
 import { kuecheRouteFor, planViewFor, sectionFor, type Route } from './ui/router';
 import { onPlanViewChange, renderPlan, setPlanView } from './ui/plan';
@@ -67,6 +70,8 @@ let training: ParsedTraining | null = null;
 let logbookTraining: ParsedTraining | null = null;
 /** Grund, warum das Logbuch nicht auswertbar ist, sichtbar im Abschnitt Training. */
 let logbookError: string | null = null;
+/** Rohzeilen von TrainingSets fuer "Letztes Mal" im Logbuch Formular. */
+let logbookRawRows: SheetValues | null = null;
 /** Gewaehlte Quelle unter Training. Mit Logbuch ist `logbook` die Vorgabe. */
 let trainingSource: TrainingSource = 'logbook';
 /** Rohzeilen des Mesocycle Tabs, das Segment `Eintragen` liest sie selbst. */
@@ -106,6 +111,9 @@ function showConfig(): void {
   const access = getLogAccess();
   set('input-log-endpoint', access?.endpoint ?? '');
   set('input-log-token', access?.token ?? '');
+  const logbookAccess = getLogbookAccess();
+  set('input-logbook-endpoint', logbookAccess?.endpoint ?? '');
+  set('input-logbook-token', logbookAccess?.token ?? '');
   openSettings();
   input('input-sheet-id')?.focus();
 }
@@ -140,11 +148,20 @@ function handleSaveConfig(): void {
     return;
   }
 
+  // Logbuch Script: eigener Zugang, gleiche Regel, beide oder keins.
+  const logbookEndpoint = input('input-logbook-endpoint')?.value.trim() ?? '';
+  const logbookToken = input('input-logbook-token')?.value.trim() ?? '';
+  if (Boolean(logbookEndpoint) !== Boolean(logbookToken) || (logbookEndpoint && !isValidEndpoint(logbookEndpoint))) {
+    alert('Logbuch Script URL (https://script.google.com/…) und Token gehören zusammen.');
+    return;
+  }
+
   saveCredentials(credentials);
   saveTargets({ targetWeightKg: parsedTarget });
   // Eigener Schluessel, getrennt von den Google Zugangsdaten. Leer entfernt ihn.
   saveApiKey(input('input-anthropic-key')?.value ?? null);
   saveLogAccess(logEndpoint, logToken);
+  saveLogbookAccess(logbookEndpoint, logbookToken);
   dirty.add('log');
   trainingSource = 'logbook';
   setCanLog(canLogTraining());
@@ -154,11 +171,12 @@ function handleSaveConfig(): void {
 }
 
 /**
- * `Eintragen` schreibt in Mesocycle Tabs. Mit Logbuch wird dort nicht mehr
- * gepflegt, das Segment verschwindet (ADR 0008), der Code bleibt.
+ * `Eintragen` gibt es mit Logbuch Sheet ID (Logbuch Formular, ADR 0010) oder
+ * mit Zugang fuer Mesocycle Tabs (ADR 0007). Mit Logbuch ersetzt das Logbuch
+ * Formular das Mesocycle Formular, dessen Code bleibt.
  */
 function canLogTraining(): boolean {
-  return getLogAccess() !== null && logbookSource(getCredentials()) === null;
+  return logbookSource(getCredentials()) !== null || getLogAccess() !== null;
 }
 
 // ── Status ───────────────────────────────────────────────────────────────────
@@ -347,28 +365,54 @@ async function renderChartSection(name: string): Promise<void> {
  */
 async function renderLogSection(): Promise<void> {
   const container = byId('log');
-  const access = getLogAccess();
-  if (!container || !access || !dirty.has('log')) return;
-  let log: typeof import('./log/index');
+  if (!container || !dirty.has('log')) return;
+  const credentials = getCredentials();
+  if (!hasCredentials(credentials)) return;
+
+  const hasLogbook = logbookSource(credentials) !== null;
+  const mesocycleAccess = getLogAccess();
+  if (!hasLogbook && !mesocycleAccess) return;
+  // Mit Logbuch Sheet ID gibt es nur das Logbuch Formular, sonst das Mesocycle Formular.
+  const mode = hasLogbook ? 'logbook' : 'mesocycle';
+  const body = container;
+
   try {
-    log = await import('./log/index');
+    if (mode === 'logbook') {
+      const logbook = await import('./logbook/index');
+      if (activeSection() !== 'log') return;
+      logbook.renderLogbook(body, {
+        source: logbookSourceKey(logbookSource(credentials)!),
+        loadPlan: () => loadPlanRows(credentials),
+        setRows: () => logbookRawRows,
+      });
+    } else {
+      const log = await import('./log/index');
+      if (activeSection() !== 'log' || !mesocycleAccess) return;
+      log.renderLog(body, {
+        sheet: credentials.trainingSheetName || DEFAULT_TRAINING_SHEET,
+        rows: trainingRows,
+        access: mesocycleAccess,
+        loadTitles: () => fetchSheetTitles(credentials.sheetId, credentials.apiKey),
+        chooseSheet: (sheet) => chooseTrainingSheet(sheet),
+        reload: () => loadData(true),
+      });
+    }
   } catch (error) {
     statusSuffix = ` · Eintragen nicht geladen: ${describe(error)}`;
     updateDataAge();
     return;
   }
-  if (activeSection() !== 'log') return;
-  const credentials = getCredentials();
-  if (!hasCredentials(credentials)) return;
-  log.renderLog(container, {
-    sheet: credentials.trainingSheetName || DEFAULT_TRAINING_SHEET,
-    rows: trainingRows,
-    access,
-    loadTitles: () => fetchSheetTitles(credentials.sheetId, credentials.apiKey),
-    chooseSheet: (sheet) => chooseTrainingSheet(sheet),
-    reload: () => loadData(true),
-  });
   dirty.delete('log');
+}
+
+/** Plan und Einstellungen aus dem Logbuch Sheet. Fehlen die Einstellungen, sind die Funktionen aus. */
+async function loadPlanRows(credentials: Credentials): Promise<{ plan: SheetValues; settings: SheetValues }> {
+  const source = logbookSource(credentials)!;
+  const [plan, settings] = await Promise.all([
+    fetchPlanSheet(source.sheetId, credentials.apiKey, PLAN_SHEET),
+    fetchPlanSheet(source.sheetId, credentials.apiKey, PLAN_SETTINGS_SHEET).catch(() => [] as SheetValues),
+  ]);
+  return { plan, settings };
 }
 
 /** Ein Mesocycle Chip setzt den Trainingstab fuer Eintragen und Auswertung. */
@@ -454,6 +498,7 @@ function setWeightMode(mode: WeightMode): void {
 function applyLogbook(logbook: LogbookRows | null, fetchError: string | null): void {
   logbookTraining = null;
   logbookError = fetchError;
+  logbookRawRows = logbook?.rows ?? null;
   if (!logbook) return;
   try {
     logbookTraining = parseTrainingSets(logbook.rows);
