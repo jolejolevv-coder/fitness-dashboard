@@ -196,3 +196,14 @@ Phase 10.5: Abschluss. Akzeptanzkriterien abhaken, Retro in die Roadmap.
    in den Shortcut oder die Script Properties
 9. Erfaehrt der Trainer vom automatischen Import? Er arbeitet im selben Sheet
    und sieht sonst nicht, welche Werte aus Health stammen
+10. Entschieden 26.10.2026 (nachgetragen 06.11.2026 aus einer alten
+    Arbeitskopie): `Qualität` stand nicht in Kopfzeile 29, sondern in Zeile 28
+    ueber Spalte N, weil M und N in Zeile 29 unter `Sleep` verbunden waren
+    (M29:N30). Der Nutzer hebt die Verbindung im Sheet selbst auf und schreibt
+    `Qualität` nach N29. Bis dahin liefert ein gesendetes `Qualität`
+    `header_missing`, weil `DEFAULT_HEADER_ROW` 29 ist. Tradeoff: Eingriff ins
+    Layout des Trainers, dafuer kein fester Index und keine zweite Kopfzeile im
+    Code. Verworfen: zweite Kopfzeile als Script Property (mehr Logik, moegliche
+    Mehrdeutigkeit). Folgepunkt ohne Auftrag: Das Dashboard liest die Spalte
+    noch ueber den Rueckfallindex 13 (`src/parse/daily.ts`), der kann nach der
+    Umbeschriftung auf den Kopf `Qualität` umgestellt werden
