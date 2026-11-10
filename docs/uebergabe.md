@@ -17,6 +17,12 @@ Die alten Arbeitskopien in `~/Downloads` (`fitness-dashboard`, `fitness-dashboar
 * Phase 14: Live Test mit echtem Bon. Phase 12: iPhone Test. Phase 13: Studio Test. Phase 9: Netzwerkpruefung des Live Laufs.
 * Retros offen: Phase 9 und 13 bis 20 (siehe `specs/roadmap.md`).
 
+## Phase 21 Trainer als Zweitmeinung (umgesetzt 10.11.2026, nicht committet)
+
+Worktree `claude/fitness-trainer-youtube-54f17d`. Spec `specs/features/coach.md` (freigegeben), ADR 0011, Regelkatalog `docs/coach-regeln.md`. Neu: `src/config/coachRules.ts` (alle Schwellen), `src/coach/` (`calories.ts` A1 bis A3, `phase.ts` A4 bis A6, `macros.ts` B, `training.ts` C, `recovery.ts` D, `window.ts`), `src/parse/body.ts`, `src/ui/secondOpinion.ts`, `test/coach.test.ts`, Fixture `test/fixtures/body/`. Geaendert: `index.html` (Bereich `second-opinion` unter Insights), `src/styles.css` (`.op-*`), `src/main.ts` (`loadBody`, `cachedPlan`), `src/config/credentials.ts` (`BODY_SHEET`), `test/today.test.ts`, Mission, Roadmap, `CLAUDE.md`. `npm run check` gruen (636 Tests, 1 todo), Build gruen, Layout bei 375 px mit synthetischen Daten ohne Ueberlauf geprueft. Nicht geprueft: echte Sheet Daten.
+
+Offen beim Nutzer: Commit Freigabe. Tab `Body` anlegen. TDEE Schaetzer auf Entscheidung des Nutzers korrigiert (`src/analytics/tdee.ts`, teilt durch die Tage zwischen den Mitten der Randmittel, `test/phase4.test.ts` angepasst). `test/golden.test.ts` prueft den Schaetzer nicht, die Golden Fixtures fehlen lokal ohnehin (Suite uebersprungen). `npm run check` gruen, 637 Tests. Weitere Transkripte laufen ueber den Katalog. Annahmen der Umsetzung stehen am Ende der Spec.
+
 ## Phase 20 Logbuch im Dashboard (kurz)
 
 Spec `specs/features/logbook-in-dashboard.md`, ADR 0010. 20.0 bis 20.5 live. 20.5 macht das Formular eins zu eins wie das Logbuch (Platzhalter aus dem letzten Mal oder Plan, Hinweis mit Pfeil, `Hernie beachten` in Amber). Neu: `src/parse/plan.ts`, `src/logbook/`, `src/config/logbookAccess.ts` (Schluessel `fitness_logbook_access_v1`). Training zeigt nur das Logbuch. Im Sheet angelegt: Tabs `Plan` und `PlanSettings`, Einheit 03.11. in `TrainingSets` und `TrainingLog`.

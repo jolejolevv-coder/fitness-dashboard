@@ -39,6 +39,10 @@ erlaubt.
 * Kennzahlen kennen ihre Mindestdatenlage und verweigern die Aussage darunter.
   Wo verweigert wird, steht der Grund als Zahlenzeile, etwa `Basis 11 von 14 Tagen`
 * Keine Erklaertexte in der Oberflaeche. Zahl und Datenbasis, sonst nichts
+* Der Bereich `Zweitmeinung` (ADR 0011) ist die einzige Stelle mit eigenen
+  Vorschlagszahlen. Seine Schwellen und Faktoren stehen ausschliesslich in
+  `src/config/coachRules.ts`, die Herleitung in `docs/coach-regeln.md`. Das
+  Transkript einer Quelle wird nie committet
 * Inhalte aus dem Sheet gehen per `textContent` in das DOM, nie per `innerHTML`
 * `testdata/` enthaelt Rohexporte und wird nie committet. Fixtures unter
   `test/fixtures/` sind bereinigt und werden committet

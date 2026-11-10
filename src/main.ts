@@ -9,6 +9,7 @@ import { fetchDailySheet, fetchLogbookSheet, fetchPlanSheet, fetchSheetTitles, f
 import {
   DEFAULT_DAILY_SHEET,
   DEFAULT_LOGBOOK_SHEET,
+  BODY_SHEET,
   DEFAULT_TRAINING_SHEET,
   PLAN_SETTINGS_SHEET,
   PLAN_SHEET,
@@ -29,6 +30,10 @@ import { renderDashboard, type SectionRenderers } from './ui/dashboard';
 import { renderAnalysis } from './ui/analysis';
 import { renderHero } from './ui/hero';
 import { renderCoach } from './ui/coach';
+import { renderSecondOpinion } from './ui/secondOpinion';
+import { parseBody, type BodyEntry } from './parse/body';
+import { parsePlan, type Plan } from './parse/plan';
+import { loadPlanCache } from './logbook/planCache';
 import { renderMetrics } from './ui/metrics';
 import type { WeightMode } from './charts/weight';
 import { renderTraining, renderTrainingSource, type TrainingSource } from './ui/training';
@@ -68,6 +73,10 @@ let goals: Goals | null = null;
 let logbookTraining: ParsedTraining | null = null;
 /** Grund, warum das Logbuch nicht auswertbar ist, sichtbar im Abschnitt Training. */
 let logbookError: string | null = null;
+/** Koerperdaten aus dem Tab `Body` des Logbuchs, leer ohne Tab oder Logbuch. */
+let bodyEntries: BodyEntry[] = [];
+/** Grund, warum der Tab `Body` nicht auswertbar ist, sichtbar in der Zweitmeinung. */
+let bodyError: string | null = null;
 /** Rohzeilen von TrainingSets fuer "Letztes Mal" im Logbuch Formular. */
 let logbookRawRows: SheetValues | null = null;
 /** Gewaehlte Quelle unter Training. Mit Logbuch ist `logbook` die Vorgabe. */
@@ -436,7 +445,47 @@ function renderAnalysisTab(): void {
   if (!goals) return;
   renderAnalysis(allDaily, goals, getTargets().targetWeightKg);
   renderCoach(allDaily, goals);
+  renderSecondOpinion({
+    daily: allDaily,
+    goals,
+    training: logbookTraining,
+    plan: cachedPlan(),
+    body: bodyEntries,
+    bodyError,
+    targetWeightKg: getTargets().targetWeightKg,
+    now: new Date(),
+  });
   renderMetrics(allDaily, goals);
+}
+
+/** Zuletzt im Logbuch geladener Plan. Ohne ihn fehlt nur der Name des High Day. */
+function cachedPlan(): Plan | null {
+  const source = logbookSource(getCredentials());
+  const rows = source ? loadPlanCache(logbookSourceKey(source)) : null;
+  if (!rows) return null;
+  try {
+    return parsePlan(rows.plan);
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Tab `Body` nachladen. Laeuft neben dem Hauptabruf und haelt ihn nicht auf.
+ * Ein fehlender Tab ist kein Fehler der Seite, die Regeln A4 bis A6 nennen ihn.
+ */
+async function loadBody(apiKey: string): Promise<void> {
+  const source = logbookSource(getCredentials());
+  if (!source) return;
+  try {
+    bodyEntries = parseBody(await fetchLogbookSheet(source.sheetId, apiKey, BODY_SHEET));
+    bodyError = null;
+  } catch (error) {
+    bodyEntries = [];
+    bodyError = error instanceof MissingColumnsError ? describe(error) : `Tab ${BODY_SHEET} nicht lesbar`;
+  }
+  dirty.add('analysis');
+  renderActiveSection();
 }
 
 function applyDateRange(days: number): void {
@@ -606,6 +655,7 @@ export async function loadData(force = false): Promise<void> {
     saveCache(raw, rawTraining, credentials.trainingSheetName || DEFAULT_TRAINING_SHEET, logbook);
     statusSuffix = logbookResult.error && logbook ? ` · Logbuch nicht geladen: ${logbookResult.error}` : '';
     applyParsed(raw, rawTraining, Date.now(), false, logbook, logbook ? null : logbookResult.error);
+    void loadBody(credentials.apiKey);
   } catch (error) {
     if (dataTimestamp === null) {
       showError(describe(error));

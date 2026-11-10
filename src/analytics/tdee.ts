@@ -54,7 +54,8 @@ function withinWindow(entries: readonly DailyEntry[], days: number): DailyEntry[
  * Schaetzung fuer ein einzelnes Fenster.
  *
  * Die Gewichtsveraenderung ist die Differenz der Mittel der ersten und letzten
- * Waegungen im Fenster, nicht die zweier Einzeltage.
+ * Waegungen im Fenster, nicht die zweier Einzeltage, geteilt durch die Tage
+ * zwischen den Mitten dieser beiden Gruppen.
  */
 export function tdeeForWindow(entries: readonly DailyEntry[], windowDays: number): Insight<TdeeEstimate> {
   if (windowDays < MIN_TDEE_DAYS) return refuse(`Fenster ${windowDays} unter ${MIN_TDEE_DAYS} Tagen`);
@@ -68,18 +69,29 @@ export function tdeeForWindow(entries: readonly DailyEntry[], windowDays: number
     return refuse(`Kalorien an ${calories.length} von ${inWindow.length} Tagen`);
   }
 
-  const weights = inWindow.filter((e) => e.weight !== null).map((e) => e.weight!);
+  const weighed = inWindow.filter((e) => e.weight !== null);
+  const weights = weighed.map((e) => e.weight!);
   const edge = Math.max(1, Math.min(MOVING_AVERAGE_WINDOW, Math.floor(weights.length / 2) || 1));
   if (weights.length < 2 * edge) return tooFewDays(weights.length, 2 * edge);
 
   const from = avg(weights.slice(0, edge));
   const to = avg(weights.slice(-edge));
   const meanIntake = avg(calories.map((e) => e.calories));
-  if (from === null || to === null || meanIntake === null) return refuse('Zu wenige Werte im Fenster');
+  // Die Randmittel liegen nicht am Fensterrand, sondern in der Mitte ihrer
+  // Waegungen. Geteilt wird durch die Tage zwischen diesen Mitten, sonst
+  // faellt die Bilanz zu klein aus (im 14 Tage Fenster um die Haelfte).
+  const times = weighed.map((e) => e.dateObj!.getTime());
+  const fromTime = avg(times.slice(0, edge));
+  const toTime = avg(times.slice(-edge));
+  if (from === null || to === null || meanIntake === null || fromTime === null || toTime === null) {
+    return refuse('Zu wenige Werte im Fenster');
+  }
+  const spanDays = (toTime - fromTime) / MS_PER_DAY;
+  if (spanDays <= 0) return refuse('Wägungen ohne Abstand');
 
   const weightChangeKg = to - from;
   // Abnahme bedeutet ein Defizit, also liegt der Bedarf ueber der Zufuhr.
-  const dailyBalance = (-weightChangeKg * KCAL_PER_KG_BODYMASS) / inWindow.length;
+  const dailyBalance = (-weightChangeKg * KCAL_PER_KG_BODYMASS) / spanDays;
 
   return {
     ok: true,

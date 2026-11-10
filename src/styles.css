@@ -288,6 +288,13 @@ button, select, input, textarea { font: inherit; color: inherit; }
 .card-value.is-word { font-size: 26px; text-transform: uppercase; }
 .card-basis { margin-top: 5px; font-size: 13px; color: var(--ink-3); font-variant-numeric: tabular-nums; }
 .card-basis b { font-weight: 600; color: var(--ink-2); }
+/* Zweitmeinung: Zeile aus Bezeichner, Kennung, Zahl und Datenbasis. */
+.op-row { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--rail-edge); min-width: 0; }
+.op-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.op-label { font-size: 14px; font-weight: 600; color: var(--ink-2); overflow-wrap: anywhere; }
+.op-rule { font: 600 12px/1 var(--num); letter-spacing: 0.04em; color: var(--ink-3); }
+.op-value { margin-top: 3px; font: 700 22px/1.15 var(--num); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.op-value.is-refused { font: 500 14px/1.3 var(--text); color: var(--ink-3); }
 .is-off { color: var(--red); }
 .is-ok { color: var(--green); }
 
