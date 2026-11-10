@@ -23,10 +23,11 @@ Alle Arbeit liegt auf `main` (letzter Phasen Commit `4791cad`, Phase 20.5, danac
 * Phase 18 Training aus dem Gym Logbuch (ADR 0008): live seit 05.11.2026. Offen: Sheet ID eintragen, Pruefung nach der ersten geloggten Einheit
 * Phase 19 Look des Recomp Logbuchs (ADR 0009): live seit 05.11.2026
 * Phase 20 Logbuch im Dashboard (ADR 0010): 20.0 bis 20.5 live auf `main` (`ec7f2c4`, `4791cad`). Offen: Zugang in den Einstellungen, ein echter Satz live
+* Phase 21 Trainer als Zweitmeinung (ADR 0011, `specs/features/coach.md`): 21.0 bis 21.6 umgesetzt am 10.11.2026 auf `claude/fitness-trainer-youtube-54f17d`, nicht committet. Dabei TDEE Schaetzer korrigiert (teilt durch die Tage zwischen den Randmitteln, Werte steigen bei Abnahme). Offen: Tab `Body` im Gym Logbuch, Pruefung mit echten Daten
 
 ## Retros
 
-Vorhanden in docs/historie.md: Phase 6, 8, 11, 12. Offen (nicht geschrieben): Phase 9 und Phase 13 bis 20. Sie werden mit dem Nutzer aus echter Erfahrung geschrieben, nicht nachtraeglich ausgedacht. Phase 7, 10 erst nach Abschluss.
+Vorhanden in docs/historie.md: Phase 6, 8, 11, 12. Offen (nicht geschrieben): Phase 9 und Phase 13 bis 21. Sie werden mit dem Nutzer aus echter Erfahrung geschrieben, nicht nachtraeglich ausgedacht. Phase 7, 10 erst nach Abschluss.
 Offene Frage: Die Aufgabe nannte Phase 11 und 12 als fehlend, in historie.md stehen beide. Bitte bestaetigen, ob sie genuegen.
 
 ## Naechste Schritte
@@ -41,6 +42,7 @@ Phase 7 erst sinnvoll, wenn `Mesocycle 2` echte Ist Daten traegt. Vorher Spec in
 * Phase 20: Logbuch Script URL, Token und Sheet ID in den Einstellungen, ein echter Satz.
 * Phase 10 und 15: Bereitstellung des Apps Scripts nach `apps-script/README.md`, Shortcut nach `docs/daily-import-setup.md`.
 * Phase 14: Live Test des Kassenbons. Phase 12: iPhone Test. Phase 13: Studio Test.
+* Phase 21: Tab `Body` im Gym Logbuch anlegen (`date`, `bodyfat_pct`, `waist_cm`, `note`), Open questions 4 und 6 der Spec.
 * Retros wie oben.
 
 ## Entscheidungen und Festlegungen
@@ -49,7 +51,7 @@ Phase 7 erst sinnvoll, wenn `Mesocycle 2` echte Ist Daten traegt. Vorher Spec in
 * Gesamtverlust zeigt erste gegen letzte Waegung, geglaettet nur als Detail. Zahlen des Nutzers nie ohne Rueckfrage ersetzen.
 * Analytik rechnet ueber den gesamten Zeitraum, nie ueber die Zeitraumknoepfe.
 * Zwei feste Spalten im Diagrammraster.
-* Coaching zeigt Beobachtungen, keine Anweisungen.
+* Coaching zeigt Beobachtungen, keine Anweisungen. Ausnahme seit 10.11.2026: der Bereich `Zweitmeinung` zeigt gerechnete Zahlen neben der Vorgabe des Trainers (ADR 0011).
 * Zurueckgestellt: Tabs `Zeitverlauf`, `Sizes`, `Supplements`, Wochenexport als Textblock, getrennte Referenzlinien fuer High Day und Low Day.
 
 ## Harte Regeln

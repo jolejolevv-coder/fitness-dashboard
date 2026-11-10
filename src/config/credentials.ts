@@ -17,6 +17,8 @@ export const DEFAULT_LOGBOOK_SHEET = 'TrainingSets';
 
 /** Tabs mit dem Trainingsplan im Gym Logbuch (ADR 0010). */
 export const PLAN_SHEET = 'Plan';
+/** Tab mit von Hand gepflegten Koerperdaten im Gym Logbuch (Phase 21, ADR 0011). */
+export const BODY_SHEET = 'Body';
 export const PLAN_SETTINGS_SHEET = 'PlanSettings';
 
 export interface Credentials {

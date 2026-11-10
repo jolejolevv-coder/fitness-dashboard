@@ -59,8 +59,10 @@ Mindestdatenlage und verweigert die Aussage darunter, statt zu raten.
   laeuft ueber dasselbe Apps Script und fuellt nur leere Zellen. Keine
   Aenderung an der Struktur des Sheets, durch keinen Schreibweg
 * Kein Zugang fuer den Trainer. Er hat die Rohdaten, ihm fehlt nichts
-* Keine Empfehlungen. Die Seite zeigt Zahlen und benennt Zustaende, sie ordnet
-  nichts an
+* Keine Anordnungen. Die Seite zeigt Zahlen und benennt Zustaende. Einzige
+  Ausnahme ist seit Phase 21 der Bereich `Zweitmeinung` (ADR 0011): ein
+  Regelwerk rechnet eigene Zahlen und stellt sie neben die Vorgabe des
+  Trainers. Die Entscheidung bleibt beim Trainer
 * Keine Erklaertexte zu den Kennzahlen. Angezeigt werden Zahl und Datenbasis
 
 ## Wer es nutzt

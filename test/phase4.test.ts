@@ -176,7 +176,8 @@ describe('TDEE', () => {
     expect(result.ok).toBe(true);
     if (!result.ok) return;
     expect(result.weightChangeKg).toBeCloseTo(-1, 6);
-    expect(result.kcal).toBeCloseTo(2000 + KCAL_PER_KG_BODYMASS / 28, 4);
+    // Zwischen den Mitten der beiden Randgruppen (Tag 3 und Tag 24) liegen 21 Tage, nicht 28.
+    expect(result.kcal).toBeCloseTo(2000 + KCAL_PER_KG_BODYMASS / 21, 4);
     expect(result.daysWithCalories).toBe(28);
   });
 

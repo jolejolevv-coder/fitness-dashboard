@@ -20,7 +20,7 @@ describe('Heute verdichtet', () => {
   it('Fortschritt, Insights und Tagesdurchschnitt stehen am Anfang von Analyse', () => {
     const analysis = html.getElementById('analysis')!;
     const ids = analysis.querySelectorAll('[id]').map((node) => node.id);
-    expect(ids.slice(0, 5)).toEqual(['a-progress', 'coach', 'metrics-range', 'metrics', 'a-kpis']);
+    expect(ids.slice(0, 6)).toEqual(['a-progress', 'coach', 'second-opinion', 'metrics-range', 'metrics', 'a-kpis']);
   });
 });
 
