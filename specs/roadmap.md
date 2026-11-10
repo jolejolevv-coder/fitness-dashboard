@@ -23,7 +23,7 @@ Alle Arbeit liegt auf `main` (letzter Phasen Commit `4791cad`, Phase 20.5, danac
 * Phase 18 Training aus dem Gym Logbuch (ADR 0008): live seit 05.11.2026. Offen: Sheet ID eintragen, Pruefung nach der ersten geloggten Einheit
 * Phase 19 Look des Recomp Logbuchs (ADR 0009): live seit 05.11.2026
 * Phase 20 Logbuch im Dashboard (ADR 0010): 20.0 bis 20.5 live auf `main` (`ec7f2c4`, `4791cad`). Offen: Zugang in den Einstellungen, ein echter Satz live
-* Phase 21 Trainer als Zweitmeinung (ADR 0011, `specs/features/coach.md`): 21.0 bis 21.6 umgesetzt am 10.11.2026 auf `claude/fitness-trainer-youtube-54f17d`, nicht committet. Dabei TDEE Schaetzer korrigiert (teilt durch die Tage zwischen den Randmitteln, Werte steigen bei Abnahme). Offen: Tab `Body` im Gym Logbuch, Pruefung mit echten Daten
+* Phase 21 Trainer als Zweitmeinung (ADR 0011, `specs/features/coach.md`): live seit 10.11.2026 (`4410c57`, `e44b652`). Dabei TDEE Schaetzer korrigiert (teilt durch die Tage zwischen den Randmitteln, Werte steigen bei Abnahme). Offen: Tab `Body` im Gym Logbuch, Pruefung mit echten Daten
 
 ## Retros
 
