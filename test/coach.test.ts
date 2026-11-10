@@ -383,4 +383,17 @@ describe('Bereich Zweitmeinung', () => {
     const broken = buildOpinion({ ...input, bodyError: 'Spalten nicht gefunden: bodyfat_pct' }).flatMap((g) => g.rows);
     expect(broken.find((r) => r.rule === 'A5')!.value).toBe('Spalten nicht gefunden: bodyfat_pct');
   });
+
+  it('nennt bei jeder Zeile ohne Zahl, welche Daten fehlen', () => {
+    const empty = buildOpinion({ ...input, daily: [], training: null, bodyError: 'Tab Body nicht lesbar' }).flatMap((g) => g.rows);
+    expect(empty.every((r) => r.refused)).toBe(true);
+    for (const row of empty) expect(row.need, row.rule).not.toBe('');
+    expect(empty.find((r) => r.rule === 'A4')!.need).toContain('Tab Body');
+    expect(empty.find((r) => r.rule === 'A2')!.need).toContain(`${R.STALL_MIN_WEIGH_INS_PER_WEEK} Wägungen je Woche`);
+  });
+
+  it('laesst need bei Zeilen mit Zahl leer', () => {
+    const rows = buildOpinion(input).flatMap((g) => g.rows);
+    for (const row of rows.filter((r) => !r.refused)) expect(row.need).toBe('');
+  });
 });

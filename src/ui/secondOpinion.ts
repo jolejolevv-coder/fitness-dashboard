@@ -10,6 +10,7 @@ import { hardestPlanDay, macroPlan, trainingDaysPerWeek, type DayMacros, type Da
 import { ffmi, phaseOpinion, reverse, type Phase } from '../coach/phase';
 import { recoverySignal, sleepDuration, sleepSpread } from '../coach/recovery';
 import { deload, muscleLoads, progression } from '../coach/training';
+import { MIN_CALORIE_COVERAGE, MIN_TDEE_DAYS } from '../analytics/tdee';
 import { byId } from './dom';
 import { el } from './build';
 import { decimal, integer, signed, target } from './format';
@@ -33,6 +34,8 @@ export interface OpinionRow {
   basis: string;
   tone: RowTone;
   refused: boolean;
+  /** Bei einer Verweigerung: welche Daten die Regel braucht. Sonst leer. */
+  need: string;
 }
 
 export interface OpinionGroup {
@@ -70,12 +73,40 @@ const PHASE_WORD: Record<Phase, string> = {
 };
 const DAY_WORD: Record<DayType, string> = { low: 'Low Day', medium: 'Medium Day', high: 'High Day' };
 
+/** Ueberschrift einer Zeile ohne Ergebnis. */
+export const NO_NUMBER = 'Noch keine Zahl';
+
+const KCAL_NEED = `Eine Zeile für jeden der letzten ${MIN_TDEE_DAYS} Tage, Kalorien an ${MIN_CALORIE_COVERAGE * 100} % davon, dazu Gewicht`;
+const BODY_NEED = `Körperfettmessung im Tab Body, höchstens ${R.BODY_MAX_AGE_DAYS} Tage alt`;
+const TRAINING_NEED = `${R.TRAINING_MIN_WEEKS} Wochen Training im Logbuch`;
+
+/**
+ * Was eine Regel an Daten braucht, je Kennung. Steht unter `Noch keine Zahl`,
+ * damit klar ist, was nachzutragen ist. Die Zahlen kommen aus den Regeln.
+ */
+const NEED: Record<string, string> = {
+  A1: KCAL_NEED,
+  A2: `${R.STALL_MIN_WEIGH_INS_PER_WEEK} Wägungen je Woche, ${R.STALL_WEEKS} Wochen lang, dazu Kalorien`,
+  A3: `${KCAL_NEED}. Außerdem die Kalorienvorgabe im Sheet`,
+  A4: `${BODY_NEED}, dazu Gewicht und Größe`,
+  A5: `${BODY_NEED}, dazu Gewicht und Größe`,
+  A6: `${KCAL_NEED}. Außerdem Zielgewicht oder Körperfett`,
+  B4: `${KCAL_NEED}. Außerdem die Spalte Trainingday an ${R.DAY_TYPE_MIN_DAYS} der letzten ${R.DAY_TYPE_WINDOW_DAYS} Tage`,
+  C1: TRAINING_NEED,
+  C2: `Übungen mit ${R.PROGRESSION_STALL_WEEKS} geloggten Wochen im Logbuch`,
+  C3: TRAINING_NEED,
+  C4: `Progression von ${R.DELOAD_MIN_EXERCISES} Übungen, dazu Schlaf und Energylevel`,
+  D1: `Schlaf an ${R.SLEEP_MIN_DAYS} der letzten ${R.SLEEP_WINDOW_DAYS} Tage`,
+  D2: `Schlaf an ${R.SLEEP_SPREAD_MIN_DAYS} der letzten ${R.SLEEP_SPREAD_WINDOW_DAYS} Tage`,
+  D3: `Schlaf und Energylevel an ${R.SLEEP_MIN_DAYS} Tagen je Woche, zwei Wochen lang, dazu Progression`,
+};
+
 function row(rule: string, label: string, value: string, basis: string, tone: RowTone = 'neutral'): OpinionRow {
-  return { rule, label, value, basis, tone, refused: false };
+  return { rule, label, value, basis, tone, refused: false, need: '' };
 }
 
 function refusedRow(rule: string, label: string, reason: string): OpinionRow {
-  return { rule, label, value: reason, basis: '', tone: 'neutral', refused: true };
+  return { rule, label, value: reason, basis: '', tone: 'neutral', refused: true, need: NEED[rule] ?? '' };
 }
 
 /** Zeile aus einem Insight, bei Verweigerung der Grund. */
@@ -297,14 +328,29 @@ export function buildOpinion(input: OpinionInput): OpinionGroup[] {
   ];
 }
 
+function headNode(item: OpinionRow): HTMLElement {
+  return el('div', { class: 'op-head' }, [
+    el('span', { class: 'op-label', text: item.label }),
+    el('span', { class: 'op-rule', text: item.rule }),
+  ]);
+}
+
+/** Zeile ohne Ergebnis: was fehlt und wie der Stand ist, statt einer leeren Zahl. */
+function refusedNode(item: OpinionRow): HTMLElement {
+  return el('div', { class: 'op-row is-refused' }, [
+    headNode(item),
+    el('div', { class: 'op-value is-refused', text: NO_NUMBER }),
+    item.need ? el('div', { class: 'op-need' }, [el('b', { text: 'Fehlt: ' }), document.createTextNode(item.need)]) : null,
+    el('div', { class: 'card-basis' }, [el('b', { text: 'Stand: ' }), document.createTextNode(item.value)]),
+  ]);
+}
+
 function rowNode(item: OpinionRow): HTMLElement {
+  if (item.refused) return refusedNode(item);
   const tone = item.tone === 'warn' ? ' is-off' : item.tone === 'ok' ? ' is-ok' : '';
   return el('div', { class: 'op-row' }, [
-    el('div', { class: 'op-head' }, [
-      el('span', { class: 'op-label', text: item.label }),
-      el('span', { class: 'op-rule', text: item.rule }),
-    ]),
-    el('div', { class: item.refused ? 'op-value is-refused' : `op-value${tone}`, text: item.value }),
+    headNode(item),
+    el('div', { class: `op-value${tone}`, text: item.value }),
     item.basis ? el('div', { class: 'card-basis', text: item.basis }) : null,
   ]);
 }

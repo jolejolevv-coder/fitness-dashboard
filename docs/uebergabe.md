@@ -21,6 +21,8 @@ Die alten Arbeitskopien in `~/Downloads` (`fitness-dashboard`, `fitness-dashboar
 
 Auf `main`: `4410c57` (PR 1, Regelwerk und korrigierter TDEE Schaetzer) und `e44b652` (PR 2, Fixture `test/fixtures/body/` versioniert, es fiel unter `test/fixtures/*` und liess den ersten Deploy scheitern). Deploy gruen, Bereich `second-opinion` live. Spec `specs/features/coach.md`, ADR 0011, Katalog `docs/coach-regeln.md`, Parameter `src/config/coachRules.ts`, Regeln unter `src/coach/`. Falle: neue Ordner unter `test/fixtures/` brauchen eine Ausnahme in `.gitignore`, nach dem Commit mit `git ls-files` pruefen.
 
+Nachtrag 10.11.: Zeilen ohne Ergebnis zeigen `Noch keine Zahl`, `Fehlt:` und `Stand:` (Branch `claude/opinion-klarer`, Push wartet auf Freigabe). Beim Nutzer verweigerte am 10.11. fast jede Regel: Kalorien nur an 12 der letzten 14 Tage, keine Waegung seit 01.11., Tab `Body` fehlt.
+
 Offen beim Nutzer: Tab `Body` im Gym Logbuch (`date`, `bodyfat_pct`, `waist_cm`, `note`), Blick auf die Zweitmeinung mit echten Daten, Open questions 4 und 6 der Spec, Retro. Die Remote Branches `claude/fitness-trainer-youtube-54f17d`, `claude/phase21-body-fixture` und `claude/phase21-doku` sind gemergt und koennen nach Freigabe weg.
 
 ## Phase 20 Logbuch im Dashboard (kurz)

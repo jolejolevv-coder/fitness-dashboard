@@ -128,6 +128,12 @@ Datenbasis, Kennung der Regel (etwa `A1`). Die Kennung verweist auf
 `docs/coach-regeln.md`, dort steht die Herleitung. Ueberschrift des Bereichs
 `Zweitmeinung`. Sheet Inhalte nur per `textContent`. Verbindlich bei 375 px.
 
+Zeile ohne Ergebnis (Nachtrag 10.11.2026, Wunsch des Nutzers): Statt des
+Grunds an der Stelle der Zahl steht `Noch keine Zahl`, darunter `Fehlt:` mit
+den Daten, die die Regel braucht (Tabelle `NEED` in `src/ui/secondOpinion.ts`,
+Zahlen aus `coachRules.ts`), und `Stand:` mit dem Grund aus der Regel. Anlass:
+mit lueckenhaften Daten sah jede Zeile leer aus.
+
 ## Acceptance criteria
 
 - [x] `docs/coach-regeln.md` enthaelt jede Regel A1 bis D3 mit Kennung, Formel, Parametern, Mindestdatenlage und Quelle, ohne woertliche Passagen aus dem Transkript und ohne Inhalte zu Peptiden oder Anabolika
