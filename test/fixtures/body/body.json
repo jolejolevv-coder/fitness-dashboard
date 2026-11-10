@@ -1,0 +1,10 @@
+{
+  "description": "Synthetischer Tab Body, Spalten wie in specs/features/coach.md. Keine echten Daten.",
+  "values": [
+    ["date", "bodyfat_pct", "waist_cm", "note"],
+    ["2026-10-01", "21", "96", "Schaetzung"],
+    ["2026-11-01", "20", "94,5", ""],
+    ["kein Datum", "19", "", ""],
+    ["2026-11-08", "", "94", "nur Taille"]
+  ]
+}
