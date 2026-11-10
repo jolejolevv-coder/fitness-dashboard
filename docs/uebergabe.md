@@ -1,6 +1,6 @@
 # Uebergabe
 
-Stand 06.11.2026. Alte Fassung (Stand 05.11.) verbatim in `docs/uebergabe-archiv-2026-11-06.md`, weitere Archive: `docs/uebergabe-archiv-2026-10-26.md`, `docs/uebergabe-archiv-2026-11-05.md`.
+Stand 10.11.2026. Alte Fassung (Stand 05.11.) verbatim in `docs/uebergabe-archiv-2026-11-06.md`, weitere Archive: `docs/uebergabe-archiv-2026-10-26.md`, `docs/uebergabe-archiv-2026-11-05.md`.
 
 ## Wo wir stehen
 
@@ -17,11 +17,11 @@ Die alten Arbeitskopien in `~/Downloads` (`fitness-dashboard`, `fitness-dashboar
 * Phase 14: Live Test mit echtem Bon. Phase 12: iPhone Test. Phase 13: Studio Test. Phase 9: Netzwerkpruefung des Live Laufs.
 * Retros offen: Phase 9 und 13 bis 20 (siehe `specs/roadmap.md`).
 
-## Phase 21 Trainer als Zweitmeinung (umgesetzt 10.11.2026, nicht committet)
+## Phase 21 Trainer als Zweitmeinung (live seit 10.11.2026)
 
-Worktree `claude/fitness-trainer-youtube-54f17d`. Spec `specs/features/coach.md` (freigegeben), ADR 0011, Regelkatalog `docs/coach-regeln.md`. Neu: `src/config/coachRules.ts` (alle Schwellen), `src/coach/` (`calories.ts` A1 bis A3, `phase.ts` A4 bis A6, `macros.ts` B, `training.ts` C, `recovery.ts` D, `window.ts`), `src/parse/body.ts`, `src/ui/secondOpinion.ts`, `test/coach.test.ts`, Fixture `test/fixtures/body/`. Geaendert: `index.html` (Bereich `second-opinion` unter Insights), `src/styles.css` (`.op-*`), `src/main.ts` (`loadBody`, `cachedPlan`), `src/config/credentials.ts` (`BODY_SHEET`), `test/today.test.ts`, Mission, Roadmap, `CLAUDE.md`. `npm run check` gruen (636 Tests, 1 todo), Build gruen, Layout bei 375 px mit synthetischen Daten ohne Ueberlauf geprueft. Nicht geprueft: echte Sheet Daten.
+Auf `main`: `4410c57` (PR 1, Regelwerk und korrigierter TDEE Schaetzer) und `e44b652` (PR 2, Fixture `test/fixtures/body/` versioniert, es fiel unter `test/fixtures/*` und liess den ersten Deploy scheitern). Deploy gruen, Bereich `second-opinion` live. Spec `specs/features/coach.md`, ADR 0011, Katalog `docs/coach-regeln.md`, Parameter `src/config/coachRules.ts`, Regeln unter `src/coach/`. Falle: neue Ordner unter `test/fixtures/` brauchen eine Ausnahme in `.gitignore`, nach dem Commit mit `git ls-files` pruefen.
 
-Offen beim Nutzer: Commit Freigabe. Tab `Body` anlegen. TDEE Schaetzer auf Entscheidung des Nutzers korrigiert (`src/analytics/tdee.ts`, teilt durch die Tage zwischen den Mitten der Randmittel, `test/phase4.test.ts` angepasst). `test/golden.test.ts` prueft den Schaetzer nicht, die Golden Fixtures fehlen lokal ohnehin (Suite uebersprungen). `npm run check` gruen, 637 Tests. Weitere Transkripte laufen ueber den Katalog. Annahmen der Umsetzung stehen am Ende der Spec.
+Offen beim Nutzer: Tab `Body` im Gym Logbuch (`date`, `bodyfat_pct`, `waist_cm`, `note`), Blick auf die Zweitmeinung mit echten Daten, Open questions 4 und 6 der Spec, Retro. Die Remote Branches `claude/fitness-trainer-youtube-54f17d`, `claude/phase21-body-fixture` und `claude/phase21-doku` sind gemergt und koennen nach Freigabe weg.
 
 ## Phase 20 Logbuch im Dashboard (kurz)
 
